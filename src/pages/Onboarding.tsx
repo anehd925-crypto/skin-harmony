@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '@/contexts/UserContext';
-import { SKIN_TYPES, SKIN_CONCERNS, PERSONAL_COLORS } from '@/data/mockData';
-import type { SkinType, SkinConcern, PersonalColor } from '@/data/mockData';
+import { useUser, SKIN_TYPES, SKIN_CONCERNS, PERSONAL_COLORS } from '@/contexts/UserContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sparkles, ChevronRight, ChevronLeft } from 'lucide-react';
@@ -13,16 +11,15 @@ const Onboarding = () => {
   const { profile, setSkinType, toggleConcern, setPersonalColor, setAllergies, completeOnboarding } = useUser();
   const navigate = useNavigate();
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (allergyInput.trim()) {
       setAllergies(allergyInput.split(',').map(s => s.trim()).filter(Boolean));
     }
-    completeOnboarding();
+    await completeOnboarding();
     navigate('/');
   };
 
   const steps = [
-    // Step 0: Skin Type
     <div key="skin" className="space-y-6">
       <div className="text-center">
         <h2 className="text-xl font-bold text-foreground">피부 타입을 알려주세요</h2>
@@ -44,8 +41,6 @@ const Onboarding = () => {
         ))}
       </div>
     </div>,
-
-    // Step 1: Concerns
     <div key="concerns" className="space-y-6">
       <div className="text-center">
         <h2 className="text-xl font-bold text-foreground">피부 고민은 무엇인가요?</h2>
@@ -67,8 +62,6 @@ const Onboarding = () => {
         ))}
       </div>
     </div>,
-
-    // Step 2: Personal Color
     <div key="color" className="space-y-6">
       <div className="text-center">
         <h2 className="text-xl font-bold text-foreground">퍼스널컬러를 선택해주세요</h2>
@@ -90,8 +83,6 @@ const Onboarding = () => {
         ))}
       </div>
     </div>,
-
-    // Step 3: Allergies
     <div key="allergy" className="space-y-6">
       <div className="text-center">
         <h2 className="text-xl font-bold text-foreground">알레르기 성분이 있나요?</h2>
@@ -120,46 +111,24 @@ const Onboarding = () => {
           <Sparkles className="h-6 w-6 text-primary" />
           <span className="text-lg font-bold text-primary">BeautyLens</span>
         </div>
-
-        {/* Progress */}
         <div className="mb-8 flex gap-2">
           {[0, 1, 2, 3].map(i => (
-            <div
-              key={i}
-              className={`h-1.5 w-8 rounded-full transition-colors ${
-                i <= step ? 'bg-primary' : 'bg-border'
-              }`}
-            />
+            <div key={i} className={`h-1.5 w-8 rounded-full transition-colors ${i <= step ? 'bg-primary' : 'bg-border'}`} />
           ))}
         </div>
-
         <div className="w-full max-w-sm">{steps[step]}</div>
-
         <div className="mt-8 flex w-full max-w-sm gap-3">
           {step > 0 && (
-            <Button
-              variant="outline"
-              onClick={() => setStep(s => s - 1)}
-              className="flex-1 rounded-xl"
-            >
-              <ChevronLeft className="mr-1 h-4 w-4" />
-              이전
+            <Button variant="outline" onClick={() => setStep(s => s - 1)} className="flex-1 rounded-xl">
+              <ChevronLeft className="mr-1 h-4 w-4" />이전
             </Button>
           )}
           {step < 3 ? (
-            <Button
-              onClick={() => setStep(s => s + 1)}
-              disabled={!canProceed()}
-              className="flex-1 rounded-xl gradient-primary text-primary-foreground"
-            >
-              다음
-              <ChevronRight className="ml-1 h-4 w-4" />
+            <Button onClick={() => setStep(s => s + 1)} disabled={!canProceed()} className="flex-1 rounded-xl gradient-primary text-primary-foreground">
+              다음<ChevronRight className="ml-1 h-4 w-4" />
             </Button>
           ) : (
-            <Button
-              onClick={handleComplete}
-              className="flex-1 rounded-xl gradient-primary text-primary-foreground"
-            >
+            <Button onClick={handleComplete} className="flex-1 rounded-xl gradient-primary text-primary-foreground">
               시작하기 ✨
             </Button>
           )}
