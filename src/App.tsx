@@ -11,6 +11,7 @@ import Onboarding from "./pages/Onboarding.tsx";
 import ProductDetail from "./pages/ProductDetail.tsx";
 import Recommendations from "./pages/Recommendations.tsx";
 import Profile from "./pages/Profile.tsx";
+import IngredientAnalysis from "./pages/IngredientAnalysis.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
