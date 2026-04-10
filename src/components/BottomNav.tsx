@@ -1,8 +1,9 @@
-import { Home, Search, Heart, User } from 'lucide-react';
+import { Home, Search, FlaskConical, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const navItems = [
   { icon: Home, label: '홈', path: '/' },
+  { icon: FlaskConical, label: '성분분석', path: '/analyze' },
   { icon: Search, label: '추천', path: '/recommendations' },
   { icon: User, label: '프로필', path: '/profile' },
 ];
