@@ -14,7 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ingredients: {
+        Row: {
+          description: string | null
+          id: string
+          name: string
+          name_kr: string
+          product_id: string
+          safety: string
+          sort_order: number | null
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          name: string
+          name_kr: string
+          product_id: string
+          safety: string
+          sort_order?: number | null
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          name?: string
+          name_kr?: string
+          product_id?: string
+          safety?: string
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ingredients_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          brand: string
+          category: string
+          created_at: string
+          id: string
+          image_url: string | null
+          name: string
+          rating: number | null
+        }
+        Insert: {
+          brand: string
+          category: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name: string
+          rating?: number | null
+        }
+        Update: {
+          brand?: string
+          category?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          rating?: number | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          allergies: string[] | null
+          created_at: string
+          id: string
+          onboarding_complete: boolean | null
+          personal_color: string | null
+          skin_concerns: string[] | null
+          skin_type: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allergies?: string[] | null
+          created_at?: string
+          id?: string
+          onboarding_complete?: boolean | null
+          personal_color?: string | null
+          skin_concerns?: string[] | null
+          skin_type?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allergies?: string[] | null
+          created_at?: string
+          id?: string
+          onboarding_complete?: boolean | null
+          personal_color?: string | null
+          skin_concerns?: string[] | null
+          skin_type?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
