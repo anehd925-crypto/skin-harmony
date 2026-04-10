@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { mockProducts } from '@/data/mockData';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { useUser } from '@/contexts/UserContext';
 import SafetyBadge from '@/components/SafetyBadge';
 import BottomNav from '@/components/BottomNav';
@@ -9,7 +10,32 @@ const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { profile } = useUser();
-  const product = mockProducts.find(p => p.id === id);
+
+  const { data: product, isLoading } = useQuery({
+    queryKey: ['product', id],
+    queryFn: async () => {
+      const { data } = await supabase.from('products').select('*').eq('id', id!).single();
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  const { data: ingredients = [] } = useQuery({
+    queryKey: ['ingredients', id],
+    queryFn: async () => {
+      const { data } = await supabase.from('ingredients').select('*').eq('product_id', id!).order('sort_order');
+      return data ?? [];
+    },
+    enabled: !!id,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -19,26 +45,21 @@ const ProductDetail = () => {
     );
   }
 
-  const safeCount = product.ingredients.filter(i => i.safety === 'safe').length;
-  const cautionCount = product.ingredients.filter(i => i.safety === 'caution').length;
-  const dangerCount = product.ingredients.filter(i => i.safety === 'danger').length;
-  const totalCount = product.ingredients.length;
-  const safePercent = Math.round((safeCount / totalCount) * 100);
+  const safeCount = ingredients.filter(i => i.safety === 'safe').length;
+  const cautionCount = ingredients.filter(i => i.safety === 'caution').length;
+  const dangerCount = ingredients.filter(i => i.safety === 'danger').length;
 
-  // Check allergies
-  const allergyMatches = product.ingredients.filter(i =>
-    profile.allergies.some(a => i.nameKr.includes(a) || i.name.toLowerCase().includes(a.toLowerCase()))
+  const allergyMatches = ingredients.filter(i =>
+    profile.allergies.some(a => i.name_kr.includes(a) || i.name.toLowerCase().includes(a.toLowerCase()))
   );
 
   const overallGrade = dangerCount === 0 && cautionCount <= 1 ? 'good' : dangerCount >= 2 ? 'bad' : 'moderate';
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      {/* Header */}
       <div className="gradient-primary px-5 pb-6 pt-12">
         <button onClick={() => navigate(-1)} className="mb-4 flex items-center gap-1 text-sm text-primary-foreground/80">
-          <ChevronLeft className="h-4 w-4" />
-          뒤로
+          <ChevronLeft className="h-4 w-4" />뒤로
         </button>
         <div className="flex items-start gap-4">
           <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-primary-foreground/20">
@@ -56,7 +77,6 @@ const ProductDetail = () => {
       </div>
 
       <div className="px-5">
-        {/* Overall Score */}
         <div className={`-mt-4 rounded-xl border p-4 shadow-sm ${
           overallGrade === 'good' ? 'border-success/30 bg-success/5' :
           overallGrade === 'bad' ? 'border-danger/30 bg-danger/5' :
@@ -81,28 +101,24 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* Allergy Warning */}
         {allergyMatches.length > 0 && (
           <div className="mt-3 rounded-xl border border-danger/30 bg-danger/5 p-3">
             <p className="text-xs font-semibold text-danger">⚠️ 알레르기 성분 감지</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {allergyMatches.map(i => i.nameKr).join(', ')}
-            </p>
+            <p className="mt-1 text-xs text-muted-foreground">{allergyMatches.map(i => i.name_kr).join(', ')}</p>
           </div>
         )}
 
-        {/* Ingredient List */}
         <div className="mt-6">
           <h2 className="mb-3 text-base font-bold text-foreground">전성분 분석</h2>
           <div className="space-y-2">
-            {product.ingredients.map((ingredient, idx) => (
-              <div key={idx} className="rounded-xl border border-border bg-card p-3">
+            {ingredients.map(ingredient => (
+              <div key={ingredient.id} className="rounded-xl border border-border bg-card p-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-semibold text-foreground">{ingredient.nameKr}</p>
+                    <p className="text-sm font-semibold text-foreground">{ingredient.name_kr}</p>
                     <p className="text-xs text-muted-foreground">{ingredient.name}</p>
                   </div>
-                  <SafetyBadge safety={ingredient.safety} />
+                  <SafetyBadge safety={ingredient.safety as 'safe' | 'caution' | 'danger'} />
                 </div>
                 <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{ingredient.description}</p>
               </div>
