@@ -25,3 +25,7 @@ verify_jwt = false
 # 본인 인증 후 계정 삭제
 [functions.delete-account]
 verify_jwt = true
+
+# 트러블 솔루션 — 로그인 없이도 사용 가능
+[functions.skin-solution]
+verify_jwt = false

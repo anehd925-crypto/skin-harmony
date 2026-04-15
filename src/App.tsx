@@ -27,6 +27,7 @@ import Routine from "./pages/Routine.tsx";
 import Diary from "./pages/Diary.tsx";
 import ScanHub from "./pages/ScanHub.tsx";
 import ScanAnalysis from "./pages/ScanAnalysis.tsx";
+import SkinSolution from "./pages/SkinSolution.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -68,6 +69,7 @@ const App = () => (
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/routine" element={<ProtectedRoute><Routine /></ProtectedRoute>} />
                 <Route path="/diary" element={<ProtectedRoute><Diary /></ProtectedRoute>} />
+                <Route path="/skin-solution" element={<ProtectedRoute><SkinSolution /></ProtectedRoute>} />
                 <Route path="/share" element={<ProtectedRoute><ShareEntry /></ProtectedRoute>} />
                 <Route path="/compare" element={<ProtectedRoute><Compare /></ProtectedRoute>} />
                 <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
