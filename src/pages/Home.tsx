@@ -10,17 +10,25 @@ import RoutineSafetyCard from '@/components/RoutineSafetyCard';
 import {
   Camera, ChevronRight, FlaskConical, Sparkles,
   Layers, BookMarked, ShieldAlert, Package, TrendingUp,
-  Grid3X3, X, Pill,
+  Grid3X3, X, Pill, type LucideIcon,
 } from 'lucide-react';
 
 /* ─── 더보기 메뉴 항목 ─── */
-const MORE_ITEMS = [
-  { icon: <Layers className="h-5 w-5" />,      label: '루틴 체커',      sub: '성분 궁합 분析',     path: '/routine',       color: 'text-violet-600 bg-violet-50' },
-  { icon: <BookMarked className="h-5 w-5" />,  label: '피부 일기',      sub: 'AI 인사이트 기록',   path: '/diary',         color: 'text-emerald-600 bg-emerald-50' },
-  { icon: <Package className="h-5 w-5" />,     label: '내 보관함',      sub: '날씨 맞춤 루틴',     path: '/cabinet',       color: 'text-amber-600 bg-amber-50' },
-  { icon: <ShieldAlert className="h-5 w-5" />, label: '성분 블랙리스트', sub: '위험 성분 자동 경보', path: '/blacklist',     color: 'text-red-500 bg-red-50' },
-  { icon: <TrendingUp className="h-5 w-5" />,  label: '피부 타임라인',   sub: '변화 추세 시각화',   path: '/timeline',      color: 'text-indigo-600 bg-indigo-50' },
-  { icon: <Pill className="h-5 w-5" />,        label: '트러블 솔루션',   sub: '약국 의약품 추천',   path: '/skin-solution', color: 'text-rose-500 bg-rose-50' },
+interface MoreItem {
+  Icon: LucideIcon;
+  label: string;
+  sub: string;
+  path: string;
+  color: string;
+}
+
+const MORE_ITEMS: MoreItem[] = [
+  { Icon: Layers,      label: '루틴 체커',      sub: '성분 궁합 분析',     path: '/routine',       color: 'text-violet-600 bg-violet-50' },
+  { Icon: BookMarked,  label: '피부 일기',      sub: 'AI 인사이트 기록',   path: '/diary',         color: 'text-emerald-600 bg-emerald-50' },
+  { Icon: Package,     label: '내 보관함',      sub: '날씨 맞춤 루틴',     path: '/cabinet',       color: 'text-amber-600 bg-amber-50' },
+  { Icon: ShieldAlert, label: '성분 블랙리스트', sub: '위험 성분 자동 경보', path: '/blacklist',     color: 'text-red-500 bg-red-50' },
+  { Icon: TrendingUp,  label: '피부 타임라인',   sub: '변화 추세 시각화',   path: '/timeline',      color: 'text-indigo-600 bg-indigo-50' },
+  { Icon: Pill,        label: '트러블 솔루션',   sub: '약국 의약품 추천',   path: '/skin-solution', color: 'text-rose-500 bg-rose-50' },
 ];
 
 const gradeColor = {
@@ -269,7 +277,7 @@ const Home = () => {
                   className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-neutral-50 p-4 text-center transition-all active:scale-95"
                 >
                   <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${item.color}`}>
-                    {item.icon}
+                    <item.Icon className="h-5 w-5" />
                   </div>
                   <div>
                     <p className="text-[12px] font-bold text-foreground leading-tight">{item.label}</p>
