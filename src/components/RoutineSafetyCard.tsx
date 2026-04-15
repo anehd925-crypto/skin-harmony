@@ -14,10 +14,10 @@ interface RoutineSafetyData {
 }
 
 /**
- * 홈 화면 상단 고정 카드 — 오늘 루틴 성분 안전도 점수
- * 루틴 데이터가 없으면 렌더링하지 않음
+ * 홈 화면 루틴 안전도 카드
+ * compact=true → 2열 그리드 내 작은 카드 버전
  */
-const RoutineSafetyCard = () => {
+const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [data, setData] = useState<RoutineSafetyData | null>(null);
@@ -90,28 +90,74 @@ const RoutineSafetyCard = () => {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-card min-h-[100px]">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-neutral-200 animate-pulse shrink-0" />
+          <div className="h-8 w-8 rounded-xl bg-neutral-200 animate-pulse shrink-0" />
           <div className="flex-1 space-y-2">
-            <div className="h-3 w-28 rounded bg-neutral-200 animate-pulse" />
+            <div className="h-3 w-20 rounded bg-neutral-200 animate-pulse" />
             <div className="h-2 w-full rounded-full bg-neutral-200 animate-pulse" />
           </div>
-          <div className="h-4 w-4 rounded bg-neutral-200 animate-pulse shrink-0" />
         </div>
       </div>
     );
   }
 
-  if (!data) return null;
+  if (!data) {
+    if (compact) {
+      return (
+        <button
+          onClick={() => navigate('/routine')}
+          className="flex flex-col justify-between rounded-2xl border border-dashed border-purple-200 bg-purple-50/50 p-4 text-left min-h-[100px] transition-all active:scale-[0.98]"
+        >
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-100">
+            <ShieldCheck className="h-4 w-4 text-purple-500" />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-foreground">루틴 안전도</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">루틴 등록 후 확인</p>
+          </div>
+        </button>
+      );
+    }
+    return null;
+  }
 
   const colorMap = {
-    safe: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', bar: 'bg-green-400', icon: 'text-green-500' },
+    safe:    { bg: 'bg-green-50',  border: 'border-green-200',  text: 'text-green-700',  bar: 'bg-green-400',  icon: 'text-green-500' },
     warning: { bg: 'bg-yellow-50', border: 'border-yellow-200', text: 'text-yellow-700', bar: 'bg-yellow-400', icon: 'text-yellow-500' },
-    danger: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', bar: 'bg-red-400', icon: 'text-red-500' },
+    danger:  { bg: 'bg-red-50',    border: 'border-red-200',    text: 'text-red-700',    bar: 'bg-red-400',    icon: 'text-red-500' },
   };
   const c = colorMap[data.level];
 
+  // compact 모드 — 2열 그리드 미니 카드
+  if (compact) {
+    return (
+      <button
+        type="button"
+        onClick={() => navigate('/routine')}
+        className={`flex flex-col justify-between rounded-2xl border ${c.border} ${c.bg} p-4 text-left min-h-[100px] transition-all active:scale-[0.98]`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white shadow-sm">
+            {data.level === 'safe'
+              ? <ShieldCheck className={`h-4 w-4 ${c.icon}`} />
+              : <AlertTriangle className={`h-4 w-4 ${c.icon}`} />
+            }
+          </div>
+          <ChevronRight className={`h-3.5 w-3.5 ${c.icon}`} />
+        </div>
+        <div>
+          <p className={`text-[10px] font-semibold ${c.text}`}>루틴 안전도</p>
+          <p className={`text-lg font-black ${c.text}`}>{data.score}<span className="text-xs font-normal ml-0.5">점</span></p>
+          <div className="mt-1 h-1 rounded-full bg-white/60">
+            <div className={`h-full rounded-full ${c.bar}`} style={{ width: `${data.score}%` }} />
+          </div>
+        </div>
+      </button>
+    );
+  }
+
+  // 풀 사이즈 카드 (일반 모드)
   return (
     <button
       type="button"

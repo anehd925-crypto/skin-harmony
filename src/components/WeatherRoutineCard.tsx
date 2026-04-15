@@ -212,7 +212,7 @@ const WeatherRoutineCard = ({ period }: Props) => {
 
   if (weatherLoading) {
     return (
-      <div className="mx-4 rounded-2xl border border-border bg-white shadow-card p-4 flex items-center gap-3">
+      <div className="rounded-2xl border border-border bg-white shadow-card p-4 flex items-center gap-3">
         <Loader2 className="h-4 w-4 animate-spin text-primary shrink-0" />
         <div>
           <p className="text-xs font-semibold text-foreground">날씨 확인 중...</p>
@@ -224,7 +224,7 @@ const WeatherRoutineCard = ({ period }: Props) => {
 
   if (!weather) {
     return (
-      <div className="mx-4 rounded-2xl border border-dashed border-border bg-card p-4">
+      <div className="rounded-2xl border border-dashed border-border bg-card p-4">
         <div className="flex items-start gap-3">
           <CloudSun className="h-8 w-8 shrink-0 text-muted-foreground/50 mt-0.5" />
           <div className="flex-1">
@@ -249,7 +249,7 @@ const WeatherRoutineCard = ({ period }: Props) => {
     return (
       <button
         onClick={() => navigate('/cabinet')}
-        className="mx-4 flex w-[calc(100%-2rem)] items-center gap-3 rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-4 text-left"
+        className="flex w-full items-center gap-3 rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-4 text-left"
       >
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
           <Plus className="h-5 w-5 text-primary" />
@@ -269,7 +269,7 @@ const WeatherRoutineCard = ({ period }: Props) => {
   const periodEmoji = period === 'morning' ? '🌅' : '🌙';
 
   return (
-    <div className="mx-4 rounded-2xl border border-border bg-white shadow-card overflow-hidden">
+    <div className="rounded-2xl border border-border bg-white shadow-card overflow-hidden">
       {/* 날씨 헤더 */}
       <button
         type="button"
