@@ -32,6 +32,7 @@ import BlacklistPage from "./pages/BlacklistPage.tsx";
 import SkinTimeline from "./pages/SkinTimeline.tsx";
 import MyCabinet from "./pages/MyCabinet.tsx";
 import MySkin from "./pages/MySkin.tsx";
+import ProductCompare from "./pages/ProductCompare.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -79,6 +80,7 @@ const App = () => (
                 <Route path="/cabinet" element={<ProtectedRoute><MyCabinet /></ProtectedRoute>} />
                 <Route path="/myskin" element={<ProtectedRoute><MySkin /></ProtectedRoute>} />
                 <Route path="/compare" element={<ProtectedRoute><Compare /></ProtectedRoute>} />
+                <Route path="/compare-ai" element={<ProtectedRoute><ProductCompare /></ProtectedRoute>} />
                 <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
 
                 <Route path="*" element={<NotFound />} />

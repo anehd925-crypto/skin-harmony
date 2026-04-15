@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Camera, Link2, PenLine, ChevronRight, ScanLine, Search, X, Clock, FlaskConical, Loader2 } from 'lucide-react';
+import { Camera, Link2, PenLine, ChevronRight, ScanLine, Search, X, Clock, FlaskConical, Loader2, Package, GitCompare } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
 
 interface HistoryItem {
@@ -235,7 +235,7 @@ const ScanHub = () => {
 
         {/* ── 입력 방법 카드 3종 ── */}
         <div className="space-y-3">
-          {/* 카메라 스캔 */}
+          {/* 카메라 스캔 (성분표) */}
           <button
             onClick={() => navigate('/scan-ocr')}
             className="flex w-full items-center gap-4 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-4 text-left transition-all active:scale-[0.99]"
@@ -245,12 +245,46 @@ const ScanHub = () => {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-bold text-foreground">카메라로 스캔</p>
+                <p className="text-sm font-bold text-foreground">성분표 스캔</p>
                 <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
               </div>
               <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed">
                 제품 뒷면 전성분표를 촬영해 즉시 분석
               </p>
+            </div>
+          </button>
+
+          {/* 카메라 제품 인식 */}
+          <button
+            onClick={() => navigate('/scan-ocr', { state: { scanMode: 'product' } })}
+            className="flex w-full items-center gap-4 rounded-2xl border border-border bg-white px-4 py-4 text-left transition-all active:scale-[0.99]"
+          >
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
+              <Package className="h-5 w-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-bold text-foreground">제품 촬영 → 보관함 추가</p>
+                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+              </div>
+              <p className="mt-0.5 text-xs text-muted-foreground">제품 찍으면 AI가 자동으로 이름·카테고리 인식</p>
+            </div>
+          </button>
+
+          {/* AI 제품 비교 */}
+          <button
+            onClick={() => navigate('/compare-ai')}
+            className="flex w-full items-center gap-4 rounded-2xl border border-border bg-white px-4 py-4 text-left transition-all active:scale-[0.99]"
+          >
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600">
+              <GitCompare className="h-5 w-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-bold text-foreground">두 제품 비교</p>
+                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+              </div>
+              <p className="mt-0.5 text-xs text-muted-foreground">내 피부에 어떤 게 더 맞는지 AI가 분석</p>
             </div>
           </button>
 

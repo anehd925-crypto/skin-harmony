@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import BottomNav from '@/components/BottomNav';
@@ -109,6 +109,7 @@ type FilterCat = CategoryKey | 'all' | 'cleansing';
 // ─── 컴포넌트 ─────────────────────────────────────────────────────────────────
 const MyCabinet = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -148,6 +149,35 @@ const MyCabinet = () => {
   }, [user]);
 
   useEffect(() => { loadCabinet(); }, [loadCabinet]);
+
+  // 카메라 제품 인식에서 prefill 데이터가 있으면 모달 자동 오픈
+  useEffect(() => {
+    const state = location.state as { prefill?: { name: string; brand: string; category: string; step: string; is_morning: boolean; is_evening: boolean; note: string } } | null;
+    if (state?.prefill) {
+      const stepMap: Record<string, number> = {
+        '클렌징': 1, '토너·스킨': 2, '에센스': 3, '세럼·앰플': 4,
+        '아이크림': 5, '로션·에멀전': 6, '크림': 7, '선크림': 8, '메이크업': 9,
+      };
+      const catMap: Record<string, CategoryKey> = {
+        cleansing_foam: 'cleansing_foam', cleansing_oil: 'cleansing_oil',
+        cleansing_water: 'cleansing_water', skincare: 'skincare',
+        suncare: 'suncare', treatment: 'treatment',
+        makeup: 'makeup', body: 'body', hair: 'hair',
+      };
+      setForm({
+        product_name: state.prefill.name,
+        product_brand: state.prefill.brand,
+        category: (catMap[state.prefill.category] ?? 'skincare') as CategoryKey,
+        step_order: stepMap[state.prefill.step] ?? 2,
+        is_morning: state.prefill.is_morning,
+        is_evening: state.prefill.is_evening,
+        notes: state.prefill.note ? `AI 인식: ${state.prefill.note}` : '',
+      });
+      setEditId(null);
+      setShowModal(true);
+      window.history.replaceState({}, '', location.pathname);
+    }
+  }, [location.state, location.pathname]);
 
   // ─── 제품 AI 검색 (디바운스 500ms) ──────────────────────────────────────────
   useEffect(() => {

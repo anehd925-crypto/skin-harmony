@@ -5,7 +5,8 @@ const corsHeaders = {
 
 const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY')!;
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const MODEL = 'llama-3.3-70b-versatile';
+const TEXT_MODEL = 'llama-3.3-70b-versatile';
+const VISION_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
 
 interface ProductSuggestion {
   name: string;
@@ -23,7 +24,87 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { query } = await req.json();
+    const body = await req.json();
+
+    // ── Vision 모드: 이미지로 제품 인식 ──────────────────────────────────────
+    if (body.imageBase64) {
+      const { imageBase64 } = body;
+
+      const visionPrompt = `이 이미지는 화장품 제품 사진입니다.
+이미지에서 제품 정보를 정확히 읽어내세요.
+
+다음 JSON을 반환하세요 (인식 불가 항목은 빈 문자열):
+{
+  "name": "제품명 (브랜드 제외)",
+  "brand": "브랜드명",
+  "category": "cleansing_foam | cleansing_oil | cleansing_water | skincare | suncare | treatment | makeup | body | hair",
+  "step": "클렌징 | 토너·스킨 | 에센스 | 세럼·앰플 | 아이크림 | 로션·에멀전 | 크림 | 선크림 | 메이크업",
+  "is_morning": true or false,
+  "is_evening": true or false,
+  "note": "제품 특징 한 줄 (20자 이내)",
+  "confidence": "high | medium | low"
+}
+
+JSON만 반환하고 다른 텍스트는 포함하지 마세요.`;
+
+      const response = await fetch(GROQ_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${GROQ_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: VISION_MODEL,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'image_url',
+                  image_url: {
+                    url: imageBase64.startsWith('data:')
+                      ? imageBase64
+                      : `data:image/jpeg;base64,${imageBase64}`,
+                  },
+                },
+                { type: 'text', text: visionPrompt },
+              ],
+            },
+          ],
+          temperature: 0.2,
+          max_tokens: 400,
+        }),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error('Groq vision error:', errText);
+        return new Response(
+          JSON.stringify({ product: null, error: 'vision_error' }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        );
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content ?? '{}';
+
+      let product: ProductSuggestion & { confidence?: string } = {
+        name: '', brand: '', category: 'skincare', step: '토너·스킨',
+        is_morning: true, is_evening: true, note: '', confidence: 'low',
+      };
+      try {
+        const match = content.match(/\{[\s\S]*\}/);
+        if (match) product = { ...product, ...JSON.parse(match[0]) };
+      } catch { /* 파싱 실패 시 기본값 */ }
+
+      return new Response(
+        JSON.stringify({ product }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
+    // ── 텍스트 검색 모드 ──────────────────────────────────────────────────────
+    const { query } = body;
 
     if (!query || query.trim().length < 1) {
       return new Response(
@@ -60,7 +141,7 @@ JSON만 반환하고 다른 텍스트는 포함하지 마세요.`;
         'Authorization': `Bearer ${GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: MODEL,
+        model: TEXT_MODEL,
         messages: [
           { role: 'system', content: '당신은 한국 화장품 전문가입니다. JSON만 반환합니다.' },
           { role: 'user', content: prompt },
@@ -80,12 +161,8 @@ JSON만 반환하고 다른 텍스트는 포함하지 마세요.`;
     let suggestions: ProductSuggestion[] = [];
     try {
       const jsonMatch = content.match(/\[[\s\S]*\]/);
-      if (jsonMatch) {
-        suggestions = JSON.parse(jsonMatch[0]);
-      }
-    } catch {
-      suggestions = [];
-    }
+      if (jsonMatch) suggestions = JSON.parse(jsonMatch[0]);
+    } catch { suggestions = []; }
 
     return new Response(
       JSON.stringify({ suggestions }),

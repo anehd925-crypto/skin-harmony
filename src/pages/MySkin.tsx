@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,7 +8,7 @@ import RoutineSafetyCard from '@/components/RoutineSafetyCard';
 import {
   Sun, Moon, Package, ChevronRight, BookOpen,
   Layers, TrendingUp, Plus, Sparkles, Loader2,
-  TrendingDown, Minus,
+  TrendingDown, Minus, Brain, RefreshCw, Mic, MicOff,
 } from 'lucide-react';
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
@@ -61,9 +61,28 @@ const MySkin = () => {
   const [aiComment, setAiComment] = useState<string | null>(null);
   const [loadingComment, setLoadingComment] = useState(false);
 
+  // ─── 보이스 입력 ─────────────────────────────────────────────────────────────
+  const [isRecording, setIsRecording] = useState(false);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+
   // ─── 보관함 상태 ─────────────────────────────────────────────────────────────
   const [cabinetItems, setCabinetItems] = useState<CabinetItem[]>([]);
   const [cabinetLoading, setCabinetLoading] = useState(true);
+
+  // ─── AI 코치 상태 ─────────────────────────────────────────────────────────────
+  interface CoachInsight { icon: string; title: string; body: string; }
+  interface CoachReport {
+    greeting: string;
+    skinStatus: string;
+    keyInsights: CoachInsight[];
+    weeklyAction: { title: string; actions: string[] };
+    productAdvice: string;
+    encouragement: string;
+    dataQuality: 'sufficient' | 'insufficient';
+  }
+  const [coachReport, setCoachReport] = useState<CoachReport | null>(null);
+  const [coachLoading, setCoachLoading] = useState(false);
+  const [coachError, setCoachError] = useState(false);
 
   // ─── 데이터 로드 ─────────────────────────────────────────────────────────────
   const loadDiary = useCallback(async () => {
@@ -99,6 +118,51 @@ const MySkin = () => {
 
   useEffect(() => { loadDiary(); loadCabinet(); }, [loadDiary, loadCabinet]);
 
+  // ─── AI 코치 로드 ─────────────────────────────────────────────────────────────
+  const fetchCoachReport = useCallback(async () => {
+    if (!user) return;
+    setCoachLoading(true);
+    setCoachError(false);
+    try {
+      const [{ data: diaryData }, { data: analysisData }] = await Promise.all([
+        supabase.from('skin_diary').select('date, skin_score, trouble_spots, notes')
+          .eq('user_id', user.id).order('date', { ascending: false }).limit(14),
+        supabase.from('analysis_history').select('product_name, product_brand, overall_grade, created_at')
+          .eq('user_id', user.id).order('created_at', { ascending: false }).limit(10),
+      ]);
+      const { data } = await supabase.functions.invoke('skin-coach', {
+        body: {
+          diaryEntries: (diaryData ?? []).map((d: { date: string; skin_score: number; trouble_spots: string[]; notes: string }) => ({
+            date: d.date, score: d.skin_score, troubles: d.trouble_spots ?? [], notes: d.notes,
+          })),
+          analysisHistory: analysisData ?? [],
+          cabinetItems: cabinetItems.map(c => ({
+            product_name: c.product_name, is_morning: c.is_morning, is_evening: c.is_evening,
+          })),
+          userProfile: {
+            skinType: profile.skinType,
+            skinConcerns: profile.skinConcerns,
+            skinSensitivity: profile.skinSensitivity,
+            ageGroup: profile.ageGroup,
+            avoidIngredients: profile.avoidIngredients,
+            skinGoals: profile.skinGoals,
+          },
+          period: 'weekly',
+        },
+      });
+      if (data?.greeting) setCoachReport(data as CoachReport);
+      else setCoachError(true);
+    } catch { setCoachError(true); }
+    finally { setCoachLoading(false); }
+  }, [user, profile, cabinetItems]);
+
+  // 일기 탭으로 이동할 때 AI 코치 자동 로드 (첫 번째만)
+  useEffect(() => {
+    if (activeTab === 'diary' && !coachReport && !coachLoading && !coachError && entries.length > 0) {
+      fetchCoachReport();
+    }
+  }, [activeTab, coachReport, coachLoading, coachError, entries.length, fetchCoachReport]);
+
   // ─── 일기 저장 ───────────────────────────────────────────────────────────────
   const handleSaveDiary = async () => {
     if (!user) return;
@@ -113,6 +177,39 @@ const MySkin = () => {
       fetchAiComment(skinScore, troubleSpots);
     }
     setSavingDiary(false);
+  };
+
+  // ─── 보이스 입력 핸들러 ────────────────────────────────────────────────────────
+  const toggleVoiceInput = () => {
+    const SpeechRecognitionAPI = (window as Window & { SpeechRecognition?: new () => SpeechRecognition; webkitSpeechRecognition?: new () => SpeechRecognition }).SpeechRecognition
+      ?? (window as Window & { webkitSpeechRecognition?: new () => SpeechRecognition }).webkitSpeechRecognition;
+
+    if (!SpeechRecognitionAPI) {
+      alert('이 브라우저에서는 음성 입력을 지원하지 않아요. Chrome 또는 Edge를 사용해주세요.');
+      return;
+    }
+
+    if (isRecording) {
+      recognitionRef.current?.stop();
+      setIsRecording(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognitionAPI();
+    recognition.lang = 'ko-KR';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => setIsRecording(true);
+    recognition.onend = () => setIsRecording(false);
+    recognition.onerror = () => setIsRecording(false);
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const transcript = event.results[0]?.[0]?.transcript ?? '';
+      if (transcript) setNotes(prev => prev ? `${prev} ${transcript}` : transcript);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
   };
 
   // ─── AI 코멘트 ───────────────────────────────────────────────────────────────
@@ -278,13 +375,27 @@ const MySkin = () => {
                 </div>
 
                 {/* 메모 */}
-                <textarea
-                  value={notes}
-                  onChange={e => setNotes(e.target.value)}
-                  rows={2}
-                  placeholder="오늘 피부에 대해 메모해두세요 (선택)"
-                  className="w-full rounded-xl border border-border bg-neutral-50 px-3 py-2.5 text-xs resize-none outline-none focus:border-primary"
-                />
+                <div className="relative">
+                  <textarea
+                    value={notes}
+                    onChange={e => setNotes(e.target.value)}
+                    rows={2}
+                    placeholder="오늘 피부에 대해 메모해두세요 (선택)"
+                    className="w-full rounded-xl border border-border bg-neutral-50 px-3 py-2.5 pr-10 text-xs resize-none outline-none focus:border-primary"
+                  />
+                  <button
+                    type="button"
+                    onClick={toggleVoiceInput}
+                    title={isRecording ? '녹음 중 — 탭해서 중지' : '음성으로 입력'}
+                    className={`absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full transition-colors ${
+                      isRecording
+                        ? 'bg-red-500 text-white animate-pulse'
+                        : 'bg-neutral-200 text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                    }`}
+                  >
+                    {isRecording ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+                  </button>
+                </div>
 
                 <button
                   onClick={handleSaveDiary}
@@ -392,6 +503,89 @@ const MySkin = () => {
               <p className="text-[11px] text-muted-foreground leading-relaxed">장기 변화 추세 시각화</p>
               <ChevronRight className="h-3.5 w-3.5 text-muted-foreground ml-auto" />
             </button>
+          </div>
+
+          {/* ── AI 코치 레포트 ── */}
+          <div className="rounded-2xl border border-border bg-white overflow-hidden shadow-card">
+            <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-border">
+              <div className="flex items-center gap-2">
+                <Brain className="h-4 w-4 text-primary" />
+                <span className="text-sm font-bold text-foreground">AI 피부 코치</span>
+              </div>
+              <button
+                onClick={fetchCoachReport}
+                disabled={coachLoading}
+                className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary transition-colors"
+              >
+                <RefreshCw className={`h-3 w-3 ${coachLoading ? 'animate-spin' : ''}`} />
+                새로고침
+              </button>
+            </div>
+
+            {coachLoading ? (
+              <div className="flex items-center gap-2 px-4 py-5 text-xs text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                내 데이터를 분석 중이에요...
+              </div>
+            ) : coachError ? (
+              <div className="px-4 py-5 text-center">
+                <p className="text-xs text-muted-foreground mb-2">분석을 불러오지 못했어요</p>
+                <button onClick={fetchCoachReport} className="text-xs text-primary font-semibold">다시 시도</button>
+              </div>
+            ) : coachReport ? (
+              <div className="px-4 py-4 space-y-4">
+                {/* 인사 + 피부 상태 */}
+                <div>
+                  <p className="text-sm font-bold text-foreground mb-1">{coachReport.greeting}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{coachReport.skinStatus}</p>
+                </div>
+
+                {/* 주요 인사이트 */}
+                {coachReport.keyInsights?.length > 0 && (
+                  <div className="space-y-2">
+                    {coachReport.keyInsights.map((ins, i) => (
+                      <div key={i} className="flex items-start gap-3 rounded-xl bg-neutral-50 px-3 py-2.5">
+                        <span className="text-base">{ins.icon}</span>
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-foreground">{ins.title}</p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">{ins.body}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* 이번 주 집중 케어 */}
+                {coachReport.weeklyAction && (
+                  <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-3">
+                    <p className="text-xs font-bold text-primary mb-2">{coachReport.weeklyAction.title}</p>
+                    <ul className="space-y-1">
+                      {coachReport.weeklyAction.actions?.map((a, i) => (
+                        <li key={i} className="text-xs text-foreground flex items-start gap-1.5">
+                          <span className="text-primary mt-0.5">•</span>{a}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* 응원 메시지 */}
+                <p className="text-[11px] text-muted-foreground text-center">{coachReport.encouragement}</p>
+
+                {coachReport.dataQuality === 'insufficient' && (
+                  <p className="text-[10px] text-amber-600 text-center bg-amber-50 rounded-lg py-1.5">
+                    💡 일기를 더 기록하면 더 정확한 분석이 가능해요
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="px-4 py-5 text-center">
+                <p className="text-xs text-muted-foreground">일기를 기록하면 AI 코치가 맞춤 분석을 드려요</p>
+                <button onClick={fetchCoachReport} className="mt-2 text-xs text-primary font-semibold">
+                  분석 요청하기
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
