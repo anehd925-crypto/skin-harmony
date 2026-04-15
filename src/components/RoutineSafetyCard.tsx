@@ -5,13 +5,26 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ShieldCheck, AlertTriangle, ChevronRight, Zap } from 'lucide-react';
 
 interface RoutineSafetyData {
-  score: number;           // 0–100
+  score: number;
   label: string;
   level: 'safe' | 'warning' | 'danger';
   conflictCount: number;
   synergyCount: number;
   topConflict: string | null;
 }
+
+const buildData = (
+  score: number,
+  conflictCount: number,
+  synergyCount: number,
+  topConflict: string | null,
+): RoutineSafetyData => {
+  let label = '안전';
+  let level: 'safe' | 'warning' | 'danger' = 'safe';
+  if (score < 60) { label = '주의 필요'; level = 'danger'; }
+  else if (score < 80) { label = '약간 주의'; level = 'warning'; }
+  return { score, label, level, conflictCount, synergyCount, topConflict };
+};
 
 /**
  * 홈 화면 루틴 안전도 카드
@@ -23,44 +36,30 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
   const [data, setData] = useState<RoutineSafetyData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user) { setLoading(false); return; }
-    loadRoutineSafety();
-  }, [user, loadRoutineSafety]);
-
+  // buildData를 컴포넌트 외부로 이동했으므로 useCallback 의존성 문제 없음
   const loadRoutineSafety = useCallback(async () => {
+    if (!user) { setLoading(false); return; }
     setLoading(true);
     try {
-      // 오늘 날짜 기준 루틴 제품 가져오기 (morning + evening)
       const { data: routines } = await supabase
         .from('routines')
         .select('id, name, routine_products(product_name, ingredients_snapshot)')
-        .eq('user_id', user!.id)
+        .eq('user_id', user.id)
         .in('name', ['morning', 'evening']);
 
       if (!routines || routines.length === 0) { setLoading(false); return; }
 
-      // 모든 루틴 제품의 성분을 합산
       let totalProducts = 0;
-      const allIngredients: string[] = [];
       for (const r of routines as Array<{ routine_products: Array<{ ingredients_snapshot: string }> }>) {
-        for (const p of r.routine_products) {
-          totalProducts++;
-          if (p.ingredients_snapshot) {
-            allIngredients.push(p.ingredients_snapshot);
-          }
-        }
+        totalProducts += r.routine_products.length;
       }
 
       if (totalProducts < 2) { setLoading(false); return; }
 
-      // 가장 최근에 저장된 conflict check 결과가 있으면 활용, 없으면 간단 계산
-      // 여기서는 루틴 제품 수와 성분 수 기반 간략 점수만 계산
-      // (실제 AI 충돌 분석은 /routine 페이지에서 수행)
       const { data: conflictCache } = await supabase
         .from('routine_conflict_cache' as never)
         .select('score, conflict_count, synergy_count, top_conflict')
-        .eq('user_id', user!.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -69,7 +68,6 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
         const c = conflictCache as { score: number; conflict_count: number; synergy_count: number; top_conflict: string | null };
         setData(buildData(c.score, c.conflict_count, c.synergy_count, c.top_conflict));
       } else {
-        // 캐시 없으면 제품 수 기반 기본 점수
         const base = Math.max(50, 100 - totalProducts * 5);
         setData(buildData(base, 0, 0, null));
       }
@@ -80,12 +78,14 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
     }
   }, [user]);
 
-  const buildData = (score: number, conflictCount: number, synergyCount: number, topConflict: string | null): RoutineSafetyData => {
-    let label = '안전';
-    let level: 'safe' | 'warning' | 'danger' = 'safe';
-    if (score < 60) { label = '주의 필요'; level = 'danger'; }
-    else if (score < 80) { label = '약간 주의'; level = 'warning'; }
-    return { score, label, level, conflictCount, synergyCount, topConflict };
+  useEffect(() => {
+    loadRoutineSafety();
+  }, [loadRoutineSafety]);
+
+  const colorMap = {
+    safe:    { bg: 'bg-green-50',  border: 'border-green-200',  text: 'text-green-700',  bar: 'bg-green-400',  icon: 'text-green-500' },
+    warning: { bg: 'bg-yellow-50', border: 'border-yellow-200', text: 'text-yellow-700', bar: 'bg-yellow-400', icon: 'text-yellow-500' },
+    danger:  { bg: 'bg-red-50',    border: 'border-red-200',    text: 'text-red-700',    bar: 'bg-red-400',    icon: 'text-red-500' },
   };
 
   if (loading) {
@@ -122,14 +122,8 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
     return null;
   }
 
-  const colorMap = {
-    safe:    { bg: 'bg-green-50',  border: 'border-green-200',  text: 'text-green-700',  bar: 'bg-green-400',  icon: 'text-green-500' },
-    warning: { bg: 'bg-yellow-50', border: 'border-yellow-200', text: 'text-yellow-700', bar: 'bg-yellow-400', icon: 'text-yellow-500' },
-    danger:  { bg: 'bg-red-50',    border: 'border-red-200',    text: 'text-red-700',    bar: 'bg-red-400',    icon: 'text-red-500' },
-  };
   const c = colorMap[data.level];
 
-  // compact 모드 — 2열 그리드 미니 카드
   if (compact) {
     return (
       <button
@@ -157,14 +151,13 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
     );
   }
 
-  // 풀 사이즈 카드 (일반 모드)
   return (
     <button
       type="button"
       onClick={() => navigate('/routine')}
       className={`flex w-full items-center gap-3 rounded-2xl border ${c.border} ${c.bg} px-4 py-3.5 text-left transition-all active:scale-[0.98]`}
     >
-      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm`}>
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm">
         {data.level === 'safe'
           ? <ShieldCheck className={`h-5 w-5 ${c.icon}`} />
           : <AlertTriangle className={`h-5 w-5 ${c.icon}`} />
@@ -184,7 +177,6 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
             </span>
           )}
         </div>
-        {/* 점수 바 */}
         <div className="mt-1.5 flex items-center gap-2">
           <div className="h-1.5 flex-1 rounded-full bg-white/60">
             <div

@@ -8,36 +8,54 @@ const AuthCallback = () => {
   const [message, setMessage] = useState('로그인 처리 중...');
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        // onboarding_complete 컬럼으로 신규/기존 유저 판단 (created_at 15초 판단 제거)
+    let handled = false;
+
+    const handleSession = async (session: { user: { id: string; created_at: string } }) => {
+      if (handled) return;
+      handled = true;
+
+      try {
         const { data: profileData } = await supabase
           .from('profiles')
-          .select('onboarding_complete')
+          .select('onboarding_complete, created_at')
           .eq('user_id', session.user.id)
           .maybeSingle();
 
-        const isOnboardingDone = profileData?.onboarding_complete === true;
+        // 프로필이 없거나 onboarding_complete가 명시적으로 false인 경우만 온보딩으로 이동
+        // null / undefined는 기존 유저로 간주해 홈으로 이동
+        const shouldOnboard = profileData !== null && profileData?.onboarding_complete === false;
 
-        if (!isOnboardingDone) {
+        if (shouldOnboard) {
           navigate('/onboarding', { replace: true });
         } else {
           navigate('/', { replace: true });
         }
+      } catch {
+        navigate('/', { replace: true });
       }
-      // INITIAL_SESSION은 무시 — OAuth code 교환 전에 발생할 수 있어 오처리 위험
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        await handleSession(session.user as { id: string; created_at: string });
+      }
     });
 
-    // 10초 내 SIGNED_IN 없으면 현재 세션 확인 후 이동
-    const timeout = setTimeout(async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+    // 현재 이미 세션이 있는 경우 (페이지 재진입 등) 즉시 처리
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session) {
-        navigate('/', { replace: true });
-      } else {
-        setMessage('로그인에 실패했습니다. 다시 시도해주세요.');
-        setTimeout(() => navigate('/auth'), 2000);
+        await handleSession(session.user as { id: string; created_at: string });
       }
-    }, 10_000);
+    });
+
+    // 15초 내 처리 안되면 홈으로 이동
+    const timeout = setTimeout(() => {
+      if (!handled) {
+        handled = true;
+        setMessage('로그인 처리 중 문제가 발생했습니다. 홈으로 이동합니다.');
+        setTimeout(() => navigate('/'), 1500);
+      }
+    }, 15_000);
 
     return () => {
       subscription.unsubscribe();
