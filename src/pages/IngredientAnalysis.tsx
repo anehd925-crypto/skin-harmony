@@ -272,6 +272,9 @@ BeautyLens로 분석했습니다`;
             if (body?.error) msg = body.error;
           }
         } catch { /* ignore */ }
+        if (msg.includes('non-2xx') || msg.includes('401') || msg.includes('Unauthorized')) {
+          throw new Error('로그인 세션이 만료되었습니다. 프로필 탭에서 로그아웃 후 다시 로그인해주세요.');
+        }
         throw new Error(msg);
       }
       if (data?.error) throw new Error(data.error);

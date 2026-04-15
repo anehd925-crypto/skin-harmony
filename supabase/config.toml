@@ -2,10 +2,11 @@ project_id = "kvhqhwsgqfxtuisgcfxn"
 
 # 로그인 사용자만 호출 — JWT 검증 활성화
 [functions.analyze-ingredients]
-verify_jwt = true
+verify_jwt = false
 
+# scrape-oliveyoung은 공개 URL 스크래핑 — 로그인 불필요
 [functions.scrape-oliveyoung]
-verify_jwt = true
+verify_jwt = false
 
 [functions.check-routine-conflicts]
 verify_jwt = true
