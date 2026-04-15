@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -26,9 +26,9 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
   useEffect(() => {
     if (!user) { setLoading(false); return; }
     loadRoutineSafety();
-  }, [user]);
+  }, [user, loadRoutineSafety]);
 
-  const loadRoutineSafety = async () => {
+  const loadRoutineSafety = useCallback(async () => {
     setLoading(true);
     try {
       // 오늘 날짜 기준 루틴 제품 가져오기 (morning + evening)
@@ -78,7 +78,7 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   const buildData = (score: number, conflictCount: number, synergyCount: number, topConflict: string | null): RoutineSafetyData => {
     let label = '안전';

@@ -66,7 +66,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gradient-soft px-6">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
       {/* 로고 */}
       <div className="mb-8 flex flex-col items-center gap-2">
         <div className="flex items-center gap-2">

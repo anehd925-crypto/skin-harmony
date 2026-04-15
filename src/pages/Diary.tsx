@@ -137,7 +137,10 @@ const Diary = () => {
   const handleDelete = async () => {
     if (!editEntry) return;
     const { error } = await supabase.from('skin_diary').delete().eq('id', editEntry.id);
-    if (!error) {
+    if (error) {
+      toast({ title: '삭제 실패', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: '삭제 완료' });
       setShowEntryModal(false);
       await loadEntries();
     }

@@ -62,10 +62,14 @@ const Profile = () => {
   const handleSave = async () => {
     setAllergies(allergyInput.split(',').map(s => s.trim()).filter(Boolean));
     setNickname(nicknameInput.trim());
-    await saveProfile();
-    setSaved(true);
-    toast({ title: '저장 완료', description: '프로필이 업데이트되었습니다.' });
-    setTimeout(() => setSaved(false), 2000);
+    try {
+      await saveProfile();
+      setSaved(true);
+      toast({ title: '저장 완료', description: '프로필이 업데이트되었습니다.' });
+      setTimeout(() => setSaved(false), 2000);
+    } catch {
+      toast({ title: '저장 실패', description: '잠시 후 다시 시도해주세요.', variant: 'destructive' });
+    }
   };
 
   const handleToggleConcern = (c: SkinConcern) => {

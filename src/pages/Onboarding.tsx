@@ -243,7 +243,7 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col gradient-soft">
+    <div className="flex min-h-screen flex-col bg-background">
       <div className="flex flex-1 flex-col items-center justify-start px-6 py-10 overflow-y-auto">
         <div className="mb-6 flex items-center gap-2">
           <Sparkles className="h-6 w-6 text-primary" />
