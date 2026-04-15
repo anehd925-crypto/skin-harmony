@@ -215,15 +215,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .eq('user_id', userId)
       .maybeSingle();
     if (existing) {
-      await supabase.from('profiles').update(payload).eq('user_id', userId);
+      const { error } = await supabase.from('profiles').update(payload).eq('user_id', userId);
+      if (error) console.error('[UserContext] 프로필 업데이트 실패:', error.message);
+      return error;
     } else {
-      await supabase.from('profiles').insert({ ...payload, user_id: userId });
+      const { error } = await supabase.from('profiles').insert({ ...payload, user_id: userId });
+      if (error) console.error('[UserContext] 프로필 생성 실패:', error.message);
+      return error;
     }
   };
 
   const saveProfile = useCallback(async () => {
     if (!user) return;
-    await upsertProfile(buildDbPayload(profile), user.id);
+    const err = await upsertProfile(buildDbPayload(profile), user.id);
+    if (err) throw new Error(err.message);
   }, [user, profile]);
 
   const completeOnboarding = async () => {

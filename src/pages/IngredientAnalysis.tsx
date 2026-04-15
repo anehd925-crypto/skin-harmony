@@ -233,7 +233,6 @@ BeautyLens로 분석했습니다`;
       await handleAnalyzeWithData(pIngredients, aiName, pBrand);
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
-    } finally {
       setUrlLoading(false);
     }
   };

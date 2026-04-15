@@ -8,14 +8,18 @@ const AuthCallback = () => {
   const [message, setMessage] = useState('로그인 처리 중...');
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        const user = session.user;
-        const isNewUser =
-          user.created_at &&
-          Date.now() - new Date(user.created_at).getTime() < 15_000;
+        // onboarding_complete 컬럼으로 신규/기존 유저 판단 (created_at 15초 판단 제거)
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('onboarding_complete')
+          .eq('user_id', session.user.id)
+          .maybeSingle();
 
-        if (isNewUser) {
+        const isOnboardingDone = profileData?.onboarding_complete === true;
+
+        if (!isOnboardingDone) {
           navigate('/onboarding', { replace: true });
         } else {
           navigate('/', { replace: true });
@@ -42,7 +46,7 @@ const AuthCallback = () => {
   }, [navigate]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gradient-soft gap-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background gap-4">
       <div className="flex items-center gap-2 mb-4">
         <Sparkles className="h-6 w-6 text-primary" />
         <span className="text-lg font-bold text-primary">BeautyLens</span>
