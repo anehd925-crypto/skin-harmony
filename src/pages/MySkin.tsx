@@ -1,0 +1,585 @@
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useUser } from '@/contexts/UserContext';
+import BottomNav from '@/components/BottomNav';
+import RoutineSafetyCard from '@/components/RoutineSafetyCard';
+import {
+  Sun, Moon, Package, ChevronRight, BookOpen,
+  Layers, TrendingUp, Plus, Sparkles, Loader2,
+  TrendingDown, Minus,
+} from 'lucide-react';
+
+// ─── 타입 ─────────────────────────────────────────────────────────────────────
+interface DiaryEntry {
+  id: string;
+  date: string;
+  skin_score: number;
+  trouble_spots: string[];
+  notes: string;
+}
+
+interface CabinetItem {
+  id: string;
+  product_name: string;
+  is_morning: boolean;
+  is_evening: boolean;
+  step_order: number;
+}
+
+type MySkinTab = 'diary' | 'routine' | 'cabinet';
+
+const SCORE_EMOJI: Record<number, string> = { 1: '😞', 2: '😐', 3: '🙂', 4: '😊', 5: '😄' };
+const SCORE_COLOR: Record<number, string> = {
+  1: 'border-red-400 bg-red-50 text-red-700',
+  2: 'border-orange-400 bg-orange-50 text-orange-700',
+  3: 'border-yellow-400 bg-yellow-50 text-yellow-700',
+  4: 'border-green-400 bg-green-50 text-green-700',
+  5: 'border-primary bg-primary/10 text-primary',
+};
+const TROUBLE_OPTIONS = ['건조', '트러블', '홍조', '번들거림', '각질', '가려움', '붓기', '칙칙함'];
+
+const toYYYYMMDD = (d: Date) => d.toISOString().split('T')[0];
+const todayStr = toYYYYMMDD(new Date());
+
+const MySkin = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { profile } = useUser();
+
+  const [activeTab, setActiveTab] = useState<MySkinTab>('diary');
+
+  // ─── 일기 상태 ───────────────────────────────────────────────────────────────
+  const [entries, setEntries] = useState<DiaryEntry[]>([]);
+  const [todayEntry, setTodayEntry] = useState<DiaryEntry | null>(null);
+  const [skinScore, setSkinScore] = useState(3);
+  const [troubleSpots, setTroubleSpots] = useState<string[]>([]);
+  const [notes, setNotes] = useState('');
+  const [savingDiary, setSavingDiary] = useState(false);
+  const [diaryMode, setDiaryMode] = useState<'view' | 'edit'>('view');
+  const [aiComment, setAiComment] = useState<string | null>(null);
+  const [loadingComment, setLoadingComment] = useState(false);
+
+  // ─── 보관함 상태 ─────────────────────────────────────────────────────────────
+  const [cabinetItems, setCabinetItems] = useState<CabinetItem[]>([]);
+  const [cabinetLoading, setCabinetLoading] = useState(true);
+
+  // ─── 데이터 로드 ─────────────────────────────────────────────────────────────
+  const loadDiary = useCallback(async () => {
+    if (!user) return;
+    const month = new Date();
+    const from = toYYYYMMDD(new Date(month.getFullYear(), month.getMonth(), 1));
+    const to = toYYYYMMDD(new Date(month.getFullYear(), month.getMonth() + 1, 0));
+    const { data } = await supabase
+      .from('skin_diary')
+      .select('*')
+      .eq('user_id', user.id)
+      .gte('date', from)
+      .lte('date', to)
+      .order('date', { ascending: false });
+    const list = (data ?? []) as DiaryEntry[];
+    setEntries(list);
+    const te = list.find(e => e.date === todayStr) ?? null;
+    setTodayEntry(te);
+    if (te) { setSkinScore(te.skin_score); setTroubleSpots(te.trouble_spots ?? []); setNotes(te.notes ?? ''); }
+  }, [user]);
+
+  const loadCabinet = useCallback(async () => {
+    if (!user) return;
+    setCabinetLoading(true);
+    const { data } = await supabase
+      .from('my_cabinet' as never)
+      .select('id, product_name, is_morning, is_evening, step_order')
+      .eq('user_id', user.id)
+      .order('step_order', { ascending: true });
+    setCabinetItems((data as CabinetItem[]) ?? []);
+    setCabinetLoading(false);
+  }, [user]);
+
+  useEffect(() => { loadDiary(); loadCabinet(); }, [loadDiary, loadCabinet]);
+
+  // ─── 일기 저장 ───────────────────────────────────────────────────────────────
+  const handleSaveDiary = async () => {
+    if (!user) return;
+    setSavingDiary(true);
+    const payload = { user_id: user.id, date: todayStr, skin_score: skinScore, trouble_spots: troubleSpots, notes };
+    const { error } = todayEntry
+      ? await supabase.from('skin_diary').update({ skin_score: skinScore, trouble_spots: troubleSpots, notes }).eq('id', todayEntry.id)
+      : await supabase.from('skin_diary').insert(payload);
+    if (!error) {
+      await loadDiary();
+      setDiaryMode('view');
+      fetchAiComment(skinScore, troubleSpots);
+    }
+    setSavingDiary(false);
+  };
+
+  // ─── AI 코멘트 ───────────────────────────────────────────────────────────────
+  const fetchAiComment = async (score: number, troubles: string[]) => {
+    setLoadingComment(true);
+    setAiComment(null);
+    try {
+      const skinType = profile.skinType ?? '피부타입 미설정';
+      const { data } = await supabase.functions.invoke('diary-insights', {
+        body: {
+          quickComment: true,
+          score,
+          troubles,
+          skinType,
+          diaryEntries: entries.slice(0, 7),
+          recentAnalyses: [],
+        },
+      });
+      if (data?.quickComment) setAiComment(data.quickComment);
+    } catch { /* 실패 시 조용히 무시 */ }
+    finally { setLoadingComment(false); }
+  };
+
+  // ─── 달력 관련 ───────────────────────────────────────────────────────────────
+  const month = new Date();
+  const year = month.getFullYear();
+  const mon = month.getMonth();
+  const firstDay = new Date(year, mon, 1).getDay();
+  const daysInMonth = new Date(year, mon + 1, 0).getDate();
+  const entryMap = Object.fromEntries(entries.map(e => [e.date, e]));
+
+  const morningItems = cabinetItems.filter(i => i.is_morning).sort((a, b) => a.step_order - b.step_order);
+  const eveningItems = cabinetItems.filter(i => i.is_evening).sort((a, b) => a.step_order - b.step_order);
+
+  // ─── 렌더링 ──────────────────────────────────────────────────────────────────
+  return (
+    <div className="min-h-screen bg-neutral-50 pb-24">
+
+      {/* ── 헤더 ── */}
+      <div className="sticky top-0 z-10 bg-white border-b border-border safe-top">
+        <div className="px-4 pt-4 pb-1">
+          <h1 className="text-base font-bold text-foreground">내 피부</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {profile.skinType ? `${profile.skinType} 피부` : '피부 트래킹 & 루틴 관리'}
+          </p>
+        </div>
+
+        {/* 탭 */}
+        <div className="flex px-4 pb-0 gap-0">
+          {([
+            { key: 'diary',   label: '피부 일기', icon: BookOpen },
+            { key: 'routine', label: '루틴 체커', icon: Layers },
+            { key: 'cabinet', label: '보관함',    icon: Package },
+          ] as { key: MySkinTab; label: string; icon: React.ElementType }[]).map(t => (
+            <button
+              key={t.key}
+              onClick={() => setActiveTab(t.key)}
+              className={`flex items-center gap-1.5 px-4 py-3 text-xs font-semibold border-b-2 transition-all ${
+                activeTab === t.key
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground'
+              }`}
+            >
+              <t.icon className="h-3.5 w-3.5" />
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ─────────── 피부 일기 탭 ─────────── */}
+      {activeTab === 'diary' && (
+        <div className="px-4 pt-4 space-y-4">
+
+          {/* 오늘 피부 상태 — 빠른 입력 카드 */}
+          <div className="rounded-2xl border border-border bg-white shadow-card overflow-hidden">
+            <div className="flex items-center justify-between px-4 pt-4 pb-2">
+              <p className="text-sm font-bold text-foreground">오늘 피부 상태</p>
+              {todayEntry && diaryMode === 'view' && (
+                <button
+                  onClick={() => setDiaryMode('edit')}
+                  className="text-xs text-primary font-semibold"
+                >
+                  수정
+                </button>
+              )}
+            </div>
+
+            {diaryMode === 'view' && todayEntry ? (
+              // 저장된 오늘 기록 표시
+              <div className="px-4 pb-4 space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">{SCORE_EMOJI[todayEntry.skin_score]}</span>
+                  <div>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${SCORE_COLOR[todayEntry.skin_score]}`}>
+                      {todayEntry.skin_score}점
+                    </span>
+                    {todayEntry.trouble_spots?.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {todayEntry.trouble_spots.map(t => (
+                          <span key={t} className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{t}</span>
+                        ))}
+                      </div>
+                    )}
+                    {todayEntry.notes && <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{todayEntry.notes}</p>}
+                  </div>
+                </div>
+
+                {/* AI 코멘트 */}
+                {(loadingComment || aiComment) && (
+                  <div className="rounded-xl bg-primary/5 border border-primary/15 px-3 py-2.5">
+                    {loadingComment ? (
+                      <div className="flex items-center gap-2 text-xs text-primary">
+                        <Loader2 className="h-3 w-3 animate-spin" /> AI 코멘트 생성 중...
+                      </div>
+                    ) : (
+                      <div className="flex items-start gap-2">
+                        <Sparkles className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                        <p className="text-xs text-primary leading-relaxed">{aiComment}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+              // 입력 폼
+              <div className="px-4 pb-4 space-y-3">
+                {/* 점수 선택 — 이모지 5개 */}
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map(s => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setSkinScore(s)}
+                      className={`flex-1 flex flex-col items-center rounded-xl border-2 py-2 transition-all ${
+                        skinScore === s ? SCORE_COLOR[s] : 'border-border text-muted-foreground'
+                      }`}
+                    >
+                      <span className="text-xl">{SCORE_EMOJI[s]}</span>
+                      <span className="text-[9px] mt-0.5 font-semibold">{s}점</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* 트러블 태그 */}
+                <div className="flex flex-wrap gap-1.5">
+                  {TROUBLE_OPTIONS.map(t => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setTroubleSpots(prev =>
+                        prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]
+                      )}
+                      className={`rounded-full px-3 py-1 text-xs font-semibold transition-all ${
+                        troubleSpots.includes(t)
+                          ? 'bg-primary text-primary-foreground'
+                          : 'border border-border text-muted-foreground bg-white'
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+
+                {/* 메모 */}
+                <textarea
+                  value={notes}
+                  onChange={e => setNotes(e.target.value)}
+                  rows={2}
+                  placeholder="오늘 피부에 대해 메모해두세요 (선택)"
+                  className="w-full rounded-xl border border-border bg-neutral-50 px-3 py-2.5 text-xs resize-none outline-none focus:border-primary"
+                />
+
+                <button
+                  onClick={handleSaveDiary}
+                  disabled={savingDiary}
+                  className="w-full rounded-xl bg-primary py-3 text-xs font-bold text-primary-foreground disabled:opacity-50"
+                >
+                  {savingDiary ? '저장 중...' : todayEntry ? '수정 완료' : '오늘 피부 기록'}
+                </button>
+              </div>
+            )}
+
+            {/* 오늘 기록 없고 view모드면 입력 유도 */}
+            {diaryMode === 'view' && !todayEntry && (
+              <div className="px-4 pb-4 space-y-3">
+                <p className="text-xs text-muted-foreground">아직 오늘 기록이 없어요</p>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map(s => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => { setSkinScore(s); setDiaryMode('edit'); }}
+                      className="flex-1 flex flex-col items-center rounded-xl border border-border py-2 hover:border-primary/50 transition-all"
+                    >
+                      <span className="text-xl">{SCORE_EMOJI[s]}</span>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[10px] text-muted-foreground text-center">오늘 피부 상태를 선택하세요</p>
+              </div>
+            )}
+          </div>
+
+          {/* 이번 달 달력 */}
+          <div className="rounded-2xl border border-border bg-white shadow-card overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <p className="text-sm font-bold text-foreground">{year}년 {mon + 1}월 기록</p>
+              <button
+                onClick={() => navigate('/diary')}
+                className="flex items-center gap-0.5 text-xs text-primary font-medium"
+              >
+                전체 보기 <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+            <div className="p-3">
+              <div className="grid grid-cols-7 mb-1">
+                {['일', '월', '화', '수', '목', '금', '토'].map((d, i) => (
+                  <div key={d} className={`text-center text-[10px] font-medium py-1 ${i === 0 ? 'text-red-400' : i === 6 ? 'text-primary' : 'text-muted-foreground'}`}>
+                    {d}
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-7 gap-0.5">
+                {Array.from({ length: firstDay }).map((_, i) => <div key={`e-${i}`} className="aspect-square" />)}
+                {Array.from({ length: daysInMonth }).map((_, i) => {
+                  const d = i + 1;
+                  const dateStr = `${year}-${String(mon + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                  const entry = entryMap[dateStr];
+                  const isToday = dateStr === todayStr;
+                  return (
+                    <button
+                      key={d}
+                      onClick={() => navigate('/diary')}
+                      className={`aspect-square flex flex-col items-center justify-center rounded-lg text-[11px] font-medium transition-all ${
+                        isToday ? 'ring-2 ring-primary ring-offset-1' : ''
+                      } ${entry ? '' : 'hover:bg-neutral-50'}`}
+                    >
+                      {entry ? (
+                        <>
+                          <span className="text-base leading-none">{SCORE_EMOJI[entry.skin_score]}</span>
+                          <span className="text-[8px] text-muted-foreground">{d}</span>
+                        </>
+                      ) : (
+                        <span className={isToday ? 'text-primary font-bold' : 'text-muted-foreground'}>{d}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* AI 인사이트 / 타임라인 링크 */}
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => navigate('/diary')}
+              className="flex flex-col gap-2 rounded-2xl border border-border bg-white p-4 text-left shadow-card"
+            >
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="text-xs font-bold text-foreground">AI 인사이트</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                {entries.length >= 3 ? `${entries.length}일 데이터 기반 분석` : '3일 이상 기록 후 확인'}
+              </p>
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground ml-auto" />
+            </button>
+            <button
+              onClick={() => navigate('/timeline')}
+              className="flex flex-col gap-2 rounded-2xl border border-border bg-white p-4 text-left shadow-card"
+            >
+              <div className="flex items-center gap-1.5">
+                <TrendingUp className="h-4 w-4 text-indigo-500" />
+                <span className="text-xs font-bold text-foreground">피부 타임라인</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">장기 변화 추세 시각화</p>
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground ml-auto" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────── 루틴 체커 탭 ─────────── */}
+      {activeTab === 'routine' && (
+        <div className="px-4 pt-4 space-y-4">
+          {/* 루틴 안전도 카드 */}
+          <RoutineSafetyCard />
+
+          {/* 루틴 상세 관리 바로가기 */}
+          <button
+            onClick={() => navigate('/routine')}
+            className="flex w-full items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-4 text-left"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15">
+              <Layers className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-foreground">루틴 성분 궁합 분석</p>
+              <p className="text-xs text-muted-foreground mt-0.5">아침·저녁 루틴 제품 추가 및 AI 분석</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+          </button>
+
+          {/* 아침/저녁 루틴 미리보기 */}
+          {(morningItems.length > 0 || eveningItems.length > 0) ? (
+            <div className="grid grid-cols-2 gap-3">
+              {/* 아침 */}
+              <div className="rounded-2xl border border-yellow-200 bg-yellow-50 p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <Sun className="h-3.5 w-3.5 text-yellow-500" />
+                    <span className="text-xs font-bold text-yellow-700">아침</span>
+                  </div>
+                  <span className="text-xs font-bold text-yellow-600">{morningItems.length}개</span>
+                </div>
+                <div className="space-y-1">
+                  {morningItems.slice(0, 5).map((item, i) => (
+                    <div key={item.id} className="flex items-center gap-1.5">
+                      <span className="w-3 text-[10px] font-bold text-yellow-400 shrink-0">{i + 1}</span>
+                      <span className="text-[11px] text-yellow-800 truncate">{item.product_name}</span>
+                    </div>
+                  ))}
+                  {morningItems.length > 5 && <p className="text-[10px] text-yellow-400">+{morningItems.length - 5}개 더</p>}
+                </div>
+              </div>
+              {/* 저녁 */}
+              <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <Moon className="h-3.5 w-3.5 text-indigo-500" />
+                    <span className="text-xs font-bold text-indigo-700">저녁</span>
+                  </div>
+                  <span className="text-xs font-bold text-indigo-600">{eveningItems.length}개</span>
+                </div>
+                <div className="space-y-1">
+                  {eveningItems.slice(0, 5).map((item, i) => (
+                    <div key={item.id} className="flex items-center gap-1.5">
+                      <span className="w-3 text-[10px] font-bold text-indigo-400 shrink-0">{i + 1}</span>
+                      <span className="text-[11px] text-indigo-800 truncate">{item.product_name}</span>
+                    </div>
+                  ))}
+                  {eveningItems.length > 5 && <p className="text-[10px] text-indigo-400">+{eveningItems.length - 5}개 더</p>}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-border bg-white py-8 text-center">
+              <p className="text-sm text-muted-foreground">아직 루틴 제품이 없어요</p>
+              <button
+                onClick={() => navigate('/routine')}
+                className="mt-3 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground"
+              >
+                루틴 설정하러 가기
+              </button>
+            </div>
+          )}
+
+          {/* 트러블 솔루션 바로가기 */}
+          <button
+            onClick={() => navigate('/skin-solution')}
+            className="flex w-full items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3.5 text-left"
+          >
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-100">
+              <TrendingDown className="h-4 w-4 text-rose-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-foreground">트러블 솔루션</p>
+              <p className="text-[11px] text-muted-foreground">피부 트러블 유형별 케어 & 약품 추천</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+          </button>
+        </div>
+      )}
+
+      {/* ─────────── 보관함 탭 ─────────── */}
+      {activeTab === 'cabinet' && (
+        <div className="px-4 pt-4 space-y-4">
+          {/* 보관함 바로가기 배너 */}
+          <button
+            onClick={() => navigate('/cabinet')}
+            className="flex w-full items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-left"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100">
+              <Package className="h-5 w-5 text-amber-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-amber-800">내 화장품 보관함</p>
+              <p className="text-xs text-amber-600 mt-0.5">
+                {cabinetLoading ? '로딩 중...' : `${cabinetItems.length}개 제품 · 날씨 맞춤 루틴 추천`}
+              </p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-amber-400 shrink-0" />
+          </button>
+
+          {/* 아침/저녁 요약 */}
+          {!cabinetLoading && (morningItems.length > 0 || eveningItems.length > 0) ? (
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl border border-yellow-200 bg-yellow-50 p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <Sun className="h-3.5 w-3.5 text-yellow-500" />
+                    <span className="text-xs font-bold text-yellow-700">아침 루틴</span>
+                  </div>
+                  <span className="text-xs text-yellow-600 font-bold">{morningItems.length}개</span>
+                </div>
+                {morningItems.slice(0, 4).map((item, i) => (
+                  <div key={item.id} className="flex items-center gap-1.5 mb-1">
+                    <span className="w-3 text-[10px] font-bold text-yellow-400 shrink-0">{i + 1}</span>
+                    <span className="text-[11px] text-yellow-800 truncate">{item.product_name}</span>
+                  </div>
+                ))}
+                {morningItems.length > 4 && <p className="text-[10px] text-yellow-400">+{morningItems.length - 4}개</p>}
+              </div>
+              <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <Moon className="h-3.5 w-3.5 text-indigo-500" />
+                    <span className="text-xs font-bold text-indigo-700">저녁 루틴</span>
+                  </div>
+                  <span className="text-xs text-indigo-600 font-bold">{eveningItems.length}개</span>
+                </div>
+                {eveningItems.slice(0, 4).map((item, i) => (
+                  <div key={item.id} className="flex items-center gap-1.5 mb-1">
+                    <span className="w-3 text-[10px] font-bold text-indigo-400 shrink-0">{i + 1}</span>
+                    <span className="text-[11px] text-indigo-800 truncate">{item.product_name}</span>
+                  </div>
+                ))}
+                {eveningItems.length > 4 && <p className="text-[10px] text-indigo-400">+{eveningItems.length - 4}개</p>}
+              </div>
+            </div>
+          ) : !cabinetLoading ? (
+            <div className="rounded-2xl border border-dashed border-border bg-white py-8 text-center">
+              <p className="text-sm text-muted-foreground">보관함이 비어있어요</p>
+              <button
+                onClick={() => navigate('/cabinet')}
+                className="mt-3 flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground mx-auto"
+              >
+                <Plus className="h-3.5 w-3.5" /> 제품 추가하기
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {[1, 2, 3].map(i => <div key={i} className="h-14 rounded-2xl bg-neutral-200 animate-pulse" />)}
+            </div>
+          )}
+
+          {/* 성분 블랙리스트 바로가기 */}
+          <button
+            onClick={() => navigate('/blacklist')}
+            className="flex w-full items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3.5 text-left"
+          >
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-100">
+              <Minus className="h-4 w-4 text-red-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-foreground">성분 블랙리스트</p>
+              <p className="text-[11px] text-muted-foreground">내 피부에 맞지 않는 성분 자동 경보</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+          </button>
+        </div>
+      )}
+
+      <BottomNav />
+    </div>
+  );
+};
+
+export default MySkin;

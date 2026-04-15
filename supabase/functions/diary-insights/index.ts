@@ -40,10 +40,52 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { diaryEntries, recentAnalyses } = await req.json() as {
+    const body = await req.json() as {
       diaryEntries: DiaryEntry[];
       recentAnalyses: AnalysisEntry[];
+      quickComment?: boolean;
+      score?: number;
+      troubles?: string[];
+      skinType?: string;
     };
+
+    // ── quickComment 모드: 오늘 기록 저장 직후 짧은 AI 코멘트 ──
+    if (body.quickComment) {
+      const { score = 3, troubles = [], skinType = '' } = body;
+      const troubleText = troubles.length > 0 ? troubles.join(', ') : '특이사항 없음';
+      const prompt = `당신은 친절한 한국 피부관리 전문가입니다.
+사용자 피부타입: ${skinType}
+오늘 피부점수: ${score}/5
+오늘 트러블: ${troubleText}
+
+이 정보를 바탕으로 오늘 피부 상태에 대한 짧은 코멘트(1~2문장, 50자 이내)와 간단한 케어 팁을 알려주세요.
+따뜻하고 간결하게, 이모지 1개 포함해서 답변하세요. 텍스트만 반환하세요.`;
+
+      const aiResp = await fetch(GROQ_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${GROQ_API_KEY}` },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.6,
+          max_tokens: 120,
+        }),
+      });
+      if (aiResp.ok) {
+        const data = await aiResp.json();
+        const comment = data.choices?.[0]?.message?.content?.trim() ?? '';
+        return new Response(
+          JSON.stringify({ quickComment: comment }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        );
+      }
+      return new Response(
+        JSON.stringify({ quickComment: '' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
+    const { diaryEntries, recentAnalyses } = body;
 
     if (!diaryEntries || diaryEntries.length < 3) {
       return new Response(

@@ -24,7 +24,7 @@ interface MoreItem {
 
 const MORE_ITEMS: MoreItem[] = [
   { Icon: Layers,      label: '루틴 체커',      sub: '성분 궁합 분析',     path: '/routine',       color: 'text-violet-600 bg-violet-50' },
-  { Icon: BookMarked,  label: '피부 일기',      sub: 'AI 인사이트 기록',   path: '/diary',         color: 'text-emerald-600 bg-emerald-50' },
+  { Icon: BookMarked,  label: '피부 일기',      sub: 'AI 인사이트 기록',   path: '/myskin',        color: 'text-emerald-600 bg-emerald-50' },
   { Icon: Package,     label: '내 보관함',      sub: '날씨 맞춤 루틴',     path: '/cabinet',       color: 'text-amber-600 bg-amber-50' },
   { Icon: ShieldAlert, label: '성분 블랙리스트', sub: '위험 성분 자동 경보', path: '/blacklist',     color: 'text-red-500 bg-red-50' },
   { Icon: TrendingUp,  label: '피부 타임라인',   sub: '변화 추세 시각화',   path: '/timeline',      color: 'text-indigo-600 bg-indigo-50' },

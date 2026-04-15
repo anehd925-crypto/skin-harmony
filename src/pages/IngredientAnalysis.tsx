@@ -140,13 +140,19 @@ const IngredientAnalysis = () => {
 
   // OCR 스캔에서 돌아올 때 성분 텍스트 자동 입력, ScanHub에서 초기 모드 지정
   useEffect(() => {
-    const state = location.state as { prefilledIngredients?: string; fromScan?: boolean; initialMode?: 'url' | 'text' } | null;
+    const state = location.state as { prefilledIngredients?: string; fromScan?: boolean; initialMode?: 'url' | 'text' | 'product'; productName?: string; productBrand?: string } | null;
     if (state?.prefilledIngredients) {
       setMode('text');
       setIngredientsText(state.prefilledIngredients);
       window.history.replaceState({}, '');
+    } else if (state?.initialMode === 'product' && state?.productName) {
+      // 제품명 검색으로 진입 → text 모드로 전환 후 제품명/브랜드 채우기
+      setMode('text');
+      setProductName(state.productName);
+      if (state.productBrand) setProductBrand(state.productBrand);
+      window.history.replaceState({}, '');
     } else if (state?.initialMode) {
-      setMode(state.initialMode);
+      setMode(state.initialMode as 'url' | 'text');
       window.history.replaceState({}, '');
     }
   }, [location.state]);

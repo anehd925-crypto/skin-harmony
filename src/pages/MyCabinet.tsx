@@ -24,10 +24,13 @@ interface CabinetItem {
 }
 
 interface ProductSuggestion {
-  id: string;
   name: string;
   brand: string;
   category: string;
+  step: string;
+  is_morning: boolean;
+  is_evening: boolean;
+  note: string;
 }
 
 // ─── 카테고리 ─────────────────────────────────────────────────────────────────
@@ -146,23 +149,28 @@ const MyCabinet = () => {
 
   useEffect(() => { loadCabinet(); }, [loadCabinet]);
 
-  // ─── 제품 DB 검색 (디바운스 300ms) ───────────────────────────────────────────
+  // ─── 제품 AI 검색 (디바운스 500ms) ──────────────────────────────────────────
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     const q = searchQuery.trim();
-    if (!q) { setSuggestions([]); return; }
+    if (!q || q.length < 1) { setSuggestions([]); return; }
 
     debounceRef.current = setTimeout(async () => {
       setSearchLoading(true);
-      const { data } = await supabase
-        .from('products')
-        .select('id, name, brand, category')
-        .or(`name.ilike.%${q}%,brand.ilike.%${q}%`)
-        .limit(8);
-      setSuggestions((data ?? []) as ProductSuggestion[]);
-      setSearchLoading(false);
-    }, 300);
+      try {
+        const { data, error } = await supabase.functions.invoke('product-search', {
+          body: { query: q },
+        });
+        if (!error && data?.suggestions) {
+          setSuggestions(data.suggestions as ProductSuggestion[]);
+        }
+      } catch {
+        setSuggestions([]);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 500);
 
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [searchQuery]);
@@ -193,18 +201,28 @@ const MyCabinet = () => {
   };
 
   const pickSuggestion = (s: ProductSuggestion) => {
-    // DB 카테고리 → 내 카테고리 키 매핑
+    const stepMap: Record<string, number> = {
+      '클렌징': 1, '토너·스킨': 2, '에센스': 3, '세럼·앰플': 4,
+      '아이크림': 5, '로션·에멀전': 6, '크림': 7, '선크림': 8, '메이크업': 9,
+    };
     const catMap: Record<string, CategoryKey> = {
-      cleansing: 'cleansing_foam',
-      skincare: 'skincare',
-      sunscreen: 'suncare',
-      treatment: 'treatment',
-      makeup: 'makeup',
-      body: 'body',
-      hair: 'hair',
+      cleansing: 'cleansing_foam', cleansing_foam: 'cleansing_foam',
+      cleansing_oil: 'cleansing_oil', cleansing_water: 'cleansing_water',
+      skincare: 'skincare', suncare: 'suncare', treatment: 'treatment',
+      makeup: 'makeup', body: 'body', hair: 'hair',
     };
     const mappedCat: CategoryKey = catMap[s.category] ?? 'skincare';
-    setForm(f => ({ ...f, product_name: s.name, product_brand: s.brand, category: mappedCat }));
+    const mappedStep = stepMap[s.step] ?? 2;
+    setForm(f => ({
+      ...f,
+      product_name: s.name,
+      product_brand: s.brand,
+      category: mappedCat,
+      step_order: mappedStep,
+      is_morning: s.is_morning,
+      is_evening: s.is_evening,
+      notes: s.note ? `AI 추천: ${s.note}` : f.notes,
+    }));
     setSearchQuery('');
     setSuggestions([]);
   };
@@ -587,23 +605,33 @@ const MyCabinet = () => {
                 {searchQuery && (
                   <div className="rounded-xl border border-border overflow-hidden">
                     {searchLoading ? (
-                      <div className="px-4 py-3 text-xs text-muted-foreground">검색 중...</div>
+                      <div className="flex items-center gap-2 px-4 py-3 text-xs text-muted-foreground">
+                        <div className="h-3 w-3 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                        AI가 제품을 찾고 있어요...
+                      </div>
                     ) : suggestions.length > 0 ? (
-                      suggestions.map(s => (
+                      suggestions.map((s, i) => (
                         <button
-                          key={s.id}
+                          key={i}
                           type="button"
                           onClick={() => pickSuggestion(s)}
                           className="flex w-full items-center gap-3 border-b border-border last:border-b-0 px-4 py-3 text-left hover:bg-accent transition-colors"
                         >
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-base">
                             {getCat(s.category).emoji}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold truncate text-foreground">{s.name}</p>
-                            <p className="text-xs text-muted-foreground">{s.brand}</p>
+                            <p className="text-xs text-muted-foreground">{s.brand} · {s.step}</p>
+                            {s.note && <p className="text-[10px] text-primary/70 mt-0.5">{s.note}</p>}
                           </div>
-                          <span className="shrink-0 text-[10px] text-primary font-semibold">선택</span>
+                          <div className="flex flex-col items-end gap-1 shrink-0">
+                            <span className="text-[10px] text-primary font-semibold">선택</span>
+                            <div className="flex gap-1">
+                              {s.is_morning && <span className="text-[9px] text-yellow-600 bg-yellow-50 px-1.5 rounded-full">아침</span>}
+                              {s.is_evening && <span className="text-[9px] text-indigo-600 bg-indigo-50 px-1.5 rounded-full">저녁</span>}
+                            </div>
+                          </div>
                         </button>
                       ))
                     ) : (
