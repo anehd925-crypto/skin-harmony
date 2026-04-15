@@ -281,16 +281,16 @@ const Routine = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background pb-24">
-      {/* 헤더 */}
-      <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-background/95 backdrop-blur px-4 py-3">
-        <button onClick={() => navigate('/history')} className="text-muted-foreground hover:text-foreground">
-          <ChevronLeft className="h-5 w-5" />
+    <div className="flex min-h-screen flex-col bg-neutral-50 pb-24">
+      {/* 브랜드 헤더 배너 */}
+      <div className="gradient-brand px-5 pb-6 pt-12">
+        <button onClick={() => navigate('/history')} className="mb-3 flex items-center gap-1 text-sm text-primary-foreground/80">
+          <ChevronLeft className="h-4 w-4" />기록
         </button>
-        <div>
-          <h1 className="text-base font-semibold">루틴 체커</h1>
-          <p className="text-xs text-muted-foreground">제품 궁합을 AI로 점수 매겨드려요</p>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-lg font-bold text-primary-foreground">루틴 체커</span>
         </div>
+        <p className="text-sm text-primary-foreground/80">제품 궁합을 AI로 점수 매겨드려요</p>
       </div>
 
       <div className="flex-1 px-5 py-5 space-y-4">
@@ -362,7 +362,7 @@ const Routine = () => {
           <Button
             onClick={handleCheckConflicts}
             disabled={checkingConflicts}
-            className="w-full rounded-xl gradient-primary text-primary-foreground h-12"
+            className="w-full rounded-xl gradient-brand text-primary-foreground h-12 shadow-primary"
           >
             {checkingConflicts ? (
               <><Loader2 className="h-4 w-4 mr-2 animate-spin" />AI 분석 중...</>

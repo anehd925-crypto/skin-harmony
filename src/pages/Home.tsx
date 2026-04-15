@@ -151,9 +151,9 @@ const Home = () => {
   const gradeLabel = { good: '안전', moderate: '보통', bad: '주의' };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-neutral-50 pb-20">
       {/* 헤더 */}
-      <div className="gradient-primary px-5 pb-6 pt-12">
+      <div className="gradient-brand px-5 pb-6 pt-12">
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-primary-foreground" />
           <span className="text-lg font-bold text-primary-foreground">BeautyLens</span>
@@ -181,7 +181,7 @@ const Home = () => {
         <div className="grid grid-cols-3 gap-2.5 -mt-3">
           <button
             onClick={() => navigate('/scan')}
-            className="flex flex-col items-center gap-2 rounded-2xl border border-primary/20 bg-primary/10 p-4 transition-all active:scale-95"
+            className="flex flex-col items-center gap-2 rounded-2xl border border-primary/20 bg-primary/10 p-4 shadow-card transition-all active:scale-95"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow">
               <Camera className="h-5 w-5" />
@@ -192,7 +192,7 @@ const Home = () => {
 
           <button
             onClick={() => navigate('/routine')}
-            className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4 transition-all active:scale-95"
+            className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4 shadow-card transition-all active:scale-95"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-purple-600">
               <Layers className="h-5 w-5" />
@@ -203,7 +203,7 @@ const Home = () => {
 
           <button
             onClick={() => navigate('/diary')}
-            className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4 transition-all active:scale-95"
+            className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4 shadow-card transition-all active:scale-95"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 text-green-600">
               <BookMarked className="h-5 w-5" />
@@ -231,7 +231,7 @@ const Home = () => {
                 <button
                   key={p.id}
                   onClick={() => navigate(`/product/${p.id}`)}
-                  className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3 text-left transition-shadow hover:shadow-md"
+                  className="flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3 text-left shadow-card transition-shadow hover:shadow-soft"
                 >
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-accent text-2xl">
                     {p.category === 'makeup' ? '💄' : p.category === 'suncare' ? '☀️' : '🧴'}
@@ -373,7 +373,7 @@ const Home = () => {
                   <button
                     key={a.id}
                     onClick={() => navigate('/history')}
-                    className="flex w-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left"
+                    className="flex w-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left shadow-card"
                   >
                     <FlaskConical className="h-5 w-5 shrink-0 text-muted-foreground" />
                     <div className="flex-1 min-w-0">

@@ -123,9 +123,9 @@ const Explore = () => {
   }, [scored, category, query, sort]);
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-neutral-50 pb-20">
       {/* 헤더 */}
-      <div className="gradient-primary px-5 pb-5 pt-12">
+      <div className="gradient-brand px-5 pb-5 pt-12">
         <h1 className="text-lg font-bold text-primary-foreground">탐색</h1>
         <p className="mt-0.5 text-sm text-primary-foreground/80">제품명, 브랜드, 성분으로 검색하세요</p>
         <div className="relative mt-3">
@@ -134,7 +134,7 @@ const Explore = () => {
             placeholder="제품명, 브랜드 검색"
             value={query}
             onChange={e => { setQuery(e.target.value); resetVisible(); }}
-            className="rounded-xl bg-background pl-10 border-0 shadow-sm"
+            className="rounded-xl bg-background pl-10 border-0 shadow-card"
           />
         </div>
       </div>
@@ -223,7 +223,7 @@ const Explore = () => {
               onClick={() => { setCategory(cat.key); resetVisible(); }}
               className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
                 category === cat.key
-                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  ? 'bg-primary text-primary-foreground shadow-card'
                   : 'bg-secondary text-secondary-foreground'
               }`}
             >

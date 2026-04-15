@@ -6,9 +6,9 @@ const ScanHub = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-screen flex-col bg-background pb-24">
+    <div className="flex min-h-screen flex-col bg-neutral-50 pb-24">
       {/* 헤더 */}
-      <div className="gradient-primary px-5 pb-8 pt-12">
+      <div className="gradient-brand px-5 pb-8 pt-12">
         <div className="flex items-center gap-2 mb-1">
           <ScanLine className="h-5 w-5 text-primary-foreground" />
           <span className="text-lg font-bold text-primary-foreground">성분 분석</span>
@@ -23,7 +23,7 @@ const ScanHub = () => {
         {/* 카메라 스캔 — 메인 카드 */}
         <button
           onClick={() => navigate('/scan-ocr')}
-          className="w-full rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 p-5 text-left shadow-sm hover:shadow-md transition-all active:scale-[0.99]"
+          className="w-full rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 p-5 text-left shadow-card hover:shadow-soft transition-all active:scale-[0.99]"
         >
           <div className="flex items-start gap-4">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow">
@@ -47,7 +47,7 @@ const ScanHub = () => {
         {/* URL 입력 */}
         <button
           onClick={() => navigate('/analyze', { state: { initialMode: 'url' } })}
-          className="w-full rounded-2xl border border-border bg-card p-5 text-left hover:shadow-md transition-all active:scale-[0.99]"
+          className="w-full rounded-2xl border border-border bg-card p-5 text-left shadow-card hover:shadow-soft transition-all active:scale-[0.99]"
         >
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
@@ -68,7 +68,7 @@ const ScanHub = () => {
         {/* 직접 입력 */}
         <button
           onClick={() => navigate('/analyze', { state: { initialMode: 'text' } })}
-          className="w-full rounded-2xl border border-border bg-card p-5 text-left hover:shadow-md transition-all active:scale-[0.99]"
+          className="w-full rounded-2xl border border-border bg-card p-5 text-left shadow-card hover:shadow-soft transition-all active:scale-[0.99]"
         >
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-600">

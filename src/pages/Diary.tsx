@@ -215,25 +215,28 @@ const Diary = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-background pb-24">
-      {/* 헤더 */}
-      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/95 backdrop-blur px-4 py-3">
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/history')} className="text-muted-foreground hover:text-foreground">
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <h1 className="text-base font-semibold">피부 일기</h1>
+    <div className="flex min-h-screen flex-col bg-neutral-50 pb-24">
+      {/* 브랜드 헤더 배너 */}
+      <div className="gradient-brand px-5 pb-6 pt-12">
+        <button onClick={() => navigate('/history')} className="mb-3 flex items-center gap-1 text-sm text-primary-foreground/80">
+          <ChevronLeft className="h-4 w-4" />기록
+        </button>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-lg font-bold text-primary-foreground">피부 일기</h1>
+            <p className="text-sm text-primary-foreground/80 mt-0.5">매일 피부 상태를 기록하고 AI 인사이트를 받아보세요</p>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleGetInsight}
+            disabled={loadingInsight || entries.length < 3}
+            className="rounded-full text-xs bg-primary-foreground/20 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/30"
+          >
+            {loadingInsight ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 mr-1" />}
+            AI 인사이트
+          </Button>
         </div>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={handleGetInsight}
-          disabled={loadingInsight || entries.length < 3}
-          className="rounded-full text-xs"
-        >
-          {loadingInsight ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 mr-1" />}
-          AI 인사이트
-        </Button>
       </div>
 
       <div className="flex-1 px-4 py-4 space-y-4">
@@ -414,7 +417,7 @@ const Diary = () => {
               <Button
                 onClick={handleSave}
                 disabled={saving}
-                className="w-full rounded-xl gradient-primary text-primary-foreground"
+                className="w-full rounded-xl gradient-brand text-primary-foreground shadow-primary"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : '저장하기'}
               </Button>

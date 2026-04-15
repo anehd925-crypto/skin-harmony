@@ -289,8 +289,8 @@ BeautyLens로 분석했습니다`;
   const dangerCount = result?.ingredients.filter(i => i.safety === 'danger').length ?? 0;
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <div className="gradient-primary px-5 pb-6 pt-12">
+    <div className="min-h-screen bg-neutral-50 pb-20">
+      <div className="gradient-brand px-5 pb-6 pt-12">
         <button onClick={() => navigate(-1)} className="mb-4 flex items-center gap-1 text-sm text-primary-foreground/80">
           <ChevronLeft className="h-4 w-4" />뒤로
         </button>
@@ -326,7 +326,7 @@ BeautyLens로 분석했습니다`;
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-border bg-card p-4 shadow-sm space-y-3">
+                <div className="rounded-xl border border-border bg-card p-4 shadow-card space-y-3">
                   <div className="flex gap-2">
                     <Input
                       placeholder="https://www.oliveyoung.co.kr/... 또는 oy.run/..."
@@ -374,7 +374,7 @@ BeautyLens로 분석했습니다`;
                   <ChevronLeft className="h-3.5 w-3.5" />URL 붙여넣기로 돌아가기
                 </button>
 
-                <div className="rounded-xl border border-border bg-card p-4 shadow-sm space-y-3">
+                <div className="rounded-xl border border-border bg-card p-4 shadow-card space-y-3">
                   <p className="text-sm font-semibold text-foreground">전성분 직접 입력</p>
                   <p className="text-xs text-muted-foreground">
                     올리브영 상품 페이지 → 상품정보제공고시 → 전성분 복사 후 붙여넣기
@@ -421,7 +421,7 @@ BeautyLens로 분석했습니다`;
         {result && (
           <div className="-mt-4 space-y-4">
             {/* Product header */}
-            <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+            <div className="rounded-xl border border-border bg-card p-4 shadow-card">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <h2 className="text-base font-bold text-foreground">{result.productName}</h2>
@@ -456,7 +456,7 @@ BeautyLens로 분석했습니다`;
 
             {/* 내 피부 적합도 카드 */}
             {result.skinFit && (
-              <div className={`rounded-xl border p-4 shadow-sm ${
+              <div className={`rounded-xl border p-4 shadow-card ${
                 result.skinFit.label === '최적' ? 'border-success/40 bg-success/5' :
                 result.skinFit.label === '적합' ? 'border-primary/30 bg-primary/5' :
                 result.skinFit.label === '보통' ? 'border-warning/30 bg-warning/5' :
@@ -522,7 +522,7 @@ BeautyLens로 분석했습니다`;
             )}
 
             {/* Overall grade */}
-            <div className={`rounded-xl border p-4 shadow-sm ${
+            <div className={`rounded-xl border p-4 shadow-card ${
               result.overallGrade === 'good' ? 'border-success/30 bg-success/5' :
               result.overallGrade === 'bad' ? 'border-danger/30 bg-danger/5' :
               'border-warning/30 bg-warning/5'
@@ -558,7 +558,7 @@ BeautyLens로 분석했습니다`;
 
             {/* Key ingredients */}
             {result.keyIngredients && result.keyIngredients.length > 0 && (
-              <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+              <div className="rounded-xl border border-border bg-card p-4 shadow-card">
                 <div className="flex items-center gap-1.5 mb-3">
                   <Star className="h-4 w-4 text-warning fill-current" />
                   <h2 className="text-sm font-bold text-foreground">핵심 성분</h2>
@@ -576,7 +576,7 @@ BeautyLens로 분석했습니다`;
 
             {/* Ingredient interactions */}
             {result.interactions && result.interactions.length > 0 && (
-              <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+              <div className="rounded-xl border border-border bg-card p-4 shadow-card">
                 <div className="flex items-center gap-1.5 mb-3">
                   <Zap className="h-4 w-4 text-warning" />
                   <h2 className="text-sm font-bold text-foreground">성분 상호작용</h2>

@@ -245,9 +245,9 @@ const History = () => {
   }, [history]);
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-neutral-50 pb-20">
       {/* 헤더 */}
-      <div className="gradient-primary px-5 pb-4 pt-12">
+      <div className="gradient-brand px-5 pb-4 pt-12">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-primary-foreground" />
@@ -311,7 +311,7 @@ const History = () => {
       {/* 비교 모달 */}
       {!showCompare && compareIds.length === 2 && compareItems.length === 2 && (
         <div className="fixed inset-0 z-50 flex flex-col bg-background overflow-y-auto pb-20">
-          <div className="gradient-primary px-5 pb-4 pt-12 sticky top-0 z-10">
+          <div className="gradient-brand px-5 pb-4 pt-12 sticky top-0 z-10">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-primary-foreground">성분 비교</h2>
               <button onClick={() => setCompareIds([])} className="rounded-full bg-primary-foreground/20 p-1.5">
@@ -396,7 +396,7 @@ const History = () => {
               const dangerCount = item.result.ingredients?.filter(i => i.safety === 'danger').length ?? 0;
 
               return (
-                <div key={item.id} className={`rounded-xl border bg-card shadow-sm overflow-hidden transition-all ${isSelected ? 'border-primary ring-1 ring-primary' : 'border-border'}`}>
+                <div key={item.id} className={`rounded-xl border bg-card shadow-card overflow-hidden transition-all ${isSelected ? 'border-primary ring-1 ring-primary' : 'border-border'}`}>
                   <div className="p-4">
                     <div className="flex items-start gap-2">
                       {showCompare && (
@@ -631,7 +631,7 @@ const History = () => {
             {reportStats && (
               <div className="space-y-4">
                 {/* 요약 카드 */}
-                <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+                <div className="rounded-xl border border-border bg-card p-4 shadow-card">
                   <p className="mb-3 text-sm font-bold text-foreground">전체 분석 요약</p>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="rounded-xl bg-success/8 py-3">
@@ -663,7 +663,7 @@ const History = () => {
 
                 {/* 자주 발견된 위험 성분 */}
                 {reportStats.topDanger.length > 0 && (
-                  <div className="rounded-xl border border-danger/20 bg-danger/5 p-4 shadow-sm">
+                  <div className="rounded-xl border border-danger/20 bg-danger/5 p-4 shadow-card">
                     <p className="mb-2 text-sm font-bold text-foreground">자주 발견된 위험 성분</p>
                     <p className="mb-3 text-xs text-muted-foreground">분석한 제품에서 반복적으로 발견된 주의 필요 성분입니다</p>
                     <div className="space-y-2">
@@ -684,7 +684,7 @@ const History = () => {
 
                 {/* 자주 발견된 주의 성분 */}
                 {reportStats.topCaution.length > 0 && (
-                  <div className="rounded-xl border border-warning/20 bg-warning/5 p-4 shadow-sm">
+                  <div className="rounded-xl border border-warning/20 bg-warning/5 p-4 shadow-card">
                     <p className="mb-2 text-sm font-bold text-foreground">자주 발견된 주의 성분</p>
                     <div className="space-y-2">
                       {reportStats.topCaution.map(([name, cnt]) => (
@@ -703,7 +703,7 @@ const History = () => {
                 )}
 
                 {/* 자주 등장한 성분 */}
-                <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+                <div className="rounded-xl border border-border bg-card p-4 shadow-card">
                   <p className="mb-2 text-sm font-bold text-foreground">자주 등장한 성분 TOP 8</p>
                   <div className="flex flex-wrap gap-1.5">
                     {reportStats.topCommon.map(([name, info]) => (

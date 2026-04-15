@@ -63,8 +63,8 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="gradient-primary px-5 pb-6 pt-12">
+    <div className="min-h-screen bg-neutral-50 pb-24">
+      <div className="gradient-brand px-5 pb-6 pt-12">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary-foreground" />
@@ -212,7 +212,7 @@ const Profile = () => {
           <Input placeholder="예: 프로폴리스, 티트리오일" value={allergyInput} onChange={e => setAllergyInput(e.target.value)} className="rounded-xl border-2 border-border" />
         </Section>
 
-        <Button onClick={handleSave} className="w-full rounded-xl h-12 gradient-primary text-primary-foreground text-base font-semibold">
+        <Button onClick={handleSave} className="w-full rounded-xl h-12 gradient-brand text-primary-foreground text-base font-semibold shadow-primary">
           {saved ? <><Check className="mr-1 h-4 w-4" /> 저장됨</> : '저장하기'}
         </Button>
       </div>

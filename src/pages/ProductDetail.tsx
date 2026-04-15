@@ -61,7 +61,7 @@ const OliveyoungInventory = ({ productName }: { productName: string }) => {
   };
 
   return (
-    <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+    <div className="rounded-xl border border-border bg-card shadow-card overflow-hidden">
       {/* 헤더 */}
       <button
         onClick={() => setIsOpen(v => !v)}
@@ -466,9 +466,9 @@ const ProductDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-neutral-50 pb-20">
       {/* 헤더 */}
-      <div className="gradient-primary px-5 pb-6 pt-12">
+      <div className="gradient-brand px-5 pb-6 pt-12">
         <button onClick={() => navigate(-1)} className="mb-4 flex items-center gap-1 text-sm text-primary-foreground/80">
           <ChevronLeft className="h-4 w-4" />뒤로
         </button>
@@ -545,7 +545,7 @@ const ProductDetail = () => {
 
       <div className="px-5 space-y-4">
         {/* 내 평점 */}
-        <div className="-mt-4 rounded-xl border border-border bg-card p-4 shadow-sm">
+        <div className="-mt-4 rounded-xl border border-border bg-card p-4 shadow-card">
           <p className="mb-2 text-sm font-bold text-foreground">내 평점</p>
           <StarRating value={myRating} onChange={handleRating} />
           {myRating > 0 && (
@@ -559,7 +559,7 @@ const ProductDetail = () => {
         {/* 성분 분석 결과 or 분석하기 버튼 */}
         {hasIngredients ? (
           <>
-            <div className={`rounded-xl border p-4 shadow-sm ${
+            <div className={`rounded-xl border p-4 shadow-card ${
               overallGrade === 'good' ? 'border-success/30 bg-success/5' :
               overallGrade === 'bad' ? 'border-danger/30 bg-danger/5' :
               'border-warning/30 bg-warning/5'
@@ -607,7 +607,7 @@ const ProductDetail = () => {
             </div>
           </>
         ) : (
-          <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+          <div className="rounded-xl border border-border bg-card p-4 shadow-card">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
                 <AnalyzeIcon className="h-5 w-5 text-primary" />
@@ -628,7 +628,7 @@ const ProductDetail = () => {
         )}
 
         {/* 구매처 비교 */}
-        <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+        <div className="rounded-xl border border-border bg-card shadow-card p-4">
           <PurchaseLinks
             productName={product.name}
             productBrand={product.brand}

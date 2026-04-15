@@ -27,7 +27,7 @@ const BottomNav = () => {
                 onClick={() => navigate(path)}
                 className="flex flex-col items-center gap-0.5 px-2 -mt-5"
               >
-                <div className={`flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-all ${isActive ? 'bg-primary scale-110' : 'bg-primary/90'}`}>
+                <div className={`flex h-12 w-12 items-center justify-center rounded-full transition-all ${isActive ? 'bg-primary scale-110 shadow-primary' : 'bg-primary/90 shadow-lg'}`}>
                   <Icon className="h-5 w-5 text-primary-foreground" />
                 </div>
                 <span className={`text-[10px] font-medium mt-0.5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>{label}</span>

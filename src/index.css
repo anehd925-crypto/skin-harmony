@@ -45,6 +45,30 @@
 
     --gradient-primary: linear-gradient(135deg, hsl(340, 82%, 62%), hsl(320, 70%, 72%));
     --gradient-soft: linear-gradient(180deg, hsl(340, 40%, 97%), hsl(0, 0%, 100%));
+
+    /* 브랜드 컬러 확장 */
+    --primary-light: 340 82% 72%;
+    --primary-dark: 340 82% 48%;
+
+    /* 중립 컬러 (웜톤 기반) */
+    --neutral-50: 30 20% 98%;
+    --neutral-100: 30 15% 95%;
+    --neutral-200: 30 10% 88%;
+    --neutral-700: 20 10% 35%;
+
+    /* 그라데이션 확장 */
+    --gradient-brand: linear-gradient(135deg, hsl(340, 82%, 62%) 0%, hsl(320, 65%, 68%) 50%, hsl(300, 50%, 72%) 100%);
+    --gradient-card: linear-gradient(160deg, hsl(340, 40%, 99%) 0%, hsl(0, 0%, 100%) 100%);
+
+    /* 그림자 시스템 */
+    --shadow-soft: 0 2px 12px hsl(340, 30%, 88%);
+    --shadow-card: 0 1px 4px hsl(340, 20%, 90%), 0 4px 16px hsl(340, 15%, 94%);
+    --shadow-primary: 0 4px 16px hsl(340, 70%, 78%);
+
+    /* 타이포그래피 */
+    --font-display: 'Noto Sans KR', sans-serif;
+    --tracking-tight: -0.02em;
+    --tracking-brand: 0.06em;
   }
 
   .dark {
@@ -76,16 +100,52 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Noto Sans KR', sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-display);
+    letter-spacing: var(--tracking-tight);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    letter-spacing: var(--tracking-tight);
   }
 }
 
 @layer utilities {
+  /* 기존 그라데이션 */
   .gradient-primary {
     background: var(--gradient-primary);
   }
   .gradient-soft {
     background: var(--gradient-soft);
+  }
+
+  /* 신규 브랜드 그라데이션 */
+  .gradient-brand {
+    background: var(--gradient-brand);
+  }
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+
+  /* 그림자 유틸 */
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  .shadow-primary {
+    box-shadow: var(--shadow-primary);
+  }
+
+  /* 브랜드 앱명 레터스페이싱 */
+  .tracking-brand {
+    letter-spacing: var(--tracking-brand);
+  }
+  .tracking-tight-brand {
+    letter-spacing: var(--tracking-tight);
   }
 }

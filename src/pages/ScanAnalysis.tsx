@@ -255,7 +255,7 @@ const ScanAnalysis = () => {
                 잘못 인식된 내용은 직접 수정할 수 있어요
               </p>
             </div>
-            <Button onClick={handleAnalyze} className="w-full rounded-xl gradient-primary text-primary-foreground">
+            <Button onClick={handleAnalyze} className="w-full rounded-xl gradient-brand text-primary-foreground shadow-primary">
               성분 분석하기
             </Button>
             <Button variant="outline" onClick={handleReset} className="w-full rounded-xl">
@@ -267,7 +267,7 @@ const ScanAnalysis = () => {
         {/* 초기/카메라 미작동 상태 액션 버튼 */}
         {(status === 'idle' || (status === 'capturing' && !cameraActive)) && (
           <div className="space-y-3">
-            <Button onClick={startCamera} className="w-full rounded-xl gradient-primary text-primary-foreground h-14">
+            <Button onClick={startCamera} className="w-full rounded-xl gradient-brand text-primary-foreground h-14">
               <Camera className="h-5 w-5 mr-2" />
               카메라로 촬영
             </Button>
@@ -288,7 +288,7 @@ const ScanAnalysis = () => {
             <Button variant="outline" onClick={handleReset} className="flex-1 rounded-xl">
               취소
             </Button>
-            <Button onClick={captureAndOcr} className="flex-1 rounded-xl gradient-primary text-primary-foreground h-12">
+            <Button onClick={captureAndOcr} className="flex-1 rounded-xl gradient-brand text-primary-foreground h-12">
               <Camera className="h-4 w-4 mr-2" />
               촬영
             </Button>
