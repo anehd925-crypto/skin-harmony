@@ -105,7 +105,7 @@ Deno.serve(async (req) => {
       ? recentAnalyses
           .sort((a, b) => a.date.localeCompare(b.date))
           .map(a =>
-            `[${a.date}] ${a.product_name}${a.brand ? ` (${a.brand})` : ''} - 등급: ${a.overall_grade}, 주요성분: ${a.key_ingredients.slice(0, 5).join(', ')}`
+            `[${a.date}] ${a.product_name}${a.product_brand ? ` (${a.product_brand})` : ''} - 등급: ${a.overall_grade}, 주요성분: ${a.key_ingredients.slice(0, 5).join(', ')}`
           )
           .join('\n')
       : '분석 기록 없음';

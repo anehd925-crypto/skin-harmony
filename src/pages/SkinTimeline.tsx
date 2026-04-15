@@ -41,7 +41,11 @@ const SkinTimeline = () => {
   const [period, setPeriod] = useState<'30' | '60' | '90'>('30');
 
   useEffect(() => {
-    if (user) loadData();
+    if (user) {
+      loadData();
+    } else {
+      setLoading(false);
+    }
   }, [user, period]);
 
   const loadData = async () => {

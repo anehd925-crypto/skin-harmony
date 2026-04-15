@@ -124,11 +124,13 @@ const MySkin = () => {
     setCoachLoading(true);
     setCoachError(false);
     try {
-      const [{ data: diaryData }, { data: analysisData }] = await Promise.all([
+      const [{ data: diaryData }, { data: analysisData }, { data: cabinetData }] = await Promise.all([
         supabase.from('skin_diary').select('date, skin_score, trouble_spots, notes')
           .eq('user_id', user.id).order('date', { ascending: false }).limit(14),
         supabase.from('analysis_history').select('product_name, product_brand, overall_grade, created_at')
           .eq('user_id', user.id).order('created_at', { ascending: false }).limit(10),
+        supabase.from('my_cabinet' as never).select('product_name, is_morning, is_evening')
+          .eq('user_id', user.id),
       ]);
       const { data } = await supabase.functions.invoke('skin-coach', {
         body: {
@@ -136,7 +138,7 @@ const MySkin = () => {
             date: d.date, score: d.skin_score, troubles: d.trouble_spots ?? [], notes: d.notes,
           })),
           analysisHistory: analysisData ?? [],
-          cabinetItems: cabinetItems.map(c => ({
+          cabinetItems: (cabinetData ?? []).map((c: { product_name: string; is_morning: boolean; is_evening: boolean }) => ({
             product_name: c.product_name, is_morning: c.is_morning, is_evening: c.is_evening,
           })),
           userProfile: {
@@ -154,7 +156,7 @@ const MySkin = () => {
       else setCoachError(true);
     } catch { setCoachError(true); }
     finally { setCoachLoading(false); }
-  }, [user, profile, cabinetItems]);
+  }, [user, profile]); // cabinetItems 의존성 제거 → 함수 내부에서 직접 조회
 
   // 일기 탭으로 이동할 때 AI 코치 자동 로드 (첫 번째만)
   useEffect(() => {
@@ -334,8 +336,8 @@ const MySkin = () => {
                   </div>
                 )}
               </div>
-            ) : (
-              // 입력 폼
+            ) : diaryMode === 'edit' ? (
+              // 입력 폼 (edit 모드에서만 표시)
               <div className="px-4 pb-4 space-y-3">
                 {/* 점수 선택 — 이모지 5개 */}
                 <div className="flex gap-2">
@@ -405,25 +407,23 @@ const MySkin = () => {
                   {savingDiary ? '저장 중...' : todayEntry ? '수정 완료' : '오늘 피부 기록'}
                 </button>
               </div>
-            )}
+            ) : null}
 
-            {/* 오늘 기록 없고 view모드면 입력 유도 */}
             {diaryMode === 'view' && !todayEntry && (
-              <div className="px-4 pb-4 space-y-3">
-                <p className="text-xs text-muted-foreground">아직 오늘 기록이 없어요</p>
+              <div className="px-4 pb-4 space-y-2">
+                <p className="text-xs text-muted-foreground">오늘 피부 상태를 기록해보세요</p>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map(s => (
                     <button
                       key={s}
                       type="button"
                       onClick={() => { setSkinScore(s); setDiaryMode('edit'); }}
-                      className="flex-1 flex flex-col items-center rounded-xl border border-border py-2 hover:border-primary/50 transition-all"
+                      className="flex-1 flex flex-col items-center rounded-xl border border-border py-2 hover:border-primary/50 active:scale-95 transition-all"
                     >
                       <span className="text-xl">{SCORE_EMOJI[s]}</span>
                     </button>
                   ))}
                 </div>
-                <p className="text-[10px] text-muted-foreground text-center">오늘 피부 상태를 선택하세요</p>
               </div>
             )}
           </div>

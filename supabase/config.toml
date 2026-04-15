@@ -1,6 +1,6 @@
 project_id = "kvhqhwsgqfxtuisgcfxn"
 
-# 로그인 사용자만 호출 — JWT 검증 활성화
+# analyze-ingredients: Safari JWT 호환성 문제로 false 유지 (클라이언트 invoke로만 호출됨)
 [functions.analyze-ingredients]
 verify_jwt = false
 
@@ -30,6 +30,18 @@ verify_jwt = true
 [functions.skin-solution]
 verify_jwt = false
 
-# 날씨 기반 루틴 추천 — 로그인 없이도 사용 가능
+# 날씨 기반 루틴 추천 — 로그인 없이도 사용 가능 (보관함은 클라이언트에서 조회 후 전달)
 [functions.weather-routine]
+verify_jwt = false
+
+# AI 제품 검색 (텍스트 + vision) — 로그인 없이도 동작하도록 유지
+[functions.product-search]
+verify_jwt = false
+
+# AI 제품 비교 — 프로필 없이도 기본 비교 가능
+[functions.compare-products]
+verify_jwt = false
+
+# AI 피부 코치 — 클라이언트에서 데이터 수집 후 전달, JWT 불필요
+[functions.skin-coach]
 verify_jwt = false

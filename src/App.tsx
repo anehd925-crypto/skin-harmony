@@ -15,7 +15,6 @@ import Explore from "./pages/Explore.tsx";
 import Profile from "./pages/Profile.tsx";
 import IngredientAnalysis from "./pages/IngredientAnalysis.tsx";
 import AnalysisHistory from "./pages/AnalysisHistory.tsx";
-import ShareEntry from "./pages/ShareEntry.tsx";
 import HowToShare from "./pages/HowToShare.tsx";
 import Compare from "./pages/Compare.tsx";
 import Community from "./pages/Community.tsx";
