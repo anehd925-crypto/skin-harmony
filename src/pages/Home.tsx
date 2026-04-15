@@ -405,7 +405,7 @@ const Home = () => {
         )}
 
         {/* 최근 분석 피드 */}
-        {(analysisLoading || recentAnalysis.length > 0) && (
+        {user && (analysisLoading || recentAnalysis.length > 0) && (
           <section>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-1.5">
