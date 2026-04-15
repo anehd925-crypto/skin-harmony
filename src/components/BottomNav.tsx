@@ -1,12 +1,12 @@
-import { Home, ScanLine, Layers, BookOpen, User } from 'lucide-react';
+import { Home, ScanLine, Layers, BookOpen, User, NotebookPen } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const navItems = [
-  { icon: Home,      label: '홈',    path: '/' },
-  { icon: Layers,    label: '루틴',  path: '/routine' },
-  { icon: ScanLine,  label: '스캔',  path: '/scan', center: true },
-  { icon: BookOpen,  label: '기록',  path: '/history' },
-  { icon: User,      label: '프로필', path: '/profile' },
+  { icon: Home,         label: '홈',      path: '/' },
+  { icon: Layers,       label: '루틴',    path: '/routine' },
+  { icon: ScanLine,     label: '스캔',    path: '/scan', center: true },
+  { icon: NotebookPen,  label: '일기',    path: '/diary' },
+  { icon: User,         label: '프로필',  path: '/profile' },
 ];
 
 const BottomNav = () => {
@@ -19,6 +19,8 @@ const BottomNav = () => {
         {navItems.map(({ icon: Icon, label, path, center }) => {
           const isActive = path === '/scan'
             ? location.pathname.startsWith('/scan') || location.pathname === '/analyze'
+            : path === '/diary'
+            ? location.pathname === '/diary' || location.pathname === '/timeline'
             : location.pathname === path;
           if (center) {
             return (

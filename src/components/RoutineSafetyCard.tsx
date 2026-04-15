@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { ShieldCheck, AlertTriangle, ChevronRight, Loader2, Zap } from 'lucide-react';
+import { ShieldCheck, AlertTriangle, ChevronRight, Zap } from 'lucide-react';
 
 interface RoutineSafetyData {
   score: number;           // 0–100
@@ -90,9 +90,15 @@ const RoutineSafetyCard = () => {
 
   if (loading) {
     return (
-      <div className="mx-5 rounded-2xl border border-border bg-card p-4 shadow-card flex items-center gap-3">
-        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-        <p className="text-xs text-muted-foreground">루틴 안전도 확인 중...</p>
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-neutral-200 animate-pulse shrink-0" />
+          <div className="flex-1 space-y-2">
+            <div className="h-3 w-28 rounded bg-neutral-200 animate-pulse" />
+            <div className="h-2 w-full rounded-full bg-neutral-200 animate-pulse" />
+          </div>
+          <div className="h-4 w-4 rounded bg-neutral-200 animate-pulse shrink-0" />
+        </div>
       </div>
     );
   }
@@ -110,7 +116,7 @@ const RoutineSafetyCard = () => {
     <button
       type="button"
       onClick={() => navigate('/routine')}
-      className={`mx-5 flex w-[calc(100%-2.5rem)] items-center gap-3 rounded-2xl border ${c.border} ${c.bg} px-4 py-3.5 text-left transition-all active:scale-[0.98]`}
+      className={`flex w-full items-center gap-3 rounded-2xl border ${c.border} ${c.bg} px-4 py-3.5 text-left transition-all active:scale-[0.98]`}
     >
       <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm`}>
         {data.level === 'safe'

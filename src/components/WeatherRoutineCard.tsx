@@ -224,17 +224,24 @@ const WeatherRoutineCard = ({ period }: Props) => {
 
   if (!weather) {
     return (
-      <button
-        onClick={() => loadWeatherAndRoutine(true)}
-        className="mx-4 flex w-[calc(100%-2rem)] items-center gap-3 rounded-2xl border border-dashed border-border bg-card p-4 text-left"
-      >
-        <CloudSun className="h-8 w-8 text-muted-foreground/50" />
-        <div className="flex-1">
-          <p className="text-xs font-semibold text-muted-foreground">날씨 정보를 가져올 수 없어요</p>
-          <p className="text-[10px] text-muted-foreground">위치 권한을 허용하면 날씨 맞춤 루틴을 드려요</p>
+      <div className="mx-4 rounded-2xl border border-dashed border-border bg-card p-4">
+        <div className="flex items-start gap-3">
+          <CloudSun className="h-8 w-8 shrink-0 text-muted-foreground/50 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-xs font-semibold text-muted-foreground">날씨 정보를 가져올 수 없어요</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">
+              위치 권한을 허용하면 오늘 날씨에 맞는 루틴 추천을 받을 수 있어요.<br />
+              브라우저 주소창 왼쪽의 자물쇠 아이콘 → 위치 권한을 <span className="font-semibold text-foreground">허용</span>으로 변경해주세요.
+            </p>
+          </div>
         </div>
-        <RefreshCw className="h-4 w-4 text-muted-foreground" />
-      </button>
+        <button
+          onClick={() => loadWeatherAndRoutine(true)}
+          className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary/10 py-2 text-xs font-semibold text-primary"
+        >
+          <RefreshCw className="h-3.5 w-3.5" /> 다시 시도
+        </button>
+      </div>
     );
   }
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUser } from '@/contexts/UserContext';
@@ -129,6 +129,7 @@ const ScoreGauge = ({ score, label }: { score: number; label: keyof typeof SCORE
 
 const Routine = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { profile } = useUser();
   const { toast } = useToast();
@@ -144,16 +145,24 @@ const Routine = () => {
   const [showConflicts, setShowConflicts] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [loadingRoutines, setLoadingRoutines] = useState(true);
-  // 낮(afternoon) 탭 활성 여부 — 로컬스토리지로 개인 설정 유지
+  // 낮(afternoon) 탭 활성 여부 — Supabase profiles에 저장 (기기 바뀌어도 유지)
   const [afternoonEnabled, setAfternoonEnabled] = useState(() => {
+    // 로컬 캐시로 즉시 렌더링, 이후 DB 값으로 갱신
     return localStorage.getItem('routine_afternoon_enabled') !== 'false';
   });
 
-  const toggleAfternoon = () => {
+  const toggleAfternoon = async () => {
     const next = !afternoonEnabled;
     setAfternoonEnabled(next);
     localStorage.setItem('routine_afternoon_enabled', String(next));
     if (!next && activeTab === 'afternoon') setActiveTab('morning');
+    // Supabase profiles에 settings 동기화
+    if (user) {
+      await supabase
+        .from('profiles')
+        .update({ afternoon_enabled: next } as never)
+        .eq('user_id', user.id);
+    }
   };
 
   const currentRoutine = routines[activeTab];
@@ -188,6 +197,33 @@ const Routine = () => {
   }, [user]);
 
   useEffect(() => { loadRoutines(); }, [loadRoutines]);
+
+  // DB에서 afternoonEnabled 값 동기화
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('profiles')
+      .select('afternoon_enabled')
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data && typeof (data as { afternoon_enabled?: boolean }).afternoon_enabled === 'boolean') {
+          const val = (data as { afternoon_enabled: boolean }).afternoon_enabled;
+          setAfternoonEnabled(val);
+          localStorage.setItem('routine_afternoon_enabled', String(val));
+        }
+      });
+  }, [user]);
+
+  // 보관함에서 '루틴에 추가' 버튼으로 진입한 경우 자동으로 모달 오픈
+  useEffect(() => {
+    const state = location.state as { cabinetItem?: { id: string; product_name: string; product_brand: string | null; category: string; analysis_history_id: string | null } } | null;
+    if (state?.cabinetItem) {
+      setShowAddModal(true);
+      // state 초기화(뒤로가기 후 재오픈 방지)
+      window.history.replaceState({}, '', location.pathname);
+    }
+  }, [location]);
 
   const loadHistory = async () => {
     if (!user) return;

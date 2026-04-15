@@ -6,7 +6,7 @@ import BottomNav from '@/components/BottomNav';
 import {
   ChevronLeft, Plus, Trash2, Sun, Moon, Pencil,
   Package, Droplets, X, Check, ChevronDown, ChevronUp,
-  FlaskConical, CalendarDays,
+  FlaskConical, CalendarDays, Layers,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -404,13 +404,27 @@ const MyCabinet = () => {
                           개봉: {item.opened_at} ({daysSinceOpened(item.opened_at)}일째 사용 중)
                         </div>
                       )}
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         <button
                           onClick={() => openEdit(item)}
                           className="flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-xs font-semibold text-foreground"
                         >
                           <Pencil className="h-3 w-3" /> 수정
                         </button>
+                        <button
+                          onClick={() => navigate('/routine', { state: { cabinetItem: { id: item.id, product_name: item.product_name, product_brand: item.product_brand, category: item.category, analysis_history_id: item.analysis_history_id } } })}
+                          className="flex items-center gap-1.5 rounded-full border border-purple-200 bg-purple-50 px-3 py-1.5 text-xs font-semibold text-purple-600"
+                        >
+                          <Layers className="h-3 w-3" /> 루틴에 추가
+                        </button>
+                        {item.analysis_history_id && (
+                          <button
+                            onClick={() => navigate('/history', { state: { highlightId: item.analysis_history_id } })}
+                            className="flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600"
+                          >
+                            <FlaskConical className="h-3 w-3" /> 성분 확인
+                          </button>
+                        )}
                         <button
                           onClick={() => handleDelete(item.id)}
                           className="flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600"

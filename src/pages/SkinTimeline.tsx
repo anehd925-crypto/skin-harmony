@@ -209,7 +209,10 @@ const SkinTimeline = () => {
                 <span className="text-xs text-muted-foreground">{scorePoints.length}개 기록</span>
               </div>
               {/* SVG 라인 차트 */}
-              <div className="overflow-x-auto px-2 pb-3">
+              <div
+                className="overflow-x-auto px-2 pb-3"
+                style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorX: 'contain' }}
+              >
                 <svg
                   width={chartWidth}
                   height={100}

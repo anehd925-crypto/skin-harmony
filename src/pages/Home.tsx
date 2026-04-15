@@ -27,17 +27,20 @@ const Home = () => {
     },
   });
 
-  // 최근 분석 기록 피드 (나 + 전체)
+  // 최근 분석 기록 피드 — 내 분석 기록만 표시 (user_id 필터)
   const { data: recentAnalysis = [], isLoading: analysisLoading } = useQuery({
-    queryKey: ['recent_analysis'],
+    queryKey: ['recent_analysis', user?.id],
     queryFn: async () => {
+      if (!user) return [];
       const { data } = await supabase
         .from('analysis_history')
         .select('id, product_name, product_brand, overall_grade, created_at, source')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(5);
       return data ?? [];
     },
+    enabled: !!user,
   });
 
   // 내 찜 목록 (홈에 간략히)
@@ -182,7 +185,7 @@ const Home = () => {
       <NotificationPermission />
 
       {/* 오늘의 루틴 안전도 카드 */}
-      <div className="pt-3">
+      <div className="pt-3 px-4">
         <RoutineSafetyCard />
       </div>
 
@@ -193,91 +196,65 @@ const Home = () => {
 
       <div className="px-5 space-y-6 pt-2">
 
-        {/* 빠른 액션 */}
-        <div className="grid grid-cols-2 gap-2.5 -mt-3">
-          <button
-            onClick={() => navigate('/scan')}
-            className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/10 p-4 shadow-card transition-all active:scale-95"
-          >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow">
-              <Camera className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-foreground">성분 스캔</p>
-              <p className="text-[10px] text-muted-foreground leading-tight">URL·카메라·직접입력</p>
-            </div>
-          </button>
+        {/* 빠른 액션 — 1단(주요2개) + 2단(나머지 2열 그리드) */}
+        <div className="space-y-2 -mt-3">
+          {/* 1단: 가장 많이 쓰는 2개 — 풀 와이드 */}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => navigate('/scan')}
+              className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/10 p-4 shadow-card transition-all active:scale-95"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow">
+                <Camera className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-foreground">성분 스캔</p>
+                <p className="text-[10px] text-muted-foreground leading-tight">URL·카메라·직접입력</p>
+              </div>
+            </button>
 
-          <button
-            onClick={() => navigate('/skin-solution')}
-            className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 shadow-card transition-all active:scale-95"
-          >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-500">
-              <span className="text-lg">💊</span>
-            </div>
-            <div>
-              <p className="text-xs font-bold text-foreground">트러블 솔루션</p>
-              <p className="text-[10px] text-muted-foreground leading-tight">약국 의약품 추천</p>
-            </div>
-          </button>
+            <button
+              onClick={() => navigate('/skin-solution')}
+              className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 shadow-card transition-all active:scale-95"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-500">
+                <span className="text-lg">💊</span>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-foreground">트러블 솔루션</p>
+                <p className="text-[10px] text-muted-foreground leading-tight">약국 의약품 추천</p>
+              </div>
+            </button>
+          </div>
 
-          <button
-            onClick={() => navigate('/routine')}
-            className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card transition-all active:scale-95"
-          >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-purple-600">
-              <Layers className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-foreground">루틴 체커</p>
-              <p className="text-[10px] text-muted-foreground leading-tight">궁합 점수 분석</p>
-            </div>
-          </button>
+          {/* 2단: 나머지 기능들 */}
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { icon: <Layers className="h-5 w-5" />, label: '루틴', sub: '궁합분석', path: '/routine', bg: 'bg-purple-100', text: 'text-purple-600' },
+              { icon: <BookMarked className="h-5 w-5" />, label: '피부일기', sub: 'AI기록', path: '/diary', bg: 'bg-green-100', text: 'text-green-600' },
+              { icon: <Package className="h-5 w-5" />, label: '보관함', sub: '날씨추천', path: '/cabinet', bg: 'bg-amber-100', text: 'text-amber-600' },
+              { icon: <ShieldAlert className="h-5 w-5" />, label: '블랙리스트', sub: '성분경보', path: '/blacklist', bg: 'bg-red-100', text: 'text-red-500' },
+            ].map(item => (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className="flex flex-col items-center gap-1.5 rounded-2xl border border-border bg-card p-3 shadow-card transition-all active:scale-95"
+              >
+                <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${item.bg} ${item.text}`}>
+                  {item.icon}
+                </div>
+                <p className="text-[11px] font-bold text-foreground leading-tight text-center">{item.label}</p>
+                <p className="text-[9px] text-muted-foreground leading-none">{item.sub}</p>
+              </button>
+            ))}
+          </div>
 
-          <button
-            onClick={() => navigate('/diary')}
-            className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card transition-all active:scale-95"
-          >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-600">
-              <BookMarked className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-foreground">피부 일기</p>
-              <p className="text-[10px] text-muted-foreground leading-tight">AI 인사이트 기록</p>
-            </div>
-          </button>
-
-          <button
-            onClick={() => navigate('/blacklist')}
-            className="flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50/60 p-4 shadow-card transition-all active:scale-95"
-          >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-500">
-              <ShieldAlert className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-foreground">블랙리스트</p>
-              <p className="text-[10px] text-muted-foreground leading-tight">내 위험 성분 경보</p>
-            </div>
-          </button>
-
-          <button
-            onClick={() => navigate('/cabinet')}
-            className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card transition-all active:scale-95"
-          >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
-              <Package className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-foreground">내 보관함</p>
-              <p className="text-[10px] text-muted-foreground leading-tight">날씨 맞춤 루틴 추천</p>
-            </div>
-          </button>
-
+          {/* 타임라인 — 와이드 */}
           <button
             onClick={() => navigate('/timeline')}
-            className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card transition-all active:scale-95 col-span-2"
+            className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-3.5 shadow-card transition-all active:scale-95"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
               <TrendingDown className="h-5 w-5 rotate-180" />
             </div>
             <div>

@@ -119,14 +119,21 @@ const BlacklistPage = () => {
             <div key={i} className="h-20 rounded-2xl bg-neutral-200 animate-pulse" />
           ))
         ) : items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-3">
+          <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-50">
               <ShieldAlert className="h-8 w-8 text-green-400" />
             </div>
-            <p className="text-sm font-semibold text-foreground">아직 블랙리스트가 없어요</p>
-            <p className="text-xs text-muted-foreground text-center leading-relaxed">
-              제품을 분석하면 위험 성분이<br />자동으로 기록됩니다
+            <p className="text-sm font-semibold text-foreground">블랙리스트가 아직 비어있어요</p>
+            <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
+              지금 피부에 잘 맞지 않는 성분이 없거나, 아직 분석을 많이 안 하셨을 수 있어요.
             </p>
+            <div className="mt-1 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 max-w-xs">
+              <p className="text-xs font-semibold text-blue-700 mb-1">🤖 자동 학습 방식</p>
+              <p className="text-xs text-blue-700 leading-relaxed">
+                제품 성분 분석 시 <strong>위험·주의</strong> 등급으로 나온 성분이 자동으로 여기에 기록됩니다.
+                분석 횟수가 쌓일수록 내 피부에 맞지 않는 성분 패턴이 자동으로 파악돼요.
+              </p>
+            </div>
             <button
               onClick={() => navigate('/scan')}
               className="mt-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
