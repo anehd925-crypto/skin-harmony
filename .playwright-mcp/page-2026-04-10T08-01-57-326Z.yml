@@ -1,0 +1,31 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e6]
+      - generic [ref=e8]: BeautyLens
+    - paragraph [ref=e17]: 6 / 6
+    - generic [ref=e132]:
+      - generic [ref=e133]:
+        - paragraph [ref=e134]: Step 6
+        - heading "마지막 단계예요" [level=2] [ref=e135]
+        - paragraph [ref=e136]: 색조 추천과 알레르기 정보를 입력해주세요
+      - generic [ref=e137]:
+        - paragraph [ref=e138]: 퍼스널컬러
+        - generic [ref=e139]:
+          - button "봄웜" [ref=e140] [cursor=pointer]
+          - button "여름쿨" [ref=e141] [cursor=pointer]
+          - button "가을웜" [ref=e142] [cursor=pointer]
+          - button "겨울쿨" [ref=e143] [cursor=pointer]
+          - button "모름" [ref=e144] [cursor=pointer]
+      - generic [ref=e145]:
+        - paragraph [ref=e146]: 알레르기 성분 (직접 입력)
+        - paragraph [ref=e147]: 기피 성분에 없는 특정 성분이 있다면 입력해주세요
+        - 'textbox "예: 프로폴리스, 티트리오일" [ref=e148]'
+    - generic [ref=e30]:
+      - button "이전" [ref=e61] [cursor=pointer]:
+        - img
+        - text: 이전
+      - button "시작하기 ✨" [active] [ref=e149] [cursor=pointer]

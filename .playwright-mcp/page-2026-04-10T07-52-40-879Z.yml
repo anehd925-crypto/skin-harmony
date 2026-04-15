@@ -1,0 +1,42 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - heading "탐색" [level=1] [ref=e5]
+      - paragraph [ref=e6]: 제품명, 브랜드, 성분으로 검색하세요
+      - generic [ref=e7]:
+        - img [ref=e8]
+        - textbox "제품명, 브랜드 검색" [ref=e11]
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - button "전체" [ref=e14] [cursor=pointer]
+        - button "스킨케어" [ref=e15] [cursor=pointer]
+        - button "선케어" [ref=e16] [cursor=pointer]
+        - button "색조" [ref=e17] [cursor=pointer]
+      - generic [ref=e18]:
+        - generic [ref=e19]: 제품 0개
+        - generic [ref=e20]:
+          - img [ref=e21]
+          - generic [ref=e22]:
+            - button "맞춤순" [ref=e23] [cursor=pointer]
+            - button "평점순" [ref=e24] [cursor=pointer]
+            - button "인기순" [ref=e25] [cursor=pointer]
+      - generic [ref=e26]:
+        - img [ref=e27]
+        - paragraph [ref=e30]: 검색 결과가 없습니다
+    - navigation [ref=e31]:
+      - generic [ref=e32]:
+        - button "홈" [ref=e33] [cursor=pointer]:
+          - img [ref=e34]
+          - generic [ref=e37]: 홈
+        - button "탐색" [ref=e38] [cursor=pointer]:
+          - img [ref=e39]
+          - generic [ref=e42]: 탐색
+        - button "기록" [ref=e43] [cursor=pointer]:
+          - img [ref=e44]
+          - generic [ref=e46]: 기록
+        - button "프로필" [ref=e47] [cursor=pointer]:
+          - img [ref=e48]
+          - generic [ref=e51]: 프로필

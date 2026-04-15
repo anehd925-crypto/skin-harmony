@@ -1,0 +1,24 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e52]:
+    - generic [ref=e53]:
+      - img [ref=e54]
+      - generic [ref=e56]: BeautyLens
+    - paragraph [ref=e65]: 1 / 6
+    - generic [ref=e67]:
+      - generic [ref=e68]:
+        - paragraph [ref=e69]: Step 1
+        - heading "연령대를 알려주세요" [level=2] [ref=e70]
+        - paragraph [ref=e71]: 연령별 피부 특성을 반영한 추천을 드려요
+      - generic [ref=e72]:
+        - button "10대" [ref=e73] [cursor=pointer]
+        - button "20대" [ref=e74] [cursor=pointer]
+        - button "30대" [ref=e75] [cursor=pointer]
+        - button "40대" [ref=e76] [cursor=pointer]
+        - button "50대 이상" [ref=e77] [cursor=pointer]
+    - generic [ref=e78]:
+      - button "다음" [disabled]:
+        - text: 다음
+        - img

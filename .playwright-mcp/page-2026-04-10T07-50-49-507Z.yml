@@ -1,0 +1,35 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e52]:
+    - generic [ref=e53]:
+      - img [ref=e54]
+      - generic [ref=e56]: BeautyLens
+    - paragraph [ref=e65]: 4 / 6
+    - generic [ref=e128]:
+      - generic [ref=e129]:
+        - paragraph [ref=e130]: Step 4
+        - heading "피부 고민을 선택해주세요" [level=2] [ref=e131]
+        - paragraph [ref=e132]: 먼저 선택한 순서가 우선순위가 돼요
+      - generic [ref=e133]:
+        - button "모공" [ref=e134] [cursor=pointer]
+        - button "주름" [ref=e135] [cursor=pointer]
+        - button "색소침착" [ref=e136] [cursor=pointer]
+        - button "여드름" [ref=e137] [cursor=pointer]
+        - button "건조 1" [active] [ref=e142] [cursor=pointer]:
+          - text: 건조
+          - generic [ref=e143]: "1"
+        - button "탄력" [ref=e139] [cursor=pointer]
+        - button "민감" [ref=e140] [cursor=pointer]
+        - button "홍조" [ref=e141] [cursor=pointer]
+      - generic [ref=e144]:
+        - paragraph [ref=e145]: 우선순위 순서
+        - paragraph [ref=e146]: 건조
+    - generic [ref=e78]:
+      - button "이전" [ref=e109] [cursor=pointer]:
+        - img
+        - text: 이전
+      - button "다음" [ref=e79] [cursor=pointer]:
+        - text: 다음
+        - img

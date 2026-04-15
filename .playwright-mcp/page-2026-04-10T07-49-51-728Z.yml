@@ -1,0 +1,45 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e52]:
+    - generic [ref=e53]:
+      - img [ref=e54]
+      - generic [ref=e56]: BeautyLens
+    - paragraph [ref=e65]: 2 / 6
+    - generic [ref=e80]:
+      - generic [ref=e81]:
+        - paragraph [ref=e82]: Step 2
+        - heading "피부 타입을 알려주세요" [level=2] [ref=e83]
+        - paragraph [ref=e84]: 피부의 유분·수분 상태를 기준으로 선택해요
+      - generic [ref=e85]:
+        - button "건성" [ref=e86] [cursor=pointer]
+        - button "지성" [ref=e87] [cursor=pointer]
+        - button "복합성" [ref=e88] [cursor=pointer]
+        - button "민감성" [ref=e89] [cursor=pointer]
+      - generic [ref=e90]:
+        - paragraph [ref=e91]: 유수분 밸런스
+        - paragraph [ref=e92]: 세안 후 2시간 기준으로 선택해주세요
+        - generic [ref=e93]:
+          - button "매우 건조 당김·각질·트터짐이 자주 생겨요" [ref=e94] [cursor=pointer]:
+            - paragraph [ref=e95]: 매우 건조
+            - paragraph [ref=e96]: 당김·각질·트터짐이 자주 생겨요
+          - button "건조한 편 오후엔 당기고 보습이 부족해요" [ref=e97] [cursor=pointer]:
+            - paragraph [ref=e98]: 건조한 편
+            - paragraph [ref=e99]: 오후엔 당기고 보습이 부족해요
+          - button "보통 계절에 따라 약간씩 달라요" [ref=e100] [cursor=pointer]:
+            - paragraph [ref=e101]: 보통
+            - paragraph [ref=e102]: 계절에 따라 약간씩 달라요
+          - button "약간 번들 오후에 T존이 번들거려요" [ref=e103] [cursor=pointer]:
+            - paragraph [ref=e104]: 약간 번들
+            - paragraph [ref=e105]: 오후에 T존이 번들거려요
+          - button "많이 번들 세안 후 1~2시간 내 번들거려요" [ref=e106] [cursor=pointer]:
+            - paragraph [ref=e107]: 많이 번들
+            - paragraph [ref=e108]: 세안 후 1~2시간 내 번들거려요
+    - generic [ref=e78]:
+      - button "이전" [ref=e109] [cursor=pointer]:
+        - img
+        - text: 이전
+      - button "다음" [disabled]:
+        - text: 다음
+        - img

@@ -1,0 +1,88 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e433]:
+    - generic [ref=e434]:
+      - generic [ref=e435]:
+        - generic [ref=e436]:
+          - img [ref=e437]
+          - heading "내 프로필" [level=1] [ref=e439]
+        - button "로그아웃" [ref=e440] [cursor=pointer]:
+          - img [ref=e441]
+          - text: 로그아웃
+      - generic [ref=e445]:
+        - generic [ref=e446]: 20대
+        - generic [ref=e447]: 건성
+        - generic [ref=e448]: 보통
+        - generic [ref=e449]: 건조
+    - generic [ref=e450]:
+      - generic [ref=e451]:
+        - button "연령대" [ref=e452] [cursor=pointer]:
+          - heading "연령대" [level=2] [ref=e453]
+          - img [ref=e454]
+        - generic [ref=e457]:
+          - button "10대" [ref=e458] [cursor=pointer]
+          - button "20대" [ref=e459] [cursor=pointer]
+          - button "30대" [ref=e460] [cursor=pointer]
+          - button "40대" [ref=e461] [cursor=pointer]
+          - button "50대 이상" [ref=e462] [cursor=pointer]
+      - generic [ref=e463]:
+        - button "피부 타입" [ref=e464] [cursor=pointer]:
+          - heading "피부 타입" [level=2] [ref=e465]
+          - img [ref=e466]
+        - generic [ref=e469]:
+          - button "건성" [ref=e470] [cursor=pointer]
+          - button "지성" [ref=e471] [cursor=pointer]
+          - button "복합성" [ref=e472] [cursor=pointer]
+          - button "민감성" [ref=e473] [cursor=pointer]
+      - button "유수분 상태" [ref=e475] [cursor=pointer]:
+        - heading "유수분 상태" [level=2] [ref=e476]
+        - img [ref=e477]
+      - button "피부 민감도" [ref=e480] [cursor=pointer]:
+        - heading "피부 민감도" [level=2] [ref=e481]
+        - img [ref=e482]
+      - generic [ref=e484]:
+        - button "피부 고민 (우선순위 순)" [ref=e485] [cursor=pointer]:
+          - heading "피부 고민 (우선순위 순)" [level=2] [ref=e486]
+          - img [ref=e487]
+        - generic [ref=e489]:
+          - paragraph [ref=e490]: 먼저 누른 순서가 우선순위예요
+          - generic [ref=e491]:
+            - button "모공" [ref=e492] [cursor=pointer]
+            - button "주름" [ref=e493] [cursor=pointer]
+            - button "색소침착" [ref=e494] [cursor=pointer]
+            - button "여드름" [ref=e495] [cursor=pointer]
+            - button "건조 1" [ref=e496] [cursor=pointer]:
+              - text: 건조
+              - generic [ref=e497]: "1"
+            - button "탄력" [ref=e498] [cursor=pointer]
+            - button "민감" [ref=e499] [cursor=pointer]
+            - button "홍조" [ref=e500] [cursor=pointer]
+      - button "스킨케어 목표" [ref=e502] [cursor=pointer]:
+        - heading "스킨케어 목표" [level=2] [ref=e503]
+        - img [ref=e504]
+      - button "기피 성분" [ref=e507] [cursor=pointer]:
+        - heading "기피 성분" [level=2] [ref=e508]
+        - img [ref=e509]
+      - button "퍼스널컬러" [ref=e512] [cursor=pointer]:
+        - heading "퍼스널컬러" [level=2] [ref=e513]
+        - img [ref=e514]
+      - button "알레르기 성분 (직접 입력)" [ref=e517] [cursor=pointer]:
+        - heading "알레르기 성분 (직접 입력)" [level=2] [ref=e518]
+        - img [ref=e519]
+      - button "저장하기" [ref=e521] [cursor=pointer]
+    - navigation [ref=e522]:
+      - generic [ref=e523]:
+        - button "홈" [ref=e524] [cursor=pointer]:
+          - img [ref=e525]
+          - generic [ref=e528]: 홈
+        - button "탐색" [ref=e529] [cursor=pointer]:
+          - img [ref=e530]
+          - generic [ref=e533]: 탐색
+        - button "기록" [ref=e534] [cursor=pointer]:
+          - img [ref=e535]
+          - generic [ref=e537]: 기록
+        - button "프로필" [ref=e538] [cursor=pointer]:
+          - img [ref=e539]
+          - generic [ref=e542]: 프로필

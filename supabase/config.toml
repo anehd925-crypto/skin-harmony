@@ -1,1 +1,16 @@
 project_id = "kvhqhwsgqfxtuisgcfxn"
+
+[functions.analyze-ingredients]
+verify_jwt = false
+
+[functions.scrape-oliveyoung]
+verify_jwt = false
+
+[functions.send-push-notification]
+verify_jwt = false
+
+[functions.check-routine-conflicts]
+verify_jwt = false
+
+[functions.diary-insights]
+verify_jwt = false

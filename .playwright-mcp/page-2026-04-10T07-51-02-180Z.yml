@@ -1,0 +1,47 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e52]:
+    - generic [ref=e53]:
+      - img [ref=e54]
+      - generic [ref=e56]: BeautyLens
+    - paragraph [ref=e65]: 5 / 6
+    - generic [ref=e147]:
+      - generic [ref=e148]:
+        - paragraph [ref=e149]: Step 5
+        - heading "스킨케어 목표와 기피 성분" [level=2] [ref=e150]
+        - paragraph [ref=e151]: 원하는 효과와 피하고 싶은 성분을 선택해요
+      - generic [ref=e152]:
+        - paragraph [ref=e153]: 목표 (복수 선택)
+        - generic [ref=e154]:
+          - button "수분 충전" [ref=e155] [cursor=pointer]
+          - button "모공 관리" [ref=e156] [cursor=pointer]
+          - button "미백·톤업" [ref=e157] [cursor=pointer]
+          - button "주름 개선" [ref=e158] [cursor=pointer]
+          - button "트러블 진정" [ref=e159] [cursor=pointer]
+          - button "피부 장벽 강화" [ref=e160] [cursor=pointer]
+          - button "탄력" [ref=e161] [cursor=pointer]
+          - button "각질 제거" [ref=e162] [cursor=pointer]
+          - button "자외선 차단" [ref=e163] [cursor=pointer]
+          - button "자연스러운 메이크업" [ref=e164] [cursor=pointer]
+      - generic [ref=e165]:
+        - paragraph [ref=e166]: 기피 성분 (복수 선택)
+        - generic [ref=e167]:
+          - button "알코올" [ref=e168] [cursor=pointer]
+          - button "향료" [ref=e169] [cursor=pointer]
+          - button "파라벤" [ref=e170] [cursor=pointer]
+          - button "설페이트" [ref=e171] [cursor=pointer]
+          - button "실리콘" [ref=e172] [cursor=pointer]
+          - button "미네랄오일" [ref=e173] [cursor=pointer]
+          - button "인공색소" [ref=e174] [cursor=pointer]
+          - button "포름알데히드 유발체" [ref=e175] [cursor=pointer]
+          - button "레티놀(임산부)" [ref=e176] [cursor=pointer]
+          - button "살리실산" [ref=e177] [cursor=pointer]
+    - generic [ref=e78]:
+      - button "이전" [ref=e109] [cursor=pointer]:
+        - img
+        - text: 이전
+      - button "다음" [active] [ref=e79] [cursor=pointer]:
+        - text: 다음
+        - img

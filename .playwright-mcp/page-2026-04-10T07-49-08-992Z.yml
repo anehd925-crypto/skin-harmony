@@ -1,0 +1,26 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list [ref=e25]:
+      - status [ref=e39]:
+        - generic [ref=e40]:
+          - generic [ref=e41]: 가입 완료!
+          - generic [ref=e42]: 이메일 인증 후 로그인해주세요.
+        - button [ref=e43] [cursor=pointer]:
+          - img [ref=e44]
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - img [ref=e5]
+      - generic [ref=e7]: BeautyLens
+    - generic [ref=e8]:
+      - heading "로그인" [level=1] [ref=e48]
+      - paragraph [ref=e10]: 계정에 로그인하세요
+      - generic [ref=e11]:
+        - generic [ref=e12]:
+          - img [ref=e13]
+          - textbox "이메일" [ref=e16]: test@test.com
+        - generic [ref=e17]:
+          - img [ref=e18]
+          - textbox "비밀번호" [ref=e21]: test1234
+        - button "로그인" [ref=e49] [cursor=pointer]
+      - button "계정이 없으신가요? 회원가입" [ref=e50] [cursor=pointer]

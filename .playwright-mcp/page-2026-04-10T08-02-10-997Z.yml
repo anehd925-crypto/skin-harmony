@@ -1,0 +1,75 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e150]:
+    - generic [ref=e151]:
+      - generic [ref=e152]:
+        - img [ref=e153]
+        - generic [ref=e155]: BeautyLens
+      - paragraph [ref=e156]: 건성 피부 맞춤 추천
+      - generic [ref=e157]:
+        - generic [ref=e158]: 건조
+        - generic [ref=e159]: 탄력
+    - generic [ref=e160]:
+      - generic [ref=e161] [cursor=pointer]:
+        - img [ref=e163]
+        - generic [ref=e169]:
+          - paragraph [ref=e170]: 쿠팡·올리브영에서 공유하기
+          - paragraph [ref=e171]: 상품 공유 → BeautyLens로 바로 전성분 분석
+        - img [ref=e172]
+      - generic [ref=e174]:
+        - generic [ref=e175]:
+          - heading "건성 피부 추천" [level=2] [ref=e176]
+          - button "전체 보기" [ref=e177] [cursor=pointer]:
+            - text: 전체 보기
+            - img [ref=e178]
+        - generic [ref=e180]:
+          - button "🧴 최적 비타민C 브라이트닝 세럼 스킨랩 4.7" [ref=e181] [cursor=pointer]:
+            - generic [ref=e182]: 🧴
+            - generic [ref=e183]:
+              - generic [ref=e184]:
+                - generic [ref=e185]: 최적
+                - paragraph [ref=e186]: 비타민C 브라이트닝 세럼
+              - paragraph [ref=e187]: 스킨랩
+              - generic [ref=e188]:
+                - img [ref=e189]
+                - generic [ref=e191]: "4.7"
+          - button "🧴 시카 리페어 크림 더마힐 4.6" [ref=e192] [cursor=pointer]:
+            - generic [ref=e193]: 🧴
+            - generic [ref=e194]:
+              - paragraph [ref=e196]: 시카 리페어 크림
+              - paragraph [ref=e197]: 더마힐
+              - generic [ref=e198]:
+                - img [ref=e199]
+                - generic [ref=e201]: "4.6"
+          - button "🧴 히알루론 수분 토너 글로우랩 4.5" [ref=e202] [cursor=pointer]:
+            - generic [ref=e203]: 🧴
+            - generic [ref=e204]:
+              - paragraph [ref=e206]: 히알루론 수분 토너
+              - paragraph [ref=e207]: 글로우랩
+              - generic [ref=e208]:
+                - img [ref=e209]
+                - generic [ref=e211]: "4.5"
+          - button "☀️ 톤업 선에센스 글로우랩 4.4" [ref=e212] [cursor=pointer]:
+            - generic [ref=e213]: ☀️
+            - generic [ref=e214]:
+              - paragraph [ref=e216]: 톤업 선에센스
+              - paragraph [ref=e217]: 글로우랩
+              - generic [ref=e218]:
+                - img [ref=e219]
+                - generic [ref=e221]: "4.4"
+    - navigation [ref=e222]:
+      - generic [ref=e223]:
+        - button "홈" [ref=e224] [cursor=pointer]:
+          - img [ref=e225]
+          - generic [ref=e228]: 홈
+        - button "탐색" [ref=e229] [cursor=pointer]:
+          - img [ref=e230]
+          - generic [ref=e233]: 탐색
+        - button "기록" [ref=e234] [cursor=pointer]:
+          - img [ref=e235]
+          - generic [ref=e237]: 기록
+        - button "프로필" [ref=e238] [cursor=pointer]:
+          - img [ref=e239]
+          - generic [ref=e242]: 프로필

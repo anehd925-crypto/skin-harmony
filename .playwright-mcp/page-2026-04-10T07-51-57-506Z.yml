@@ -1,0 +1,101 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e288]:
+    - generic [ref=e289]:
+      - heading "탐색" [level=1] [ref=e290]
+      - paragraph [ref=e291]: 제품명, 브랜드, 성분으로 검색하세요
+      - generic [ref=e292]:
+        - img [ref=e293]
+        - textbox "제품명, 브랜드 검색" [ref=e296]
+    - generic [ref=e297]:
+      - generic [ref=e298]:
+        - button "전체" [ref=e299] [cursor=pointer]
+        - button "스킨케어" [ref=e300] [cursor=pointer]
+        - button "선케어" [ref=e301] [cursor=pointer]
+        - button "색조" [ref=e302] [cursor=pointer]
+      - generic [ref=e303]:
+        - generic [ref=e304]: 제품 6개
+        - generic [ref=e305]:
+          - img [ref=e306]
+          - generic [ref=e307]:
+            - button "맞춤순" [ref=e308] [cursor=pointer]
+            - button "평점순" [ref=e309] [cursor=pointer]
+            - button "인기순" [ref=e310] [cursor=pointer]
+      - generic [ref=e311]:
+        - button "최적 매칭 ☀️ 톤업 선에센스 글로우랩 4.4 매칭 3점" [ref=e312] [cursor=pointer]:
+          - generic [ref=e313]: 최적 매칭
+          - generic [ref=e314]: ☀️
+          - generic [ref=e315]:
+            - paragraph [ref=e316]: 톤업 선에센스
+            - paragraph [ref=e317]: 글로우랩
+            - generic [ref=e318]:
+              - generic [ref=e319]:
+                - img [ref=e320]
+                - text: "4.4"
+              - generic [ref=e322]: 매칭 3점
+        - button "🧴 시카 리페어 크림 더마힐 4.6 매칭 3점" [ref=e323] [cursor=pointer]:
+          - generic [ref=e324]: 🧴
+          - generic [ref=e325]:
+            - paragraph [ref=e326]: 시카 리페어 크림
+            - paragraph [ref=e327]: 더마힐
+            - generic [ref=e328]:
+              - generic [ref=e329]:
+                - img [ref=e330]
+                - text: "4.6"
+              - generic [ref=e332]: 매칭 3점
+        - button "💄 로즈 글로우 쿠션 블룸뷰티 4.1 매칭 3점" [ref=e333] [cursor=pointer]:
+          - generic [ref=e334]: 💄
+          - generic [ref=e335]:
+            - paragraph [ref=e336]: 로즈 글로우 쿠션
+            - paragraph [ref=e337]: 블룸뷰티
+            - generic [ref=e338]:
+              - generic [ref=e339]:
+                - img [ref=e340]
+                - text: "4.1"
+              - generic [ref=e342]: 매칭 3점
+        - button "☀️ UV 프로텍트 선크림 SPF50+ 선가드 4.3 매칭 3점" [ref=e343] [cursor=pointer]:
+          - generic [ref=e344]: ☀️
+          - generic [ref=e345]:
+            - paragraph [ref=e346]: UV 프로텍트 선크림 SPF50+
+            - paragraph [ref=e347]: 선가드
+            - generic [ref=e348]:
+              - generic [ref=e349]:
+                - img [ref=e350]
+                - text: "4.3"
+              - generic [ref=e352]: 매칭 3점
+        - button "🧴 비타민C 브라이트닝 세럼 스킨랩 4.7 매칭 3점" [ref=e353] [cursor=pointer]:
+          - generic [ref=e354]: 🧴
+          - generic [ref=e355]:
+            - paragraph [ref=e356]: 비타민C 브라이트닝 세럼
+            - paragraph [ref=e357]: 스킨랩
+            - generic [ref=e358]:
+              - generic [ref=e359]:
+                - img [ref=e360]
+                - text: "4.7"
+              - generic [ref=e362]: 매칭 3점
+        - button "🧴 히알루론 수분 토너 글로우랩 4.5 매칭 3점" [ref=e363] [cursor=pointer]:
+          - generic [ref=e364]: 🧴
+          - generic [ref=e365]:
+            - paragraph [ref=e366]: 히알루론 수분 토너
+            - paragraph [ref=e367]: 글로우랩
+            - generic [ref=e368]:
+              - generic [ref=e369]:
+                - img [ref=e370]
+                - text: "4.5"
+              - generic [ref=e372]: 매칭 3점
+    - navigation [ref=e373]:
+      - generic [ref=e374]:
+        - button "홈" [ref=e375] [cursor=pointer]:
+          - img [ref=e376]
+          - generic [ref=e379]: 홈
+        - button "탐색" [ref=e380] [cursor=pointer]:
+          - img [ref=e381]
+          - generic [ref=e384]: 탐색
+        - button "기록" [ref=e385] [cursor=pointer]:
+          - img [ref=e386]
+          - generic [ref=e388]: 기록
+        - button "프로필" [ref=e389] [cursor=pointer]:
+          - img [ref=e390]
+          - generic [ref=e393]: 프로필

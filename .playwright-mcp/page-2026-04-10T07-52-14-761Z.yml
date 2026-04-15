@@ -1,0 +1,30 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e394]:
+    - generic [ref=e397]:
+      - img [ref=e398]
+      - heading "기록" [level=1] [ref=e400]
+    - generic [ref=e401]:
+      - button "분석 기록" [ref=e402] [cursor=pointer]: 분석 기록
+      - button "찜 목록" [ref=e404] [cursor=pointer]
+      - button "가격 알림" [ref=e405] [cursor=pointer]
+    - generic [ref=e407]:
+      - img [ref=e408]
+      - paragraph [ref=e410]: 아직 분석한 제품이 없어요
+      - button "첫 번째 제품 분석하기" [ref=e411] [cursor=pointer]
+    - navigation [ref=e412]:
+      - generic [ref=e413]:
+        - button "홈" [ref=e414] [cursor=pointer]:
+          - img [ref=e415]
+          - generic [ref=e418]: 홈
+        - button "탐색" [ref=e419] [cursor=pointer]:
+          - img [ref=e420]
+          - generic [ref=e423]: 탐색
+        - button "기록" [ref=e424] [cursor=pointer]:
+          - img [ref=e425]
+          - generic [ref=e427]: 기록
+        - button "프로필" [ref=e428] [cursor=pointer]:
+          - img [ref=e429]
+          - generic [ref=e432]: 프로필

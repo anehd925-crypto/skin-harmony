@@ -1,0 +1,20 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - img [ref=e5]
+      - generic [ref=e7]: BeautyLens
+    - generic [ref=e8]:
+      - heading "로그인" [level=1] [ref=e9]
+      - paragraph [ref=e10]: 계정에 로그인하세요
+      - generic [ref=e11]:
+        - generic [ref=e12]:
+          - img [ref=e13]
+          - textbox "이메일" [ref=e16]
+        - generic [ref=e17]:
+          - img [ref=e18]
+          - textbox "비밀번호" [ref=e21]
+        - button "로그인" [ref=e22] [cursor=pointer]
+      - button "계정이 없으신가요? 회원가입" [ref=e23] [cursor=pointer]
