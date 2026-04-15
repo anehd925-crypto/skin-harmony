@@ -79,7 +79,6 @@ const TABS: { key: RoutineTab; label: string; icon: React.ReactNode }[] = [
   { key: 'afternoon', label: '낮',    icon: <Cloud className="h-3.5 w-3.5" /> },
   { key: 'evening',   label: '저녁',  icon: <Moon  className="h-3.5 w-3.5" /> },
 ];
-
 const SCORE_COLORS = {
   완벽: { ring: '#22c55e', text: 'text-green-500',   bg: 'bg-green-50 border-green-200',   label: '완벽한 조합이에요' },
   좋음: { ring: '#84cc16', text: 'text-lime-500',    bg: 'bg-lime-50 border-lime-200',     label: '잘 어울리는 조합이에요' },
@@ -145,6 +144,17 @@ const Routine = () => {
   const [showConflicts, setShowConflicts] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [loadingRoutines, setLoadingRoutines] = useState(true);
+  // 낮(afternoon) 탭 활성 여부 — 로컬스토리지로 개인 설정 유지
+  const [afternoonEnabled, setAfternoonEnabled] = useState(() => {
+    return localStorage.getItem('routine_afternoon_enabled') !== 'false';
+  });
+
+  const toggleAfternoon = () => {
+    const next = !afternoonEnabled;
+    setAfternoonEnabled(next);
+    localStorage.setItem('routine_afternoon_enabled', String(next));
+    if (!next && activeTab === 'afternoon') setActiveTab('morning');
+  };
 
   const currentRoutine = routines[activeTab];
 
@@ -313,25 +323,46 @@ const Routine = () => {
 
       <div className="flex-1 px-5 py-5 space-y-4">
         {/* 아침/낮/저녁 탭 */}
-        <div className="flex gap-1.5 rounded-xl bg-muted p-1">
-          {TABS.map(t => (
-            <button
-              key={t.key}
-              onClick={() => tabChange(t.key)}
-              className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-semibold transition-all ${
-                activeTab === t.key ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {t.icon}{t.label}
-              {routines[t.key]?.products?.length ? (
-                <span className={`ml-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${
-                  activeTab === t.key ? 'bg-primary text-primary-foreground' : 'bg-muted-foreground/20 text-muted-foreground'
-                }`}>
-                  {routines[t.key]!.products.length}
-                </span>
-              ) : null}
-            </button>
-          ))}
+        <div className="space-y-2">
+          <div className="flex gap-1.5 rounded-xl bg-muted p-1">
+            {TABS.filter(t => t.key !== 'afternoon' || afternoonEnabled).map(t => (
+              <button
+                key={t.key}
+                onClick={() => tabChange(t.key)}
+                className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-semibold transition-all ${
+                  activeTab === t.key ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {t.icon}{t.label}
+                {routines[t.key]?.products?.length ? (
+                  <span className={`ml-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${
+                    activeTab === t.key ? 'bg-primary text-primary-foreground' : 'bg-muted-foreground/20 text-muted-foreground'
+                  }`}>
+                    {routines[t.key]!.products.length}
+                  </span>
+                ) : null}
+              </button>
+            ))}
+          </div>
+          {/* 낮 루틴 토글 */}
+          <button
+            type="button"
+            onClick={toggleAfternoon}
+            className={`w-full flex items-center justify-between rounded-xl border px-4 py-2.5 text-xs transition-all ${
+              afternoonEnabled
+                ? 'border-border bg-card text-foreground'
+                : 'border-dashed border-border bg-card/50 text-muted-foreground'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Cloud className="h-3.5 w-3.5" />
+              <span className="font-semibold">낮 루틴 {afternoonEnabled ? '사용 중' : '사용 안 함'}</span>
+              <span className="text-[10px] text-muted-foreground">화장품 잘 안 쓰면 끄세요</span>
+            </div>
+            <div className={`h-5 w-9 rounded-full transition-all ${afternoonEnabled ? 'bg-primary' : 'bg-muted'} relative`}>
+              <div className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${afternoonEnabled ? 'left-4' : 'left-0.5'}`} />
+            </div>
+          </button>
         </div>
 
         {/* 제품 목록 */}

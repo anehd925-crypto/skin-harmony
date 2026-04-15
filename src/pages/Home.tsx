@@ -7,13 +7,17 @@ import { supabase } from '@/integrations/supabase/client';
 import BottomNav from '@/components/BottomNav';
 import NotificationPermission from '@/components/NotificationPermission';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Sparkles, Star, Heart, ChevronRight, FlaskConical, TrendingDown, Camera, Layers, BookMarked, ShieldAlert } from 'lucide-react';
+import { Sparkles, Star, Heart, ChevronRight, FlaskConical, TrendingDown, Camera, Layers, BookMarked, ShieldAlert, Package } from 'lucide-react';
 import RoutineSafetyCard from '@/components/RoutineSafetyCard';
+import WeatherRoutineCard from '@/components/WeatherRoutineCard';
 
 const Home = () => {
   const { profile } = useUser();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // 현재 시간 기반 아침/저녁 자동 선택 (6~13시 → 아침, 나머지 → 저녁)
+  const currentPeriod: 'morning' | 'evening' = new Date().getHours() < 14 ? 'morning' : 'evening';
 
   const { data: products = [] } = useQuery({
     queryKey: ['products'],
@@ -182,6 +186,11 @@ const Home = () => {
         <RoutineSafetyCard />
       </div>
 
+      {/* 날씨 기반 루틴 추천 카드 */}
+      <div className="pt-2">
+        <WeatherRoutineCard period={currentPeriod} />
+      </div>
+
       <div className="px-5 space-y-6 pt-2">
 
         {/* 빠른 액션 */}
@@ -252,6 +261,19 @@ const Home = () => {
           </button>
 
           <button
+            onClick={() => navigate('/cabinet')}
+            className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card transition-all active:scale-95"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
+              <Package className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-foreground">내 보관함</p>
+              <p className="text-[10px] text-muted-foreground leading-tight">날씨 맞춤 루틴 추천</p>
+            </div>
+          </button>
+
+          <button
             onClick={() => navigate('/timeline')}
             className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card transition-all active:scale-95 col-span-2"
           >
@@ -260,7 +282,7 @@ const Home = () => {
             </div>
             <div>
               <p className="text-xs font-bold text-foreground">피부 변화 타임라인</p>
-              <p className="text-[10px] text-muted-foreground leading-tight">루틴 변경 + 피부 점수 추세 한눈에</p>
+              <p className="text-[10px] text-muted-foreground leading-tight">루틴 변경 + 피부 점수 추세</p>
             </div>
             <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground shrink-0" />
           </button>

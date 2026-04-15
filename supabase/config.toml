@@ -29,3 +29,7 @@ verify_jwt = true
 # 트러블 솔루션 — 로그인 없이도 사용 가능
 [functions.skin-solution]
 verify_jwt = false
+
+# 날씨 기반 루틴 추천 — 로그인 없이도 사용 가능
+[functions.weather-routine]
+verify_jwt = false
