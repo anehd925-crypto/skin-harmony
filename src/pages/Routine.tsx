@@ -7,7 +7,7 @@ import BottomNav from '@/components/BottomNav';
 import {
   ChevronLeft, Sun, Cloud, Moon, Plus, Trash2, Zap,
   AlertTriangle, CheckCircle, ChevronDown, ChevronUp,
-  Loader2, X, Sparkles, Lightbulb,
+  Loader2, X, Sparkles, Lightbulb, Package,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -346,18 +346,24 @@ const Routine = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-neutral-50 pb-24">
-      {/* 브랜드 헤더 배너 */}
-      <div className="gradient-brand px-5 pb-6 pt-12">
-        <button onClick={() => navigate('/history')} className="mb-3 flex items-center gap-1 text-sm text-primary-foreground/80">
-          <ChevronLeft className="h-4 w-4" />기록
+      {/* 헤더 */}
+      <div className="sticky top-0 z-10 bg-white border-b border-border px-4 py-3 flex items-center gap-3">
+        <button onClick={() => navigate(-1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
+          <ChevronLeft className="h-5 w-5" />
         </button>
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-lg font-bold text-primary-foreground">루틴 체커</span>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-base font-bold text-foreground">루틴 체커</h1>
+          <p className="text-xs text-muted-foreground">성분 궁합을 AI로 분석해요</p>
         </div>
-        <p className="text-sm text-primary-foreground/80">제품 궁합을 AI로 점수 매겨드려요</p>
+        <button
+          onClick={() => navigate('/cabinet')}
+          className="flex items-center gap-1.5 rounded-full border border-border bg-neutral-50 px-3 py-1.5 text-xs font-semibold text-muted-foreground shrink-0"
+        >
+          <Package className="h-3.5 w-3.5" /> 보관함
+        </button>
       </div>
 
-      <div className="flex-1 px-5 py-5 space-y-4">
+      <div className="flex-1 px-4 py-4 space-y-4">
         {/* 아침/낮/저녁 탭 */}
         <div className="space-y-2">
           <div className="flex gap-1.5 rounded-xl bg-muted p-1">
