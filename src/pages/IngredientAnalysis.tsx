@@ -8,6 +8,7 @@ import SafetyBadge from '@/components/SafetyBadge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 import { ChevronLeft, Search, FlaskConical, ShieldCheck, AlertTriangle, Loader2, Link2, History, Share2, Check, Zap, Star, Users } from 'lucide-react';
 
 interface AnalyzedIngredient {
@@ -68,6 +69,55 @@ interface AnalysisResult {
   groundingUsed?: boolean;
   ingredientsFound?: boolean;
 }
+
+const AnalysisFeedback = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [vote, setVote] = useState<'up' | 'down' | null>(null);
+
+  const handleVote = async (v: 'up' | 'down') => {
+    if (vote) return;
+    setVote(v);
+    try {
+      await supabase.from('feedback' as never).insert({
+        user_id: user?.id ?? null,
+        type: 'analysis_result',
+        rating: v === 'up' ? 5 : 1,
+        message: v === 'up' ? '분석 결과가 도움이 됐어요' : '분석 결과가 도움이 되지 않았어요',
+        metadata: {},
+      });
+    } catch {
+      // 무음 처리 — UX 방해 없이
+    }
+    toast({ title: v === 'up' ? '좋은 피드백 감사합니다!' : '개선에 반영하겠습니다.' });
+  };
+
+  return (
+    <div className="flex items-center justify-between rounded-xl border border-border bg-muted/40 px-4 py-3">
+      <p className="text-xs text-muted-foreground">이 분석 결과가 도움이 됐나요?</p>
+      <div className="flex gap-2">
+        <button
+          onClick={() => handleVote('up')}
+          disabled={!!vote}
+          className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+            vote === 'up' ? 'bg-primary text-primary-foreground' : 'border border-border bg-background hover:border-primary/40'
+          }`}
+        >
+          👍 도움됐어요
+        </button>
+        <button
+          onClick={() => handleVote('down')}
+          disabled={!!vote}
+          className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+            vote === 'down' ? 'bg-muted-foreground/20 text-foreground' : 'border border-border bg-background hover:border-primary/40'
+          }`}
+        >
+          👎 별로예요
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const IngredientAnalysis = () => {
   const navigate = useNavigate();
@@ -686,6 +736,9 @@ BeautyLens로 분석했습니다`;
             >
               <Users className="h-4 w-4" />커뮤니티에 공유하기
             </Button>
+
+            {/* 분석 결과 도움 피드백 */}
+            <AnalysisFeedback />
 
             {/* 검색 출처 */}
             {result.searchSources && result.searchSources.length > 0 && (

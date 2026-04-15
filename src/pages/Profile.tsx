@@ -7,9 +7,10 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '@/components/BottomNav';
+import FeedbackModal from '@/components/FeedbackModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sparkles, Check, LogOut, ChevronDown, ChevronUp, Users } from 'lucide-react';
+import { Sparkles, Check, LogOut, ChevronDown, ChevronUp, Users, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -41,6 +42,7 @@ const Profile = () => {
   const [saved, setSaved] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   const handleDeleteAccount = async () => {
     setDeleteLoading(true);
@@ -234,6 +236,15 @@ const Profile = () => {
           {saved ? <><Check className="mr-1 h-4 w-4" /> 저장됨</> : '저장하기'}
         </Button>
 
+        {/* 의견 보내기 */}
+        <button
+          onClick={() => setFeedbackOpen(true)}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/5 py-3 text-sm font-medium text-primary"
+        >
+          <MessageSquare className="h-4 w-4" />
+          의견 보내기 / 버그 제보
+        </button>
+
         {/* 계정 탈퇴 */}
         <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 space-y-2">
           <p className="text-xs font-semibold text-destructive">계정 탈퇴</p>
@@ -271,6 +282,7 @@ const Profile = () => {
       </div>
 
       <BottomNav />
+      <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
     </div>
   );
 };
