@@ -5,11 +5,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import BottomNav from '@/components/BottomNav';
 import {
   ChevronLeft, Plus, Trash2, Sun, Moon, Pencil,
-  Package, Droplets, X, Check, ChevronDown, ChevronUp,
-  FlaskConical, CalendarDays, Layers,
+  Package, X, Check, ChevronDown, ChevronUp,
+  FlaskConical, Layers, Search, Sparkles, Info,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+// ─── 타입 ──────────────────────────────────────────────────────────────────
 interface CabinetItem {
   id: string;
   product_name: string;
@@ -32,57 +33,93 @@ interface HistoryItem {
   ingredients_text: string;
 }
 
-type CategoryKey = 'skincare' | 'suncare' | 'makeup' | 'treatment' | 'body' | 'hair';
+// ─── 카테고리 (클렌징 추가) ─────────────────────────────────────────────────
+type CategoryKey =
+  | 'cleansing_water' | 'cleansing_oil' | 'cleansing_foam'
+  | 'skincare' | 'suncare' | 'treatment' | 'makeup' | 'body' | 'hair';
 
-const CATEGORIES: { key: CategoryKey; label: string; emoji: string }[] = [
-  { key: 'skincare',  label: '스킨케어', emoji: '🧴' },
-  { key: 'suncare',   label: '선케어',   emoji: '☀️' },
-  { key: 'treatment', label: '트리트먼트', emoji: '💊' },
-  { key: 'makeup',    label: '메이크업',  emoji: '💄' },
-  { key: 'body',      label: '바디케어',  emoji: '🛁' },
-  { key: 'hair',      label: '헤어케어',  emoji: '💆' },
+interface Category {
+  key: CategoryKey;
+  label: string;
+  emoji: string;
+  group: 'cleansing' | 'skincare' | 'other';
+  color: string;
+}
+
+const CATEGORIES: Category[] = [
+  // 클렌징
+  { key: 'cleansing_water', label: '클렌징워터', emoji: '💧', group: 'cleansing', color: 'bg-sky-100 text-sky-700' },
+  { key: 'cleansing_oil',   label: '클렌징오일',  emoji: '🫙', group: 'cleansing', color: 'bg-amber-100 text-amber-700' },
+  { key: 'cleansing_foam',  label: '클렌징폼',    emoji: '🫧', group: 'cleansing', color: 'bg-teal-100 text-teal-700' },
+  // 기초 스킨케어
+  { key: 'skincare',   label: '스킨케어',   emoji: '🧴', group: 'skincare', color: 'bg-blue-100 text-blue-700' },
+  { key: 'suncare',    label: '선케어',     emoji: '☀️', group: 'skincare', color: 'bg-yellow-100 text-yellow-700' },
+  { key: 'treatment',  label: '트리트먼트', emoji: '💊', group: 'skincare', color: 'bg-purple-100 text-purple-700' },
+  // 기타
+  { key: 'makeup', label: '메이크업', emoji: '💄', group: 'other', color: 'bg-pink-100 text-pink-700' },
+  { key: 'body',   label: '바디케어', emoji: '🛁', group: 'other', color: 'bg-green-100 text-green-700' },
+  { key: 'hair',   label: '헤어케어', emoji: '💆', group: 'other', color: 'bg-orange-100 text-orange-700' },
 ];
 
-const STEP_LABELS: Record<string, { label: string; color: string }> = {
-  skincare: { label: '기초', color: 'bg-blue-100 text-blue-600' },
-  suncare:  { label: '선케어', color: 'bg-yellow-100 text-yellow-600' },
-  treatment: { label: '트리트먼트', color: 'bg-purple-100 text-purple-600' },
-  makeup:   { label: '메이크업', color: 'bg-pink-100 text-pink-600' },
-  body:     { label: '바디', color: 'bg-green-100 text-green-600' },
-  hair:     { label: '헤어', color: 'bg-orange-100 text-orange-600' },
+const getCategoryInfo = (key: string) =>
+  CATEGORIES.find(c => c.key === key) ?? { label: key, emoji: '🧴', color: 'bg-muted text-muted-foreground' };
+
+// ─── 사용 순서 프리셋 (직관적 단계) ─────────────────────────────────────────
+interface StepPreset {
+  order: number;
+  label: string;
+  desc: string;
+}
+
+const STEP_PRESETS: StepPreset[] = [
+  { order: 1,  label: '클렌징',    desc: '세안 첫 단계' },
+  { order: 2,  label: '토너/스킨', desc: '수분 첫 레이어' },
+  { order: 3,  label: '에센스',    desc: '영양 부스팅' },
+  { order: 4,  label: '세럼/앰플', desc: '집중 케어' },
+  { order: 5,  label: '아이크림',  desc: '눈가 집중' },
+  { order: 6,  label: '로션/에멀전', desc: '수분 잠금' },
+  { order: 7,  label: '크림',      desc: '마지막 보습' },
+  { order: 8,  label: '선크림',    desc: '자외선 차단' },
+  { order: 9,  label: '메이크업',  desc: '베이스/색조' },
+];
+
+// ─── 클렌징 주기 솔루션 데이터 ───────────────────────────────────────────────
+const CLEANSING_GUIDE: Record<string, { title: string; cycle: string; tip: string; ph: string }> = {
+  cleansing_water: {
+    title: '클렌징워터',
+    cycle: '매일 아침·저녁 (저자극 일상 클렌징)',
+    tip: '면봉·패드로 가볍게 닦아내기. 잔여물이 남지 않게 2~3번 반복하세요.',
+    ph: 'pH 5.5~6.5 (약산성) 권장',
+  },
+  cleansing_oil: {
+    title: '클렌징오일',
+    cycle: '저녁 첫 클렌징 (더블 클렌징 1단계)',
+    tip: '마른 손·마른 얼굴에 올려 마사지 후 물로 유화. 주 3~5회 선크림·메이크업 사용일 기준으로 조절하세요.',
+    ph: 'pH 무관 (오일 기반)',
+  },
+  cleansing_foam: {
+    title: '클렌징폼',
+    cycle: '아침·저녁 2단계 클렌징',
+    tip: '약산성(pH 5~6) 제품 선호. 강한 세정력 제품은 주 2~3회 이하로 제한하세요.',
+    ph: 'pH 5.0~6.5 (약산성) 추천 / 9 이상은 피부 장벽 손상 위험',
+  },
 };
 
-const daysSinceOpened = (openedAt: string | null) => {
-  if (!openedAt) return null;
-  const diff = Date.now() - new Date(openedAt).getTime();
-  return Math.floor(diff / (1000 * 60 * 60 * 24));
-};
-
-const paoStatus = (item: CabinetItem): { label: string; color: string } | null => {
-  if (!item.is_opened || !item.pao_months || !item.opened_at) return null;
-  const days = daysSinceOpened(item.opened_at) ?? 0;
-  const total = item.pao_months * 30;
-  const ratio = days / total;
-  if (ratio >= 1) return { label: '유통기한 초과', color: 'text-red-600 bg-red-50' };
-  if (ratio >= 0.8) return { label: '곧 만료', color: 'text-orange-600 bg-orange-50' };
-  return { label: `${item.pao_months}M 사용 가능`, color: 'text-green-600 bg-green-50' };
-};
-
+// ─── 빈 폼 ───────────────────────────────────────────────────────────────────
 const EMPTY_FORM = {
   product_name: '',
   product_brand: '',
   category: 'skincare' as CategoryKey,
-  step_order: 5,
+  step_order: 2,
   is_morning: true,
   is_evening: true,
-  is_opened: false,
-  opened_at: '',
-  pao_months: 12,
   notes: '',
 };
 
 type FilterTab = 'all' | 'morning' | 'evening';
+type FilterCat = CategoryKey | 'all' | 'cleansing';
 
+// ─── 메인 컴포넌트 ────────────────────────────────────────────────────────────
 const MyCabinet = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -91,20 +128,25 @@ const MyCabinet = () => {
   const [items, setItems] = useState<CabinetItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterTab, setFilterTab] = useState<FilterTab>('all');
-  const [filterCat, setFilterCat] = useState<CategoryKey | 'all'>('all');
+  const [filterCat, setFilterCat] = useState<FilterCat>('all');
 
   // 모달
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState({ ...EMPTY_FORM });
 
-  // 분석 기록에서 불러오기
-  const [showHistoryPicker, setShowHistoryPicker] = useState(false);
+  // 검색
+  const [searchQuery, setSearchQuery] = useState('');
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [searchResults, setSearchResults] = useState<HistoryItem[]>([]);
 
-  // 카드 펼침 상태
+  // 카드 펼침
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
+  // 클렌징 가이드 팝업
+  const [cleansingGuide, setCleansingGuide] = useState<string | null>(null);
+
+  // ─── 데이터 로드 ────────────────────────────────────────────────────────────
   const loadCabinet = useCallback(async () => {
     if (!user) return;
     setLoading(true);
@@ -119,8 +161,8 @@ const MyCabinet = () => {
 
   useEffect(() => { loadCabinet(); }, [loadCabinet]);
 
-  const loadHistory = async () => {
-    if (!user) return;
+  const loadHistory = useCallback(async () => {
+    if (!user || history.length > 0) return;
     const { data } = await supabase
       .from('analysis_history')
       .select('id, product_name, product_brand, ingredients_text')
@@ -128,12 +170,30 @@ const MyCabinet = () => {
       .order('created_at', { ascending: false })
       .limit(50);
     setHistory((data ?? []) as HistoryItem[]);
-  };
+  }, [user, history.length]);
 
-  const openAdd = () => {
+  // 검색 필터링
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults(history);
+      return;
+    }
+    const q = searchQuery.toLowerCase();
+    setSearchResults(
+      history.filter(h =>
+        (h.product_name ?? '').toLowerCase().includes(q) ||
+        (h.product_brand ?? '').toLowerCase().includes(q),
+      ),
+    );
+  }, [searchQuery, history]);
+
+  // ─── 모달 열기 ──────────────────────────────────────────────────────────────
+  const openAdd = async () => {
     setEditId(null);
     setForm({ ...EMPTY_FORM });
+    setSearchQuery('');
     setShowModal(true);
+    await loadHistory();
   };
 
   const openEdit = (item: CabinetItem) => {
@@ -145,14 +205,23 @@ const MyCabinet = () => {
       step_order: item.step_order,
       is_morning: item.is_morning,
       is_evening: item.is_evening,
-      is_opened: item.is_opened,
-      opened_at: item.opened_at ?? '',
-      pao_months: item.pao_months ?? 12,
       notes: item.notes ?? '',
     });
+    setSearchQuery('');
     setShowModal(true);
   };
 
+  // 검색 결과에서 제품 선택 → 폼 자동 완성
+  const selectFromHistory = (h: HistoryItem) => {
+    setForm(f => ({
+      ...f,
+      product_name: h.product_name || '',
+      product_brand: h.product_brand || '',
+    }));
+    setSearchQuery('');
+  };
+
+  // ─── 저장 ────────────────────────────────────────────────────────────────────
   const handleSave = async () => {
     if (!form.product_name.trim() || !user) return;
     const payload = {
@@ -163,9 +232,9 @@ const MyCabinet = () => {
       step_order: form.step_order,
       is_morning: form.is_morning,
       is_evening: form.is_evening,
-      is_opened: form.is_opened,
-      opened_at: form.is_opened && form.opened_at ? form.opened_at : null,
-      pao_months: form.pao_months || null,
+      is_opened: false,
+      opened_at: null,
+      pao_months: null,
       notes: form.notes.trim() || null,
       updated_at: new Date().toISOString(),
     };
@@ -187,37 +256,29 @@ const MyCabinet = () => {
     toast({ title: '삭제했어요' });
   };
 
-  const handleFromHistory = async (h: HistoryItem) => {
-    if (!user) return;
-    await supabase.from('my_cabinet' as never).insert({
-      user_id: user.id,
-      product_name: h.product_name || '이름 없는 제품',
-      product_brand: h.product_brand || null,
-      category: 'skincare',
-      step_order: 5,
-      is_morning: true,
-      is_evening: true,
-      analysis_history_id: h.id,
-      updated_at: new Date().toISOString(),
-    } as never);
-    setShowHistoryPicker(false);
-    await loadCabinet();
-    toast({ title: `'${h.product_name}'을 보관함에 추가했어요` });
-  };
-
+  // ─── 필터링 ──────────────────────────────────────────────────────────────────
   const filtered = items.filter(item => {
-    const matchTab = filterTab === 'all'
-      || (filterTab === 'morning' && item.is_morning)
-      || (filterTab === 'evening' && item.is_evening);
-    const matchCat = filterCat === 'all' || item.category === filterCat;
+    const matchTab =
+      filterTab === 'all' ||
+      (filterTab === 'morning' && item.is_morning) ||
+      (filterTab === 'evening' && item.is_evening);
+    const matchCat =
+      filterCat === 'all' ||
+      (filterCat === 'cleansing' && item.category.startsWith('cleansing')) ||
+      item.category === filterCat;
     return matchTab && matchCat;
   });
 
   const morningItems = items.filter(i => i.is_morning).sort((a, b) => a.step_order - b.step_order);
   const eveningItems = items.filter(i => i.is_evening).sort((a, b) => a.step_order - b.step_order);
 
+  // 클렌징 카테고리 보유 여부
+  const cleansingItems = items.filter(i => i.category.startsWith('cleansing'));
+
+  // ─── 렌더링 ──────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-neutral-50 pb-24">
+
       {/* 헤더 */}
       <div className="sticky top-0 z-10 bg-white border-b border-border px-4 py-3 flex items-center gap-3">
         <button onClick={() => navigate(-1)} className="rounded-full p-1.5 hover:bg-neutral-100">
@@ -225,64 +286,97 @@ const MyCabinet = () => {
         </button>
         <div className="flex-1">
           <h1 className="text-base font-bold text-foreground">내 화장품 보관함</h1>
-          <p className="text-xs text-muted-foreground">{items.length}개 제품 보유 중</p>
+          <p className="text-xs text-muted-foreground">{items.length}개 제품</p>
         </div>
-        <button
-          onClick={() => { loadHistory(); setShowHistoryPicker(true); }}
-          className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary"
-        >
-          <FlaskConical className="h-3.5 w-3.5" /> 분석기록 추가
-        </button>
         <button
           onClick={openAdd}
           className="flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
         >
-          <Plus className="h-3.5 w-3.5" /> 직접 추가
+          <Plus className="h-3.5 w-3.5" /> 추가
         </button>
       </div>
 
       <div className="px-4 pt-4 space-y-4">
-        {/* 루틴 미리보기 카드 — 아침/저녁 순서 */}
+
+        {/* 아침/저녁 루틴 미리보기 */}
         {(morningItems.length > 0 || eveningItems.length > 0) && (
           <div className="grid grid-cols-2 gap-2">
-            {/* 아침 루틴 */}
             <div className="rounded-2xl border border-yellow-200 bg-yellow-50 p-3">
               <div className="flex items-center gap-1.5 mb-2">
                 <Sun className="h-3.5 w-3.5 text-yellow-500" />
-                <span className="text-xs font-bold text-yellow-700">아침 루틴</span>
+                <span className="text-xs font-bold text-yellow-700">아침</span>
                 <span className="ml-auto text-xs font-bold text-yellow-600">{morningItems.length}개</span>
               </div>
               <div className="space-y-1">
-                {morningItems.slice(0, 4).map((item, i) => (
+                {morningItems.slice(0, 5).map((item, i) => (
                   <div key={item.id} className="flex items-center gap-1">
-                    <span className="text-[10px] font-bold text-yellow-500 w-3">{i + 1}</span>
+                    <span className="text-[10px] font-bold text-yellow-400 w-3">{i + 1}</span>
                     <span className="text-[11px] text-yellow-800 truncate flex-1">{item.product_name}</span>
                   </div>
                 ))}
-                {morningItems.length > 4 && (
-                  <span className="text-[10px] text-yellow-500">+{morningItems.length - 4}개 더</span>
+                {morningItems.length > 5 && (
+                  <span className="text-[10px] text-yellow-400">+{morningItems.length - 5}개 더</span>
                 )}
               </div>
             </div>
-
-            {/* 저녁 루틴 */}
             <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-3">
               <div className="flex items-center gap-1.5 mb-2">
                 <Moon className="h-3.5 w-3.5 text-indigo-500" />
-                <span className="text-xs font-bold text-indigo-700">저녁 루틴</span>
+                <span className="text-xs font-bold text-indigo-700">저녁</span>
                 <span className="ml-auto text-xs font-bold text-indigo-600">{eveningItems.length}개</span>
               </div>
               <div className="space-y-1">
-                {eveningItems.slice(0, 4).map((item, i) => (
+                {eveningItems.slice(0, 5).map((item, i) => (
                   <div key={item.id} className="flex items-center gap-1">
-                    <span className="text-[10px] font-bold text-indigo-500 w-3">{i + 1}</span>
+                    <span className="text-[10px] font-bold text-indigo-400 w-3">{i + 1}</span>
                     <span className="text-[11px] text-indigo-800 truncate flex-1">{item.product_name}</span>
                   </div>
                 ))}
-                {eveningItems.length > 4 && (
-                  <span className="text-[10px] text-indigo-500">+{eveningItems.length - 4}개 더</span>
+                {eveningItems.length > 5 && (
+                  <span className="text-[10px] text-indigo-400">+{eveningItems.length - 5}개 더</span>
                 )}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* 클렌징 솔루션 카드 — 클렌징 제품 보유 시 표시 */}
+        {cleansingItems.length > 0 && (
+          <div className="rounded-2xl border border-teal-200 bg-teal-50 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="h-4 w-4 text-teal-600" />
+              <span className="text-sm font-bold text-teal-800">클렌징 루틴 가이드</span>
+            </div>
+            <div className="space-y-2">
+              {cleansingItems.map(item => {
+                const guide = CLEANSING_GUIDE[item.category];
+                if (!guide) return null;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setCleansingGuide(cleansingGuide === item.category ? null : item.category)}
+                    className="w-full text-left"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">{getCategoryInfo(item.category).emoji}</span>
+                        <div>
+                          <p className="text-xs font-bold text-teal-800">{item.product_name}</p>
+                          <p className="text-[10px] text-teal-600">{guide.cycle}</p>
+                        </div>
+                      </div>
+                      <Info className="h-3.5 w-3.5 text-teal-500 shrink-0" />
+                    </div>
+                    {cleansingGuide === item.category && (
+                      <div className="mt-2 rounded-xl bg-white/70 p-3 space-y-1.5">
+                        <p className="text-[11px] text-teal-700 leading-relaxed">💡 {guide.tip}</p>
+                        <p className="text-[11px] text-teal-600 font-medium">⚗️ {guide.ph}</p>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -297,27 +391,32 @@ const MyCabinet = () => {
                 filterTab === tab ? 'bg-card shadow text-foreground' : 'text-muted-foreground'
               }`}
             >
-              {tab === 'all' ? '전체' : tab === 'morning' ? <><Sun className="h-3 w-3" />아침</> : <><Moon className="h-3 w-3" />저녁</>}
+              {tab === 'all' ? '전체' : tab === 'morning'
+                ? <><Sun className="h-3 w-3" /> 아침</>
+                : <><Moon className="h-3 w-3" /> 저녁</>}
             </button>
           ))}
         </div>
 
         {/* 카테고리 필터 */}
         <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
-          <button
-            onClick={() => setFilterCat('all')}
-            className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
-              filterCat === 'all' ? 'bg-primary text-primary-foreground' : 'bg-white border border-border text-muted-foreground'
-            }`}
-          >
-            전체
-          </button>
-          {CATEGORIES.map(c => (
+          {[
+            { key: 'all',       label: '전체',    emoji: '' },
+            { key: 'cleansing', label: '클렌징',  emoji: '🫧' },
+            { key: 'skincare',  label: '스킨케어', emoji: '🧴' },
+            { key: 'suncare',   label: '선케어',   emoji: '☀️' },
+            { key: 'treatment', label: '트리트먼트', emoji: '💊' },
+            { key: 'makeup',    label: '메이크업', emoji: '💄' },
+            { key: 'body',      label: '바디',     emoji: '🛁' },
+            { key: 'hair',      label: '헤어',     emoji: '💆' },
+          ].map(c => (
             <button
               key={c.key}
-              onClick={() => setFilterCat(c.key)}
+              onClick={() => setFilterCat(c.key as FilterCat)}
               className={`shrink-0 flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
-                filterCat === c.key ? 'bg-primary text-primary-foreground' : 'bg-white border border-border text-muted-foreground'
+                filterCat === c.key
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-white border border-border text-muted-foreground'
               }`}
             >
               {c.emoji} {c.label}
@@ -339,22 +438,16 @@ const MyCabinet = () => {
             <p className="text-xs text-muted-foreground leading-relaxed">
               갖고 있는 화장품을 추가하면<br />날씨 맞춤 루틴 추천을 받을 수 있어요
             </p>
-            <div className="flex gap-2 mt-2">
-              <button onClick={openAdd}
-                className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground">
-                직접 추가
-              </button>
-              <button onClick={() => { loadHistory(); setShowHistoryPicker(true); }}
-                className="rounded-full border border-primary px-4 py-2 text-xs font-semibold text-primary">
-                분석기록에서
-              </button>
-            </div>
+            <button onClick={openAdd}
+              className="mt-2 rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground">
+              첫 번째 제품 추가
+            </button>
           </div>
         ) : (
           <div className="space-y-2">
             {filtered.map(item => {
-              const pao = paoStatus(item);
-              const stepCfg = STEP_LABELS[item.category];
+              const catInfo = getCategoryInfo(item.category);
+              const stepInfo = STEP_PRESETS.find(s => s.order === item.step_order);
               const isExpanded = expandedId === item.id;
 
               return (
@@ -364,25 +457,21 @@ const MyCabinet = () => {
                     onClick={() => setExpandedId(isExpanded ? null : item.id)}
                     className="flex w-full items-center gap-3 px-4 py-3.5 text-left"
                   >
-                    {/* 순서 번호 */}
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">
-                      {item.step_order}
+                    {/* 단계 배지 */}
+                    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-base ${catInfo.color}`}>
+                      {catInfo.emoji}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${stepCfg?.color ?? 'bg-muted text-muted-foreground'}`}>
-                          {stepCfg?.label ?? item.category}
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${catInfo.color}`}>
+                          {stepInfo ? stepInfo.label : catInfo.label}
                         </span>
-                        {pao && (
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${pao.color}`}>{pao.label}</span>
-                        )}
                       </div>
                       <p className="text-sm font-bold text-foreground mt-0.5 truncate">{item.product_name}</p>
                       {item.product_brand && (
                         <p className="text-xs text-muted-foreground truncate">{item.product_brand}</p>
                       )}
                     </div>
-                    {/* 아침/저녁 아이콘 */}
                     <div className="shrink-0 flex gap-1">
                       {item.is_morning && <Sun className="h-3.5 w-3.5 text-yellow-500" />}
                       {item.is_evening && <Moon className="h-3.5 w-3.5 text-indigo-500" />}
@@ -397,12 +486,6 @@ const MyCabinet = () => {
                     <div className="border-t border-border px-4 py-3 space-y-2.5 bg-neutral-50">
                       {item.notes && (
                         <p className="text-xs text-muted-foreground leading-relaxed">{item.notes}</p>
-                      )}
-                      {item.is_opened && item.opened_at && (
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <CalendarDays className="h-3.5 w-3.5" />
-                          개봉: {item.opened_at} ({daysSinceOpened(item.opened_at)}일째 사용 중)
-                        </div>
                       )}
                       <div className="flex gap-2 flex-wrap">
                         <button
@@ -441,19 +524,90 @@ const MyCabinet = () => {
         )}
       </div>
 
-      {/* 제품 추가/수정 모달 */}
+      {/* ─── 제품 추가/수정 모달 ─────────────────────────────────────────────── */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-end bg-black/40">
-          <div className="w-full max-h-[90vh] rounded-t-3xl bg-white overflow-y-auto">
+          <div className="w-full max-h-[92vh] rounded-t-3xl bg-white overflow-y-auto">
             <div className="sticky top-0 bg-white flex items-center justify-between px-5 py-4 border-b border-border">
               <h3 className="text-base font-bold">{editId ? '제품 수정' : '제품 추가'}</h3>
               <button onClick={() => setShowModal(false)}>
                 <X className="h-5 w-5 text-muted-foreground" />
               </button>
             </div>
-            <div className="px-5 py-5 space-y-4 pb-8">
 
-              {/* 이름 */}
+            <div className="px-5 py-5 space-y-5 pb-10">
+
+              {/* ① 분석 기록 검색으로 불러오기 */}
+              {!editId && (
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-foreground">분석 기록에서 검색</label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <input
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      placeholder="제품명 또는 브랜드로 검색"
+                      className="w-full rounded-xl border border-border bg-neutral-50 pl-9 pr-4 py-3 text-sm outline-none focus:border-primary"
+                    />
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2"
+                      >
+                        <X className="h-3.5 w-3.5 text-muted-foreground" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* 검색 결과 */}
+                  {searchResults.length > 0 && (
+                    <div className="rounded-xl border border-border overflow-hidden max-h-48 overflow-y-auto">
+                      {searchResults.slice(0, 10).map(h => {
+                        const alreadyIn = items.some(i => i.analysis_history_id === h.id);
+                        return (
+                          <button
+                            key={h.id}
+                            type="button"
+                            disabled={alreadyIn}
+                            onClick={() => selectFromHistory(h)}
+                            className={`w-full flex items-center gap-3 px-3 py-2.5 text-left border-b border-border last:border-b-0 transition-colors ${
+                              alreadyIn ? 'opacity-40 cursor-not-allowed bg-neutral-50' : 'hover:bg-accent'
+                            }`}
+                          >
+                            <FlaskConical className="h-4 w-4 shrink-0 text-muted-foreground" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold truncate">{h.product_name || '이름 없는 제품'}</p>
+                              {h.product_brand && (
+                                <p className="text-[10px] text-muted-foreground">{h.product_brand}</p>
+                              )}
+                            </div>
+                            {alreadyIn
+                              ? <span className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full shrink-0">보관 중</span>
+                              : <span className="text-[10px] text-primary font-semibold shrink-0">선택</span>
+                            }
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {history.length > 0 && searchResults.length === 0 && searchQuery && (
+                    <p className="text-xs text-muted-foreground text-center py-2">검색 결과가 없어요. 아래에 직접 입력해주세요.</p>
+                  )}
+
+                  {history.length === 0 && (
+                    <p className="text-xs text-muted-foreground text-center py-2">분석 기록이 없어요. 아래에 직접 입력해주세요.</p>
+                  )}
+
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-px bg-border" />
+                    <span className="text-[10px] text-muted-foreground">또는 직접 입력</span>
+                    <div className="flex-1 h-px bg-border" />
+                  </div>
+                </div>
+              )}
+
+              {/* ② 제품명 */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-foreground">제품명 *</label>
                 <input
@@ -464,7 +618,7 @@ const MyCabinet = () => {
                 />
               </div>
 
-              {/* 브랜드 */}
+              {/* ③ 브랜드 */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-foreground">브랜드</label>
                 <input
@@ -475,11 +629,48 @@ const MyCabinet = () => {
                 />
               </div>
 
-              {/* 카테고리 */}
-              <div className="space-y-1.5">
+              {/* ④ 카테고리 */}
+              <div className="space-y-2">
                 <label className="text-xs font-semibold text-foreground">카테고리</label>
+
+                {/* 클렌징 그룹 */}
+                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">클렌징</p>
                 <div className="flex flex-wrap gap-2">
-                  {CATEGORIES.map(c => (
+                  {CATEGORIES.filter(c => c.group === 'cleansing').map(c => (
+                    <button
+                      key={c.key}
+                      type="button"
+                      onClick={() => setForm(f => ({ ...f, category: c.key, step_order: 1 }))}
+                      className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
+                        form.category === c.key ? 'bg-primary text-primary-foreground' : 'border border-border text-muted-foreground'
+                      }`}
+                    >
+                      {c.emoji} {c.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* 스킨케어 그룹 */}
+                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mt-1">스킨케어</p>
+                <div className="flex flex-wrap gap-2">
+                  {CATEGORIES.filter(c => c.group === 'skincare').map(c => (
+                    <button
+                      key={c.key}
+                      type="button"
+                      onClick={() => setForm(f => ({ ...f, category: c.key }))}
+                      className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
+                        form.category === c.key ? 'bg-primary text-primary-foreground' : 'border border-border text-muted-foreground'
+                      }`}
+                    >
+                      {c.emoji} {c.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* 기타 그룹 */}
+                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mt-1">기타</p>
+                <div className="flex flex-wrap gap-2">
+                  {CATEGORIES.filter(c => c.group === 'other').map(c => (
                     <button
                       key={c.key}
                       type="button"
@@ -494,7 +685,7 @@ const MyCabinet = () => {
                 </div>
               </div>
 
-              {/* 사용 시간대 */}
+              {/* ⑤ 사용 시간대 */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-foreground">사용 시간대</label>
                 <div className="flex gap-2">
@@ -502,7 +693,9 @@ const MyCabinet = () => {
                     type="button"
                     onClick={() => setForm(f => ({ ...f, is_morning: !f.is_morning }))}
                     className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all ${
-                      form.is_morning ? 'bg-yellow-100 border-2 border-yellow-400 text-yellow-700' : 'border-2 border-border text-muted-foreground'
+                      form.is_morning
+                        ? 'bg-yellow-100 border-2 border-yellow-400 text-yellow-700'
+                        : 'border-2 border-border text-muted-foreground'
                     }`}
                   >
                     <Sun className="h-4 w-4" /> 아침
@@ -512,7 +705,9 @@ const MyCabinet = () => {
                     type="button"
                     onClick={() => setForm(f => ({ ...f, is_evening: !f.is_evening }))}
                     className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all ${
-                      form.is_evening ? 'bg-indigo-100 border-2 border-indigo-400 text-indigo-700' : 'border-2 border-border text-muted-foreground'
+                      form.is_evening
+                        ? 'bg-indigo-100 border-2 border-indigo-400 text-indigo-700'
+                        : 'border-2 border-border text-muted-foreground'
                     }`}
                   >
                     <Moon className="h-4 w-4" /> 저녁
@@ -521,68 +716,34 @@ const MyCabinet = () => {
                 </div>
               </div>
 
-              {/* 사용 순서 */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground">사용 순서</label>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setForm(f => ({ ...f, step_order: Math.max(1, f.step_order - 1) }))}
-                    className="h-9 w-9 rounded-full border border-border bg-neutral-50 text-lg font-bold flex items-center justify-center"
-                  >−</button>
-                  <span className="text-2xl font-black text-primary w-8 text-center">{form.step_order}</span>
-                  <button
-                    type="button"
-                    onClick={() => setForm(f => ({ ...f, step_order: Math.min(20, f.step_order + 1) }))}
-                    className="h-9 w-9 rounded-full border border-border bg-neutral-50 text-lg font-bold flex items-center justify-center"
-                  >+</button>
-                  <span className="text-xs text-muted-foreground">숫자가 작을수록 먼저 사용</span>
+              {/* ⑥ 사용 순서 — 직관적 단계 선택 */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-foreground">피부 루틴 단계</label>
+                <p className="text-[10px] text-muted-foreground">이 제품을 사용하는 단계를 선택해주세요</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {STEP_PRESETS.map(step => (
+                    <button
+                      key={step.order}
+                      type="button"
+                      onClick={() => setForm(f => ({ ...f, step_order: step.order }))}
+                      className={`flex flex-col items-center rounded-xl py-2.5 px-2 text-center transition-all ${
+                        form.step_order === step.order
+                          ? 'bg-primary text-primary-foreground border-2 border-primary'
+                          : 'border border-border text-muted-foreground bg-neutral-50'
+                      }`}
+                    >
+                      <span className={`text-xs font-bold ${form.step_order === step.order ? 'text-primary-foreground' : 'text-foreground'}`}>
+                        {step.label}
+                      </span>
+                      <span className={`text-[9px] mt-0.5 ${form.step_order === step.order ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
+                        {step.desc}
+                      </span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* 개봉 여부 */}
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-foreground">개봉 여부</label>
-                <button
-                  type="button"
-                  onClick={() => setForm(f => ({ ...f, is_opened: !f.is_opened }))}
-                  className={`flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all w-full ${
-                    form.is_opened ? 'bg-green-50 border-2 border-green-400 text-green-700' : 'border-2 border-border text-muted-foreground'
-                  }`}
-                >
-                  <Droplets className="h-4 w-4" />
-                  {form.is_opened ? '개봉됨' : '미개봉'}
-                  {form.is_opened && <Check className="h-4 w-4 ml-auto" />}
-                </button>
-                {form.is_opened && (
-                  <div className="space-y-2 pl-1">
-                    <div className="flex gap-3">
-                      <div className="flex-1 space-y-1">
-                        <label className="text-[11px] text-muted-foreground">개봉일</label>
-                        <input
-                          type="date"
-                          value={form.opened_at}
-                          onChange={e => setForm(f => ({ ...f, opened_at: e.target.value }))}
-                          className="w-full rounded-xl border border-border bg-neutral-50 px-3 py-2 text-sm outline-none focus:border-primary"
-                        />
-                      </div>
-                      <div className="flex-1 space-y-1">
-                        <label className="text-[11px] text-muted-foreground">유통기한(개월)</label>
-                        <input
-                          type="number"
-                          value={form.pao_months}
-                          min={1}
-                          max={36}
-                          onChange={e => setForm(f => ({ ...f, pao_months: parseInt(e.target.value) || 12 }))}
-                          className="w-full rounded-xl border border-border bg-neutral-50 px-3 py-2 text-sm outline-none focus:border-primary"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* 메모 */}
+              {/* ⑦ 메모 */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-foreground">메모 (선택)</label>
                 <textarea
@@ -601,57 +762,6 @@ const MyCabinet = () => {
               >
                 {editId ? '수정 완료' : '보관함에 추가'}
               </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 분석 기록에서 불러오기 모달 */}
-      {showHistoryPicker && (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/40">
-          <div className="w-full max-h-[80vh] rounded-t-3xl bg-white overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-              <p className="text-base font-bold">분석 기록에서 추가</p>
-              <button onClick={() => setShowHistoryPicker(false)}>
-                <X className="h-5 w-5 text-muted-foreground" />
-              </button>
-            </div>
-            <div className="overflow-y-auto p-4 space-y-2">
-              {history.length === 0 ? (
-                <div className="py-10 text-center">
-                  <p className="text-sm text-muted-foreground">분석 기록이 없어요</p>
-                  <button
-                    onClick={() => { setShowHistoryPicker(false); navigate('/scan'); }}
-                    className="mt-3 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
-                  >
-                    지금 분석하러 가기
-                  </button>
-                </div>
-              ) : (
-                history.map(h => {
-                  const alreadyIn = items.some(i => i.analysis_history_id === h.id);
-                  return (
-                    <button
-                      key={h.id}
-                      type="button"
-                      disabled={alreadyIn}
-                      onClick={() => handleFromHistory(h)}
-                      className={`w-full flex items-center gap-3 rounded-xl border border-border bg-card p-3 text-left transition-colors ${
-                        alreadyIn ? 'opacity-40 cursor-not-allowed' : 'hover:bg-accent'
-                      }`}
-                    >
-                      <FlaskConical className="h-5 w-5 shrink-0 text-muted-foreground" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate">{h.product_name || '이름 없는 제품'}</p>
-                        {h.product_brand && <p className="text-xs text-muted-foreground">{h.product_brand}</p>}
-                      </div>
-                      {alreadyIn && (
-                        <span className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full">보관 중</span>
-                      )}
-                    </button>
-                  );
-                })
-              )}
             </div>
           </div>
         </div>
