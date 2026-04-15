@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
 
 @tailwind base;
 @tailwind components;
@@ -6,91 +7,117 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 340 10% 15%;
+    /* ── 기본 배경/텍스트 — 순수 화이트 + 딥블랙 ── */
+    --background:        0 0% 98%;
+    --foreground:        0 0% 6%;
 
-    --card: 340 30% 98%;
-    --card-foreground: 340 10% 15%;
+    --card:              0 0% 100%;
+    --card-foreground:   0 0% 6%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 340 10% 15%;
+    --popover:           0 0% 100%;
+    --popover-foreground:0 0% 6%;
 
-    --primary: 340 82% 62%;
-    --primary-foreground: 0 0% 100%;
+    /* ── Primary: 딥 바이올렛 — 뷰티의 세련됨 ── */
+    --primary:           258 90% 42%;
+    --primary-foreground:0 0% 100%;
 
-    --secondary: 340 40% 95%;
-    --secondary-foreground: 340 30% 30%;
+    --secondary:         258 30% 96%;
+    --secondary-foreground: 258 40% 30%;
 
-    --muted: 340 20% 96%;
-    --muted-foreground: 340 10% 50%;
+    --muted:             0 0% 96%;
+    --muted-foreground:  0 0% 45%;
 
-    --accent: 340 60% 92%;
-    --accent-foreground: 340 40% 25%;
+    --accent:            258 40% 95%;
+    --accent-foreground: 258 50% 30%;
 
-    --destructive: 0 84% 60%;
+    --destructive:       0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 340 20% 90%;
-    --input: 340 20% 90%;
-    --ring: 340 82% 62%;
+    --border:            0 0% 91%;
+    --input:             0 0% 91%;
+    --ring:              258 90% 42%;
 
-    --radius: 0.75rem;
+    --radius: 0.875rem;
 
-    --success: 145 60% 45%;
-    --success-foreground: 0 0% 100%;
-    --warning: 40 90% 55%;
-    --warning-foreground: 40 90% 15%;
-    --danger: 0 75% 55%;
+    /* ── 시멘틱 컬러 ── */
+    --success:           142 71% 45%;
+    --success-foreground:0 0% 100%;
+    --warning:           38 92% 50%;
+    --warning-foreground:38 92% 15%;
+    --danger:            0 84% 60%;
     --danger-foreground: 0 0% 100%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(340, 82%, 62%), hsl(320, 70%, 72%));
-    --gradient-soft: linear-gradient(180deg, hsl(340, 40%, 97%), hsl(0, 0%, 100%));
+    /* ── 브랜드 확장 ── */
+    --primary-light:     258 90% 62%;
+    --primary-dark:      258 90% 32%;
+    --primary-surface:   258 100% 97%;
 
-    /* 브랜드 컬러 확장 */
-    --primary-light: 340 82% 72%;
-    --primary-dark: 340 82% 48%;
+    /* ── 뉴트럴 (순수 그레이) ── */
+    --neutral-50:  0 0% 98%;
+    --neutral-100: 0 0% 96%;
+    --neutral-200: 0 0% 91%;
+    --neutral-300: 0 0% 83%;
+    --neutral-400: 0 0% 64%;
+    --neutral-500: 0 0% 45%;
+    --neutral-600: 0 0% 32%;
+    --neutral-700: 0 0% 20%;
+    --neutral-900: 0 0% 6%;
 
-    /* 중립 컬러 (웜톤 기반) */
-    --neutral-50: 30 20% 98%;
-    --neutral-100: 30 15% 95%;
-    --neutral-200: 30 10% 88%;
-    --neutral-700: 20 10% 35%;
+    /* ── 그라데이션 ── */
+    /* 헤더: 딥 다크 + 미세 바이올렛 틴트 */
+    --gradient-brand:
+      linear-gradient(
+        145deg,
+        hsl(258, 35%, 8%) 0%,
+        hsl(258, 25%, 12%) 100%
+      );
 
-    /* 그라데이션 확장 */
-    --gradient-brand: linear-gradient(135deg, hsl(340, 82%, 62%) 0%, hsl(320, 65%, 68%) 50%, hsl(300, 50%, 72%) 100%);
-    --gradient-card: linear-gradient(160deg, hsl(340, 40%, 99%) 0%, hsl(0, 0%, 100%) 100%);
+    /* 카드용 subtle */
+    --gradient-card:
+      linear-gradient(160deg, hsl(0,0%,100%) 0%, hsl(258,30%,99%) 100%);
 
-    /* 그림자 시스템 */
-    --shadow-soft: 0 2px 12px hsl(340, 30%, 88%);
-    --shadow-card: 0 1px 4px hsl(340, 20%, 90%), 0 4px 16px hsl(340, 15%, 94%);
-    --shadow-primary: 0 4px 16px hsl(340, 70%, 78%);
+    /* Primary CTA 버튼 */
+    --gradient-primary:
+      linear-gradient(135deg, hsl(258,90%,42%) 0%, hsl(280,85%,50%) 100%);
 
-    /* 타이포그래피 */
-    --font-display: 'Noto Sans KR', sans-serif;
-    --tracking-tight: -0.02em;
-    --tracking-brand: 0.06em;
+    /* ── 그림자 — 애플 스타일 (확산형, 채도 없음) ── */
+    --shadow-soft:    0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.04);
+    --shadow-card:    0 1px 2px rgba(0,0,0,.04), 0 2px 8px rgba(0,0,0,.06);
+    --shadow-primary: 0 4px 20px rgba(100,60,220,.35);
+    --shadow-up:      0 -1px 0 rgba(0,0,0,.06);
+
+    /* ── 타이포그래피 ── */
+    --font-sans: 'Pretendard Variable', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --tracking-tight: -0.03em;
+    --tracking-brand:  0.04em;
   }
 
+  /* ── 다크 모드 ── */
   .dark {
-    --background: 340 15% 8%;
-    --foreground: 340 10% 92%;
-    --card: 340 15% 12%;
-    --card-foreground: 340 10% 92%;
-    --popover: 340 15% 10%;
-    --popover-foreground: 340 10% 92%;
-    --primary: 340 82% 62%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 340 20% 18%;
-    --secondary-foreground: 340 10% 85%;
-    --muted: 340 15% 18%;
-    --muted-foreground: 340 10% 60%;
-    --accent: 340 25% 20%;
-    --accent-foreground: 340 20% 85%;
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 340 15% 20%;
-    --input: 340 15% 20%;
-    --ring: 340 82% 62%;
+    --background:        0 0% 5%;
+    --foreground:        0 0% 95%;
+    --card:              0 0% 8%;
+    --card-foreground:   0 0% 95%;
+    --popover:           0 0% 7%;
+    --popover-foreground:0 0% 95%;
+    --primary:           258 90% 65%;
+    --primary-foreground:0 0% 100%;
+    --secondary:         258 20% 14%;
+    --secondary-foreground: 0 0% 85%;
+    --muted:             0 0% 13%;
+    --muted-foreground:  0 0% 55%;
+    --accent:            258 25% 18%;
+    --accent-foreground: 258 20% 85%;
+    --destructive:       0 62% 40%;
+    --destructive-foreground:0 0% 100%;
+    --border:            0 0% 16%;
+    --input:             0 0% 16%;
+    --ring:              258 90% 65%;
+    --gradient-brand:
+      linear-gradient(145deg, hsl(0,0%,5%) 0%, hsl(258,20%,8%) 100%);
+    --shadow-soft:    0 1px 3px rgba(0,0,0,.3), 0 4px 12px rgba(0,0,0,.2);
+    --shadow-card:    0 1px 2px rgba(0,0,0,.3), 0 2px 8px rgba(0,0,0,.2);
+    --shadow-primary: 0 4px 20px rgba(140,90,255,.4);
   }
 }
 
@@ -99,53 +126,66 @@
     @apply border-border;
   }
 
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: var(--font-display);
+    font-family: var(--font-sans);
     letter-spacing: var(--tracking-tight);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
+    font-family: var(--font-sans);
     letter-spacing: var(--tracking-tight);
   }
 }
 
 @layer utilities {
-  /* 기존 그라데이션 */
-  .gradient-primary {
+  .gradient-primary  { background: var(--gradient-primary); }
+  .gradient-brand    { background: var(--gradient-brand); }
+  .gradient-card     { background: var(--gradient-card); }
+
+  .shadow-soft       { box-shadow: var(--shadow-soft); }
+  .shadow-card       { box-shadow: var(--shadow-card); }
+  .shadow-primary    { box-shadow: var(--shadow-primary); }
+  .shadow-up         { box-shadow: var(--shadow-up); }
+
+  .tracking-brand       { letter-spacing: var(--tracking-brand); }
+  .tracking-tight-brand { letter-spacing: var(--tracking-tight); }
+
+  /* 유리 패널 효과 */
+  .glass {
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+  .glass-dark {
+    background: rgba(10,10,15,0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* 텍스트 그라데이션 */
+  .text-gradient {
     background: var(--gradient-primary);
-  }
-  .gradient-soft {
-    background: var(--gradient-soft);
-  }
-
-  /* 신규 브랜드 그라데이션 */
-  .gradient-brand {
-    background: var(--gradient-brand);
-  }
-  .gradient-card {
-    background: var(--gradient-card);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
-  /* 그림자 유틸 */
-  .shadow-soft {
-    box-shadow: var(--shadow-soft);
+  /* 프레스 피드백 */
+  .press {
+    transition: transform 0.12s ease, opacity 0.12s ease;
   }
-  .shadow-card {
-    box-shadow: var(--shadow-card);
-  }
-  .shadow-primary {
-    box-shadow: var(--shadow-primary);
-  }
-
-  /* 브랜드 앱명 레터스페이싱 */
-  .tracking-brand {
-    letter-spacing: var(--tracking-brand);
-  }
-  .tracking-tight-brand {
-    letter-spacing: var(--tracking-tight);
+  .press:active {
+    transform: scale(0.96);
+    opacity: 0.85;
   }
 }
