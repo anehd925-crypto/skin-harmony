@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { UserProvider } from "@/contexts/UserContext";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
 import Onboarding from "./pages/Onboarding.tsx";
@@ -26,45 +28,58 @@ import Diary from "./pages/Diary.tsx";
 import ScanHub from "./pages/ScanHub.tsx";
 import ScanAnalysis from "./pages/ScanAnalysis.tsx";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5분 캐시
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <UserProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/auth/callback" element={<AuthCallback />} />
-              <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/explore" element={<Explore />} />
-              <Route path="/recommendations" element={<Navigate to="/explore" replace />} />
-              <Route path="/analyze" element={<IngredientAnalysis />} />
-              <Route path="/history" element={<AnalysisHistory />} />
-              <Route path="/price-alerts" element={<Navigate to="/history" replace />} />
-              <Route path="/share" element={<ShareEntry />} />
-              <Route path="/how-to-share" element={<HowToShare />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/compare" element={<Compare />} />
-              <Route path="/community" element={<Community />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/routine" element={<Routine />} />
-              <Route path="/diary" element={<Diary />} />
-              <Route path="/scan" element={<ScanHub />} />
-              <Route path="/scan-ocr" element={<ScanAnalysis />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </UserProvider>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <UserProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                {/* 공개 라우트 */}
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/how-to-share" element={<HowToShare />} />
+                <Route path="/explore" element={<Explore />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/recommendations" element={<Navigate to="/explore" replace />} />
+                <Route path="/price-alerts" element={<Navigate to="/history" replace />} />
+
+                {/* 인증 필요 라우트 */}
+                <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+                <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+                <Route path="/analyze" element={<ProtectedRoute><IngredientAnalysis /></ProtectedRoute>} />
+                <Route path="/scan" element={<ProtectedRoute><ScanHub /></ProtectedRoute>} />
+                <Route path="/scan-ocr" element={<ProtectedRoute><ScanAnalysis /></ProtectedRoute>} />
+                <Route path="/history" element={<ProtectedRoute><AnalysisHistory /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="/routine" element={<ProtectedRoute><Routine /></ProtectedRoute>} />
+                <Route path="/diary" element={<ProtectedRoute><Diary /></ProtectedRoute>} />
+                <Route path="/share" element={<ProtectedRoute><ShareEntry /></ProtectedRoute>} />
+                <Route path="/compare" element={<ProtectedRoute><Compare /></ProtectedRoute>} />
+                <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
+
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </UserProvider>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

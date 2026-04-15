@@ -612,6 +612,12 @@ BeautyLens로 분석했습니다`;
             {/* Ingredients list */}
             <div>
               <h2 className="mb-3 text-base font-bold text-foreground">전성분 분석 결과</h2>
+
+              {/* AI 면책 고지 */}
+              <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800 leading-relaxed">
+                ⚠️ AI가 제공하는 참고 정보입니다. 의학적 진단 또는 처방을 대체하지 않으며, 민감성 피부 또는 알레르기가 있는 경우 전문가와 상담하시기 바랍니다.
+              </div>
+
               <div className="space-y-2">
                 {result.ingredients.map((ingredient, idx) => (
                   <div key={idx} className="rounded-xl border border-border bg-card p-3">

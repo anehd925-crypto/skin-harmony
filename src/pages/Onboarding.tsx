@@ -256,7 +256,15 @@ const Onboarding = () => {
               <div key={i} className={`h-1.5 flex-1 rounded-full transition-colors ${i <= step ? 'bg-primary' : 'bg-border'}`} />
             ))}
           </div>
-          <p className="mt-1.5 text-right text-xs text-muted-foreground">{step + 1} / {TOTAL_STEPS}</p>
+          <div className="mt-1.5 flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">{step + 1} / {TOTAL_STEPS}</p>
+            <button
+              onClick={handleComplete}
+              className="text-xs text-muted-foreground underline underline-offset-2 hover:text-primary"
+            >
+              건너뛰기
+            </button>
+          </div>
         </div>
 
         <div className="w-full max-w-sm">{steps[step]}</div>

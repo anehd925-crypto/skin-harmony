@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sparkles, Check, LogOut, ChevronDown, ChevronUp, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const Section = ({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) => {
   const [open, setOpen] = useState(defaultOpen);
@@ -38,6 +39,23 @@ const Profile = () => {
   const [nicknameInput, setNicknameInput] = useState(profile.nickname ?? '');
   const { toast } = useToast();
   const [saved, setSaved] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    setDeleteLoading(true);
+    try {
+      const { error } = await supabase.functions.invoke('delete-account');
+      if (error) throw error;
+      await signOut();
+      toast({ title: '탈퇴 완료', description: '계정이 삭제되었습니다.' });
+      navigate('/auth', { replace: true });
+    } catch {
+      toast({ title: '탈퇴 실패', description: '잠시 후 다시 시도해주세요.', variant: 'destructive' });
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   const handleSave = async () => {
     setAllergies(allergyInput.split(',').map(s => s.trim()).filter(Boolean));
@@ -215,6 +233,41 @@ const Profile = () => {
         <Button onClick={handleSave} className="w-full rounded-xl h-12 gradient-brand text-primary-foreground text-base font-semibold shadow-primary">
           {saved ? <><Check className="mr-1 h-4 w-4" /> 저장됨</> : '저장하기'}
         </Button>
+
+        {/* 계정 탈퇴 */}
+        <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 space-y-2">
+          <p className="text-xs font-semibold text-destructive">계정 탈퇴</p>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            탈퇴 시 모든 분석 기록, 루틴, 피부 일기 데이터가 영구 삭제되며 복구할 수 없습니다.
+          </p>
+          {!showDeleteConfirm ? (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="text-xs text-destructive underline underline-offset-2"
+            >
+              계정 탈퇴하기
+            </button>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-destructive">정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 rounded-lg border border-border py-2 text-xs font-medium text-muted-foreground"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deleteLoading}
+                  className="flex-1 rounded-lg bg-destructive py-2 text-xs font-semibold text-white disabled:opacity-60"
+                >
+                  {deleteLoading ? '처리 중...' : '탈퇴 확인'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       <BottomNav />

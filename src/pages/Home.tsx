@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import BottomNav from '@/components/BottomNav';
 import NotificationPermission from '@/components/NotificationPermission';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Sparkles, Star, Heart, ChevronRight, FlaskConical, TrendingDown, Camera, Layers, BookMarked } from 'lucide-react';
 
 const Home = () => {
@@ -22,7 +23,7 @@ const Home = () => {
   });
 
   // 최근 분석 기록 피드 (나 + 전체)
-  const { data: recentAnalysis = [] } = useQuery({
+  const { data: recentAnalysis = [], isLoading: analysisLoading } = useQuery({
     queryKey: ['recent_analysis'],
     queryFn: async () => {
       const { data } = await supabase
@@ -353,17 +354,33 @@ const Home = () => {
         )}
 
         {/* 최근 분석 피드 */}
-        {recentAnalysis.length > 0 && (
+        {(analysisLoading || recentAnalysis.length > 0) && (
           <section>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-1.5">
                 <FlaskConical className="h-4 w-4 text-primary" />
                 <h2 className="text-base font-bold text-foreground">최근 분석</h2>
               </div>
-              <button onClick={() => navigate('/history')} className="flex items-center gap-0.5 text-xs text-primary font-medium">
-                전체 보기<ChevronRight className="h-3.5 w-3.5" />
-              </button>
+              {!analysisLoading && (
+                <button onClick={() => navigate('/history')} className="flex items-center gap-0.5 text-xs text-primary font-medium">
+                  전체 보기<ChevronRight className="h-3.5 w-3.5" />
+                </button>
+              )}
             </div>
+            {analysisLoading ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3">
+                    <Skeleton className="h-5 w-5 rounded-full shrink-0" />
+                    <div className="flex-1 space-y-1.5">
+                      <Skeleton className="h-3.5 w-2/3 rounded" />
+                      <Skeleton className="h-3 w-1/3 rounded" />
+                    </div>
+                    <Skeleton className="h-5 w-10 rounded-full" />
+                  </div>
+                ))}
+              </div>
+            ) : (
             <div className="space-y-2">
               {recentAnalysis.map((a: { id: string; product_name: string; product_brand: string; overall_grade: string; created_at: string; source: string }) => {
                 const grade = a.overall_grade as 'good' | 'moderate' | 'bad';
@@ -390,6 +407,7 @@ const Home = () => {
                 );
               })}
             </div>
+            )}
           </section>
         )}
       </div>

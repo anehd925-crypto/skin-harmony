@@ -1,16 +1,26 @@
 project_id = "kvhqhwsgqfxtuisgcfxn"
 
+# 로그인 사용자만 호출 — JWT 검증 활성화
 [functions.analyze-ingredients]
-verify_jwt = false
+verify_jwt = true
 
 [functions.scrape-oliveyoung]
-verify_jwt = false
+verify_jwt = true
 
+[functions.check-routine-conflicts]
+verify_jwt = true
+
+[functions.diary-insights]
+verify_jwt = true
+
+# pg_cron에서 직접 호출 — JWT 없이 실행됨
 [functions.send-push-notification]
 verify_jwt = false
 
-[functions.check-routine-conflicts]
+# 서버 내부 자동화용
+[functions.post-twitter-content]
 verify_jwt = false
 
-[functions.diary-insights]
-verify_jwt = false
+# 본인 인증 후 계정 삭제
+[functions.delete-account]
+verify_jwt = true
