@@ -591,7 +591,7 @@ const Routine = () => {
                 <div className="py-8 text-center">
                   <p className="text-sm text-muted-foreground">분석 기록이 없습니다.</p>
                   <button
-                    onClick={() => { setShowAddModal(false); navigate('/analyze'); }}
+                    onClick={() => { setShowAddModal(false); navigate('/scan'); }}
                     className="mt-2 text-xs text-primary underline"
                   >
                     지금 분석하러 가기

@@ -383,7 +383,7 @@ const History = () => {
               <div className="flex flex-col items-center justify-center py-16 text-center">
                 <FlaskConical className="h-12 w-12 text-muted-foreground/30 mb-3" />
                 <p className="text-sm text-muted-foreground">아직 분석한 제품이 없어요</p>
-                <button onClick={() => navigate('/analyze')} className="mt-4 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
+                <button onClick={() => navigate('/scan')} className="mt-4 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
                   첫 번째 제품 분석하기
                 </button>
               </div>
@@ -622,7 +622,7 @@ const History = () => {
                 <FlaskConical className="h-12 w-12 text-muted-foreground/30 mb-3" />
                 <p className="text-sm text-muted-foreground">분석 기록이 없어요</p>
                 <p className="mt-1 text-xs text-muted-foreground">제품을 분석하면 리포트가 자동으로 생성됩니다</p>
-                <button onClick={() => navigate('/analyze')} className="mt-4 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
+                <button onClick={() => navigate('/scan')} className="mt-4 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
                   지금 분석하기
                 </button>
               </div>

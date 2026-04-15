@@ -18,7 +18,7 @@ const BottomNav = () => {
       <div className="mx-auto flex max-w-md items-center justify-around py-2">
         {navItems.map(({ icon: Icon, label, path, center }) => {
           const isActive = path === '/scan'
-            ? location.pathname.startsWith('/scan')
+            ? location.pathname.startsWith('/scan') || location.pathname === '/analyze'
             : location.pathname === path;
           if (center) {
             return (
