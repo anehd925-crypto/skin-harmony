@@ -5,10 +5,12 @@ import { useUser } from '@/contexts/UserContext';
 import { useAuth } from '@/contexts/AuthContext';
 import BottomNav from '@/components/BottomNav';
 import SafetyBadge from '@/components/SafetyBadge';
+import BlacklistAlert from '@/components/BlacklistAlert';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { syncBlacklist, checkBlacklistHits } from '@/utils/blacklist';
 import { ChevronLeft, Search, FlaskConical, ShieldCheck, AlertTriangle, Loader2, Link2, History, Share2, Check, Zap, Star, Users } from 'lucide-react';
 
 interface AnalyzedIngredient {
@@ -134,6 +136,7 @@ const IngredientAnalysis = () => {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [blacklistHits, setBlacklistHits] = useState<string[]>([]);
 
   // OCR 스캔에서 돌아올 때 성분 텍스트 자동 입력, ScanHub에서 초기 모드 지정
   useEffect(() => {
@@ -315,6 +318,11 @@ BeautyLens로 분석했습니다`;
           ...(urlInput.trim() && { product_url: urlInput.trim() }),
         });
         if (histErr) console.error('analysis_history insert 실패:', histErr.message);
+
+        // 블랙리스트 자동 동기화 & 경보 체크
+        await syncBlacklist(user.id, analysisResult.ingredients);
+        const hits = await checkBlacklistHits(user.id, analysisResult.ingredients);
+        setBlacklistHits(hits);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : '분석 중 오류가 발생했습니다.');
@@ -473,6 +481,9 @@ BeautyLens로 분석했습니다`;
 
         {result && (
           <div className="-mt-4 space-y-4">
+            {/* 블랙리스트 경보 배너 — 최상단 */}
+            <BlacklistAlert hits={blacklistHits} />
+
             {/* Product header */}
             <div className="rounded-xl border border-border bg-card p-4 shadow-card">
               <div className="flex items-start justify-between gap-2">

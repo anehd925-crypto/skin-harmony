@@ -28,6 +28,8 @@ import Diary from "./pages/Diary.tsx";
 import ScanHub from "./pages/ScanHub.tsx";
 import ScanAnalysis from "./pages/ScanAnalysis.tsx";
 import SkinSolution from "./pages/SkinSolution.tsx";
+import BlacklistPage from "./pages/BlacklistPage.tsx";
+import SkinTimeline from "./pages/SkinTimeline.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -70,6 +72,8 @@ const App = () => (
                 <Route path="/routine" element={<ProtectedRoute><Routine /></ProtectedRoute>} />
                 <Route path="/diary" element={<ProtectedRoute><Diary /></ProtectedRoute>} />
                 <Route path="/skin-solution" element={<ProtectedRoute><SkinSolution /></ProtectedRoute>} />
+                <Route path="/blacklist" element={<ProtectedRoute><BlacklistPage /></ProtectedRoute>} />
+                <Route path="/timeline" element={<ProtectedRoute><SkinTimeline /></ProtectedRoute>} />
                 <Route path="/share" element={<ProtectedRoute><ShareEntry /></ProtectedRoute>} />
                 <Route path="/compare" element={<ProtectedRoute><Compare /></ProtectedRoute>} />
                 <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />

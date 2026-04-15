@@ -268,6 +268,24 @@ const Routine = () => {
       setConflictResult(result);
       setShowConflicts(false);
       setShowRecommendations(false);
+
+      // 홈 카드용 캐시 저장
+      const conflictCount = result.conflicts?.length ?? 0;
+      const synergyCount = result.synergies?.length ?? 0;
+      const topConflict = result.conflicts?.[0]
+        ? `${result.conflicts[0].ingredient_a} + ${result.conflicts[0].ingredient_b}`
+        : null;
+      const score = Math.max(0, 100 - conflictCount * 15 + synergyCount * 5);
+      await supabase
+        .from('routine_conflict_cache' as never)
+        .upsert({
+          user_id: user!.id,
+          score,
+          conflict_count: conflictCount,
+          synergy_count: synergyCount,
+          top_conflict: topConflict,
+          created_at: new Date().toISOString(),
+        } as never, { onConflict: 'user_id' });
     } catch {
       toast({ title: '오류', description: '궁합 분석에 실패했습니다. 잠시 후 다시 시도해주세요.', variant: 'destructive' });
     } finally {

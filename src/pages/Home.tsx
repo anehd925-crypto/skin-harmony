@@ -7,7 +7,8 @@ import { supabase } from '@/integrations/supabase/client';
 import BottomNav from '@/components/BottomNav';
 import NotificationPermission from '@/components/NotificationPermission';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Sparkles, Star, Heart, ChevronRight, FlaskConical, TrendingDown, Camera, Layers, BookMarked } from 'lucide-react';
+import { Sparkles, Star, Heart, ChevronRight, FlaskConical, TrendingDown, Camera, Layers, BookMarked, ShieldAlert } from 'lucide-react';
+import RoutineSafetyCard from '@/components/RoutineSafetyCard';
 
 const Home = () => {
   const { profile } = useUser();
@@ -176,6 +177,11 @@ const Home = () => {
       {/* 푸시 알림 권한 요청 배너 */}
       <NotificationPermission />
 
+      {/* 오늘의 루틴 안전도 카드 */}
+      <div className="pt-3">
+        <RoutineSafetyCard />
+      </div>
+
       <div className="px-5 space-y-6 pt-2">
 
         {/* 빠른 액션 */}
@@ -230,6 +236,33 @@ const Home = () => {
               <p className="text-xs font-bold text-foreground">피부 일기</p>
               <p className="text-[10px] text-muted-foreground leading-tight">AI 인사이트 기록</p>
             </div>
+          </button>
+
+          <button
+            onClick={() => navigate('/blacklist')}
+            className="flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50/60 p-4 shadow-card transition-all active:scale-95"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-500">
+              <ShieldAlert className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-foreground">블랙리스트</p>
+              <p className="text-[10px] text-muted-foreground leading-tight">내 위험 성분 경보</p>
+            </div>
+          </button>
+
+          <button
+            onClick={() => navigate('/timeline')}
+            className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card transition-all active:scale-95 col-span-2"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
+              <TrendingDown className="h-5 w-5 rotate-180" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-foreground">피부 변화 타임라인</p>
+              <p className="text-[10px] text-muted-foreground leading-tight">루틴 변경 + 피부 점수 추세 한눈에</p>
+            </div>
+            <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground shrink-0" />
           </button>
         </div>
 
