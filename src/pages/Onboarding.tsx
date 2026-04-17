@@ -9,14 +9,17 @@ import {
 } from '@/contexts/UserContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sparkles, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Sparkles, ChevronRight, ChevronLeft, Hand, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import SkinTypeDecider, { type DiagnosisResult } from '@/components/SkinTypeDecider';
 
 const TOTAL_STEPS = 7;
 
 const Onboarding = () => {
   const [step, setStep] = useState(0);
   const [allergyInput, setAllergyInput] = useState('');
+  const [skinTypeMode, setSkinTypeMode] = useState<'ai' | 'manual'>('ai');
+  const [aiDiagnosis, setAiDiagnosis] = useState<DiagnosisResult | null>(null);
   const {
     profile,
     setSkinType, toggleConcern, setConcernPriority,
@@ -29,6 +32,12 @@ const Onboarding = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
+
+  const handleAiResolved = (r: DiagnosisResult) => {
+    setAiDiagnosis(r);
+    setSkinType(r.skinType);
+    if (r.skinTypeEn === 'sensitive') setSkinSensitivity('sensitive');
+  };
 
   const handleComplete = async () => {
     if (submitting) return;
@@ -84,23 +93,76 @@ const Onboarding = () => {
       </div>
     </div>,
 
-    // Step 1: 피부타입 + 유분수분 상태
+    // Step 1: 피부타입 (AI 진단 / 직접 선택) + 유분수분 상태
     <div key="skin" className="space-y-5">
       <div className="text-center">
         <p className="text-xs font-semibold uppercase tracking-widest text-primary">Step 2</p>
         <h2 className="mt-1 text-xl font-bold text-foreground">피부 타입을 알려주세요</h2>
-        <p className="mt-1 text-sm text-muted-foreground">피부의 유분·수분 상태를 기준으로 선택해요</p>
+        <p className="mt-1 text-sm text-muted-foreground">AI가 6개 질문으로 진단해드리거나 직접 선택할 수 있어요</p>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        {SKIN_TYPES.map(type => (
-          <button key={type} onClick={() => setSkinType(type)}
-            className={`rounded-xl border px-4 py-4 text-sm font-semibold transition-all ${
-              profile.skinType === type ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card text-foreground hover:border-primary/40'
-            }`}>
-            {type}
-          </button>
-        ))}
+
+      {/* 모드 분기: AI 진단 / 직접 선택 */}
+      <div className="grid grid-cols-2 gap-2 rounded-xl bg-neutral-100 p-1">
+        <button
+          type="button"
+          onClick={() => setSkinTypeMode('ai')}
+          className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition-all ${
+            skinTypeMode === 'ai' ? 'bg-white text-primary shadow-sm' : 'text-muted-foreground'
+          }`}
+        >
+          <Wand2 className="h-3.5 w-3.5" />
+          AI로 진단받기
+        </button>
+        <button
+          type="button"
+          onClick={() => setSkinTypeMode('manual')}
+          className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition-all ${
+            skinTypeMode === 'manual' ? 'bg-white text-primary shadow-sm' : 'text-muted-foreground'
+          }`}
+        >
+          <Hand className="h-3.5 w-3.5" />
+          직접 선택하기
+        </button>
       </div>
+
+      {skinTypeMode === 'ai' ? (
+        <div className="rounded-2xl border border-border bg-card p-4">
+          {aiDiagnosis && profile.skinType ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <p className="text-sm font-bold text-foreground">AI 진단 완료</p>
+              </div>
+              <div className="rounded-xl bg-primary/5 border border-primary/15 p-3">
+                <p className="text-xs text-muted-foreground mb-1">진단된 피부 타입</p>
+                <p className="text-lg font-bold text-primary">{profile.skinType}</p>
+                <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{aiDiagnosis.summary}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => { setAiDiagnosis(null); setSkinType(''); }}
+                className="w-full rounded-lg border border-border py-2 text-xs font-semibold text-muted-foreground"
+              >
+                다시 진단하기
+              </button>
+            </div>
+          ) : (
+            <SkinTypeDecider variant="compact" onResolved={handleAiResolved} />
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3">
+          {SKIN_TYPES.map(type => (
+            <button key={type} onClick={() => { setSkinType(type); setAiDiagnosis(null); }}
+              className={`rounded-xl border px-4 py-4 text-sm font-semibold transition-all ${
+                profile.skinType === type ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card text-foreground hover:border-primary/40'
+              }`}>
+              {type}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div>
         <p className="mb-2 text-sm font-semibold text-foreground">유수분 밸런스</p>
         <p className="mb-3 text-xs text-muted-foreground">세안 후 2시간 기준으로 선택해주세요</p>
