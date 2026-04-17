@@ -80,15 +80,67 @@ export interface DiagnosisResult {
   recommendations: string[];
   avoidIngredients: string[];
   score: number;
+  skinCondition?: 'very_dry' | 'dry' | 'normal' | 'slightly_oily' | 'oily';
+  suggestedSensitivity?: 'low' | 'normal' | 'high' | 'very_high' | 'sensitive';
 }
 
+// 설문 답변을 기반으로 유수분 상태(skin_condition) 자동 매핑
+const mapCondition = (a: Record<string, string>): DiagnosisResult['skinCondition'] => {
+  switch (a.moisture) {
+    case 'always_dry': return 'very_dry';
+    case 'afternoon_oily': return 'slightly_oily';
+    case 'always_oily': return 'oily';
+    case 'balanced': return 'normal';
+    default: return a.wash === 'tight' ? 'dry' : 'normal';
+  }
+};
+
+const mapSensitivity = (a: Record<string, string>): DiagnosisResult['suggestedSensitivity'] => {
+  if (a.sensitivity === 'always') return 'very_high';
+  if (a.sensitivity === 'often') return 'high';
+  if (a.sensitivity === 'sometimes') return 'normal';
+  return 'low';
+};
+
 const fallbackDiagnose = (a: Record<string, string>): DiagnosisResult => {
-  let type = '복합성';
-  let typeEn = 'combination';
-  if (a.wash === 'tight' && a.moisture === 'always_dry') { type = '건성'; typeEn = 'dry'; }
-  else if (a.wash === 'oily' && a.moisture === 'always_oily') { type = '지성'; typeEn = 'oily'; }
-  else if (a.sensitivity === 'often' || a.sensitivity === 'always') { type = '민감성'; typeEn = 'sensitive'; }
-  else if (a.wash === 'normal' && a.moisture === 'balanced') { type = '중성'; typeEn = 'normal'; }
+  // 점수 기반 매칭: 단일 문항 의존도를 줄이고 여러 답변을 종합.
+  const score = { dry: 0, oily: 0, combination: 0, sensitive: 0, normal: 0 };
+  if (a.wash === 'tight') score.dry += 2;
+  if (a.wash === 'oily') score.oily += 2;
+  if (a.wash === 't_oily') score.combination += 2;
+  if (a.wash === 'normal') score.normal += 2;
+
+  if (a.moisture === 'always_dry') score.dry += 2;
+  if (a.moisture === 'always_oily') score.oily += 2;
+  if (a.moisture === 'afternoon_oily') score.combination += 2;
+  if (a.moisture === 'balanced') score.normal += 2;
+
+  if (a.pore === 'wide') score.oily += 1;
+  if (a.pore === 'nose_only') score.combination += 1;
+  if (a.pore === 'invisible') { score.dry += 1; score.normal += 1; }
+  if (a.pore === 'varies') score.combination += 1;
+
+  if (a.sensitivity === 'often' || a.sensitivity === 'always') score.sensitive += 3;
+  if (a.sensitivity === 'sometimes') score.sensitive += 1;
+
+  if (a.trouble === 'dryness') score.dry += 1;
+  if (a.trouble === 'acne') score.oily += 1;
+  if (a.trouble === 'redness') score.sensitive += 2;
+  if (a.trouble === 'aging') score.dry += 0.5;
+
+  if (a.season === 'a_lot') score.sensitive += 0.5;
+
+  // 민감성 임계치 우선: 민감도가 매우 높으면 민감성으로 확정
+  let typeEn: DiagnosisResult['skinTypeEn'] = 'combination';
+  if (score.sensitive >= 3) typeEn = 'sensitive';
+  else {
+    const ranked = Object.entries(score).sort((x, y) => y[1] - x[1]) as [DiagnosisResult['skinTypeEn'], number][];
+    typeEn = ranked[0][0];
+  }
+  const typeMap: Record<DiagnosisResult['skinTypeEn'], string> = {
+    dry: '건성', oily: '지성', combination: '복합성', sensitive: '민감성', normal: '중성',
+  };
+  const type = typeMap[typeEn];
 
   const characteristics: Record<string, string[]> = {
     '건성': ['유분 부족으로 각질 발생', '당김 증상 빈번', '잔주름 조기 발생 가능'],
@@ -112,14 +164,25 @@ const fallbackDiagnose = (a: Record<string, string>): DiagnosisResult => {
     '중성': ['과도한 필링 성분'],
   };
 
+  // 세부 근거 한 줄
+  const reasonParts: string[] = [];
+  if (a.wash === 'tight') reasonParts.push('세안 후 당김');
+  if (a.wash === 'oily') reasonParts.push('세안 후 번들거림');
+  if (a.wash === 't_oily') reasonParts.push('T존·볼 차이');
+  if (a.sensitivity === 'often' || a.sensitivity === 'always') reasonParts.push('화장품 자극 잦음');
+  if (a.moisture === 'afternoon_oily') reasonParts.push('오후 피지 증가');
+  const reason = reasonParts.length > 0 ? ` (${reasonParts.slice(0, 2).join(', ')} 기준)` : '';
+
   return {
     skinType: type,
     skinTypeEn: typeEn,
-    summary: `설문 결과, ${type} 피부로 진단됩니다.`,
+    summary: `설문 결과 ${type} 피부로 진단됩니다${reason}. ${recommendations[type][0]}.`,
     characteristics: characteristics[type],
     recommendations: recommendations[type],
     avoidIngredients: avoids[type],
     score: type === '중성' ? 85 : type === '건성' ? 60 : type === '지성' ? 65 : type === '민감성' ? 55 : 70,
+    skinCondition: mapCondition(a),
+    suggestedSensitivity: mapSensitivity(a),
   };
 };
 
@@ -160,20 +223,29 @@ const SkinTypeDecider = ({ variant = 'full', onResolved, onRestart, initialResul
 {
   "skinType": "건성|지성|복합성|민감성|중성 중 1개",
   "skinTypeEn": "dry|oily|combination|sensitive|normal",
-  "summary": "진단 결과 요약 (2-3문장)",
+  "summary": "진단 결과 요약 (2-3문장, 설문 근거 1개 이상 포함)",
   "characteristics": ["이 피부 타입의 특징 3개 (각 15자 이내)"],
   "recommendations": ["케어 추천 3개 (각 20자 이내)"],
   "avoidIngredients": ["피해야 할 성분 3~5개"],
-  "score": 피부 건강 점수 (0-100)
+  "score": 피부 건강 점수 (0-100),
+  "skinCondition": "very_dry|dry|normal|slightly_oily|oily 중 1개",
+  "suggestedSensitivity": "low|normal|high|very_high 중 1개"
 }`;
 
       const { data, error } = await supabase.functions.invoke('product-search', {
         body: { query: prompt, skinDiagnosis: true },
       });
 
+      // AI 응답이 왔더라도 필수 필드 누락 시 fallback으로 보강.
+      const fb = fallbackDiagnose(answers);
       const resolved: DiagnosisResult = (!error && data?.skinType)
-        ? (data as DiagnosisResult)
-        : fallbackDiagnose(answers);
+        ? {
+            ...fb,
+            ...(data as Partial<DiagnosisResult>),
+            skinCondition: (data as DiagnosisResult)?.skinCondition ?? fb.skinCondition,
+            suggestedSensitivity: (data as DiagnosisResult)?.suggestedSensitivity ?? fb.suggestedSensitivity,
+          }
+        : fb;
       setResult(resolved);
       onResolved?.(resolved);
     } catch {

@@ -600,6 +600,19 @@ const MyCabinet = () => {
           </div>
         )}
 
+        {/* ── 리뷰 필요 배지 (리뷰 기능 노출 강화) ── */}
+        {items.length > 0 && items.filter(i => !i.my_rating).length > 0 && (
+          <div className="flex items-center justify-between rounded-xl border border-primary/20 bg-primary/5 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <Star className="h-4 w-4 text-primary" />
+              <p className="text-xs font-semibold text-foreground">
+                리뷰 안 쓴 제품 <span className="text-primary">{items.filter(i => !i.my_rating).length}개</span>
+              </p>
+            </div>
+            <span className="text-[11px] text-muted-foreground">카드 하단의 "리뷰 쓰기"로 별점·한줄평을 남길 수 있어요</span>
+          </div>
+        )}
+
         {/* ── 필터 탭 ── */}
         <div className="flex gap-1.5 rounded-xl bg-muted p-1">
           {(['all', 'morning', 'evening'] as FilterTab[]).map(tab => (
@@ -728,6 +741,46 @@ const MyCabinet = () => {
                       }
                     </div>
                   </button>
+
+                  {/* ── 리뷰 바 (항상 노출): 펼치지 않아도 별점/한줄평 바로 진입 ── */}
+                  {!isExpanded && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedId(item.id);
+                        openRatingEdit(item);
+                      }}
+                      className={`flex w-full items-center gap-2 border-t px-4 py-2 text-left transition-colors ${
+                        item.my_rating
+                          ? 'border-border bg-amber-50/40 hover:bg-amber-50'
+                          : 'border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10'
+                      }`}
+                    >
+                      {item.my_rating ? (
+                        <>
+                          <div className="flex items-center gap-0.5">
+                            {[1, 2, 3, 4, 5].map(v => (
+                              <Star
+                                key={v}
+                                className={`h-3.5 w-3.5 ${v <= (item.my_rating ?? 0) ? 'text-amber-400 fill-amber-400' : 'text-neutral-200'}`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-xs text-foreground flex-1 truncate">
+                            {item.my_review || '한줄평 추가하기'}
+                          </span>
+                          <Pencil className="h-3 w-3 text-muted-foreground shrink-0" />
+                        </>
+                      ) : (
+                        <>
+                          <Star className="h-3.5 w-3.5 text-primary/60" />
+                          <span className="text-xs font-semibold text-primary flex-1">리뷰 쓰기 (별점 · 한줄평)</span>
+                          <Pencil className="h-3 w-3 text-primary/60 shrink-0" />
+                        </>
+                      )}
+                    </button>
+                  )}
 
                   {/* ── 펼침 영역 ── */}
                   {isExpanded && (

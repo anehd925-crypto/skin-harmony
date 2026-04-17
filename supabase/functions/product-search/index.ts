@@ -80,6 +80,47 @@ JSON만 반환하세요.`;
       );
     }
 
+    // ── 피부 타입 진단 모드 ─────────────────────────────────────────────────
+    if (body.skinDiagnosis) {
+      const { query } = body;
+      const response = await fetch(GROQ_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
+        body: JSON.stringify({
+          model: TEXT_MODEL,
+          messages: [
+            {
+              role: 'system',
+              content: '당신은 한국 피부과/코스메틱 컨설턴트입니다. 사용자 설문만 근거로 피부 타입을 진단하고, 반드시 요청한 JSON 스키마로만 답변합니다.',
+            },
+            { role: 'user', content: query },
+          ],
+          temperature: 0.2,
+          max_tokens: 700,
+          response_format: { type: 'json_object' },
+        }),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error('Groq skin diagnosis error:', errText);
+        return new Response(
+          JSON.stringify({ error: 'diagnosis_error' }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        );
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content ?? '{}';
+      let parsed: Record<string, unknown> = {};
+      try { parsed = JSON.parse(content); } catch { parsed = {}; }
+
+      return new Response(
+        JSON.stringify(parsed),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
     // ── Vision 모드: 이미지로 제품 인식 ──────────────────────────────────────
     if (body.imageBase64) {
       const { imageBase64 } = body;

@@ -187,21 +187,6 @@ const Profile = () => {
         {/* 알림 설정 */}
         <NotificationSettingsCard />
 
-        {/* 피부 진단 테스트 */}
-        <button
-          onClick={() => navigate('/skin-test')}
-          className="flex w-full items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3.5 text-left"
-        >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-            <span className="text-lg">🧬</span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-primary">피부 타입 재진단</p>
-            <p className="text-xs text-muted-foreground mt-0.5">6문항 AI 진단으로 피부 타입을 다시 확인해보세요</p>
-          </div>
-          <ChevronDown className="h-4 w-4 text-primary/40 rotate-[-90deg] shrink-0" />
-        </button>
-
         {/* 닉네임 섹션 */}
         <div className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="px-4 py-3 flex items-center gap-2 border-b border-border">
@@ -233,26 +218,45 @@ const Profile = () => {
           </div>
         </Section>
 
-        <Section title="피부 타입">
-          <div className="grid grid-cols-2 gap-2">
-            {SKIN_TYPES.map(type => (
-              <button key={type} onClick={() => setSkinType(type)}
-                className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition-all ${profile.skinType === type ? 'border-primary bg-primary/10 text-primary' : 'border-border text-foreground'}`}>
-                {type}
-              </button>
-            ))}
-          </div>
-        </Section>
+        <Section title="피부 타입 · 유수분 상태">
+          {/* AI 재진단 진입 - 섹션 내부로 통합 */}
+          <button
+            onClick={() => navigate('/skin-test')}
+            className="flex w-full items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3 text-left"
+          >
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+              <span className="text-base">🧬</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-primary">AI로 다시 진단하기</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">6문항으로 피부 타입·유수분 상태를 한번에 재설정</p>
+            </div>
+            <ChevronDown className="h-4 w-4 text-primary/40 rotate-[-90deg] shrink-0" />
+          </button>
 
-        <Section title="유수분 상태" defaultOpen={false}>
-          <div className="space-y-2">
-            {SKIN_CONDITIONS.map(({ value, label, desc }) => (
-              <button key={value} onClick={() => setSkinCondition(value)}
-                className={`w-full rounded-xl border p-3 text-left transition-all ${profile.skinCondition === value ? 'border-primary bg-primary/10' : 'border-border'}`}>
-                <p className={`text-sm font-semibold ${profile.skinCondition === value ? 'text-primary' : 'text-foreground'}`}>{label}</p>
-                <p className="text-xs text-muted-foreground">{desc}</p>
-              </button>
-            ))}
+          <div>
+            <p className="mb-2 text-xs font-semibold text-muted-foreground">피부 타입</p>
+            <div className="grid grid-cols-2 gap-2">
+              {SKIN_TYPES.map(type => (
+                <button key={type} onClick={() => setSkinType(type)}
+                  className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition-all ${profile.skinType === type ? 'border-primary bg-primary/10 text-primary' : 'border-border text-foreground'}`}>
+                  {type}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="mb-2 text-xs font-semibold text-muted-foreground">유수분 상태</p>
+            <div className="space-y-2">
+              {SKIN_CONDITIONS.map(({ value, label, desc }) => (
+                <button key={value} onClick={() => setSkinCondition(value)}
+                  className={`w-full rounded-xl border p-3 text-left transition-all ${profile.skinCondition === value ? 'border-primary bg-primary/10' : 'border-border'}`}>
+                  <p className={`text-sm font-semibold ${profile.skinCondition === value ? 'text-primary' : 'text-foreground'}`}>{label}</p>
+                  <p className="text-xs text-muted-foreground">{desc}</p>
+                </button>
+              ))}
+            </div>
           </div>
         </Section>
 
