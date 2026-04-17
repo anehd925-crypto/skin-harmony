@@ -12,7 +12,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { syncBlacklist, checkBlacklistHits } from '@/utils/blacklist';
 import { track, EVENT } from '@/lib/analytics';
-import { ChevronLeft, Search, FlaskConical, ShieldCheck, AlertTriangle, Loader2, Link2, History, Share2, Check, Zap, Star, Users } from 'lucide-react';
+import { ChevronLeft, Search, ShieldCheck, AlertTriangle, Loader2, Link2, History, Share2, Check, Zap, Star, Users, BellPlus, ListTree, Info, ChevronRight, BellRing } from 'lucide-react';
+import {
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,
+} from '@/components/ui/sheet';
+import { registerDiscountAlert } from '@/utils/discountAlert';
 
 interface AnalyzedIngredient {
   name: string;
@@ -383,6 +387,57 @@ BeautyLens로 분석했습니다`;
   const cautionCount = result?.ingredients.filter(i => i.safety === 'caution').length ?? 0;
   const dangerCount = result?.ingredients.filter(i => i.safety === 'danger').length ?? 0;
 
+  // 할인 알림 등록 상태
+  const [alertingDiscount, setAlertingDiscount] = useState(false);
+  const [alertRegistered, setAlertRegistered] = useState(false);
+
+  const handleAddDiscountAlert = async () => {
+    if (!result || !user) {
+      if (!user) {
+        toast({ title: '로그인이 필요합니다', description: '할인 알림을 받으려면 로그인해 주세요.' });
+        navigate('/auth');
+      }
+      return;
+    }
+    setAlertingDiscount(true);
+    try {
+      const res = await registerDiscountAlert({
+        userId: user.id,
+        name: result.productName,
+        brand: result.productBrand,
+        category: 'skincare',
+        productUrl: urlInput.trim() || null,
+      });
+      if (res.ok) {
+        setAlertRegistered(true);
+        toast({
+          title: res.reason === 'already_registered' ? '이미 등록된 알림이에요' : '할인 알림을 등록했어요',
+          description: '가격이 내려가면 푸시로 알려드릴게요.',
+        });
+      } else {
+        toast({ title: '알림 등록 실패', description: res.message ?? '잠시 후 다시 시도해주세요.', variant: 'destructive' });
+      }
+    } finally {
+      setAlertingDiscount(false);
+    }
+  };
+
+  // 종합 등급 라벨/색
+  const gradeMeta = (g?: 'good' | 'moderate' | 'bad') => {
+    if (g === 'good') return { label: '안전', color: 'text-success', bg: 'bg-success/10', border: 'border-success/30', Icon: ShieldCheck };
+    if (g === 'bad') return { label: '주의', color: 'text-danger', bg: 'bg-danger/10', border: 'border-danger/30', Icon: AlertTriangle };
+    return { label: '보통', color: 'text-warning', bg: 'bg-warning/10', border: 'border-warning/30', Icon: AlertTriangle };
+  };
+
+  // 매칭 점수 색상 톤
+  const fitTone = (score?: number) => {
+    if (score === undefined) return { text: 'text-muted-foreground', bg: 'bg-neutral-100', bar: 'bg-neutral-300', chip: 'bg-neutral-100 text-neutral-600' };
+    if (score >= 80) return { text: 'text-green-600', bg: 'bg-green-50', bar: 'bg-green-500', chip: 'bg-green-100 text-green-700' };
+    if (score >= 60) return { text: 'text-primary', bg: 'bg-primary/10', bar: 'bg-primary', chip: 'bg-primary/15 text-primary' };
+    if (score >= 40) return { text: 'text-amber-600', bg: 'bg-amber-50', bar: 'bg-amber-500', chip: 'bg-amber-100 text-amber-700' };
+    return { text: 'text-red-600', bg: 'bg-red-50', bar: 'bg-red-500', chip: 'bg-red-100 text-red-700' };
+  };
+
   return (
     <div className="min-h-screen bg-neutral-50 pb-24">
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
@@ -507,342 +562,380 @@ BeautyLens로 분석했습니다`;
           </div>
         )}
 
-        {result && (
-          <div className="-mt-4 space-y-4">
-            {/* 블랙리스트 경보 배너 — 최상단 */}
+        {result && (() => {
+          const grade = gradeMeta(result.overallGrade);
+          const fit = fitTone(result.skinFit?.score);
+          const interactionsCount = result.interactions?.length ?? 0;
+          const fitLabel = result.skinFit
+            ? (result.skinFit.score >= 90 ? '퍼펙트 매치'
+              : result.skinFit.score >= 80 ? '최적'
+              : result.skinFit.score >= 60 ? '적합'
+              : result.skinFit.score >= 40 ? '보통' : '주의')
+            : null;
+
+          return (
+          <div className="-mt-2 space-y-3">
+            {/* P0: 블랙리스트 경보 + 알레르기 (안전 관련 최우선) */}
             <BlacklistAlert hits={blacklistHits} />
-
-            {/* Product header */}
-            <div className="rounded-xl border border-border bg-card p-4 shadow-card">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <h2 className="text-base font-bold text-foreground">{result.productName}</h2>
-                  <p className="text-sm text-muted-foreground">{result.productBrand}</p>
-                </div>
-                {result.groundingUsed && (
-                  <span className="shrink-0 flex items-center gap-1 rounded-full bg-blue-500/10 border border-blue-500/20 px-2 py-1 text-xs font-medium text-blue-600">
-                    <Search className="h-3 w-3" />실시간 검색
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* AI 추정 성분 안내 배너 */}
-            {result.ingredientsFound === false && (
-              <div className="rounded-xl border border-warning/30 bg-warning/5 p-3 flex gap-2 items-start">
-                <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs font-semibold text-warning">AI 추정 성분 기반 분석</p>
-                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                    실제 전성분을 찾지 못해 유사 제품 성분으로 추정했습니다. 정확한 분석을 위해 전성분을 직접 입력해 주세요.
-                  </p>
-                  <button
-                    onClick={() => { setResult(null); setMode('text'); setProductName(result.productName); setProductBrand(result.productBrand); }}
-                    className="mt-1.5 text-xs font-medium text-warning underline underline-offset-2"
-                  >
-                    전성분 직접 입력하기 →
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* ── BeautyLens 매칭 점수 ── */}
-            {result.skinFit && (
-              <div className="rounded-2xl border border-border bg-white p-5 shadow-card overflow-hidden">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl ${
-                    result.skinFit.score >= 80 ? 'bg-green-50' :
-                    result.skinFit.score >= 60 ? 'bg-primary/10' :
-                    result.skinFit.score >= 40 ? 'bg-amber-50' : 'bg-red-50'
-                  }`}>
-                    <span className={`text-2xl font-black ${
-                      result.skinFit.score >= 80 ? 'text-green-600' :
-                      result.skinFit.score >= 60 ? 'text-primary' :
-                      result.skinFit.score >= 40 ? 'text-amber-600' : 'text-red-600'
-                    }`}>{result.skinFit.score}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Zap className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-bold text-foreground">내 피부 매칭 점수</span>
-                    </div>
-                    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                      result.skinFit.score >= 80 ? 'bg-green-100 text-green-700' :
-                      result.skinFit.score >= 60 ? 'bg-primary/15 text-primary' :
-                      result.skinFit.score >= 40 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
-                    }`}>
-                      {result.skinFit.score >= 90 ? '퍼펙트 매치' :
-                       result.skinFit.score >= 80 ? '최적' :
-                       result.skinFit.score >= 60 ? '적합' :
-                       result.skinFit.score >= 40 ? '보통' : '주의'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* 프로그레스 바 */}
-                <div className="w-full bg-neutral-100 rounded-full h-2.5 mb-3">
-                  <div
-                    className={`h-2.5 rounded-full transition-all duration-500 ${
-                      result.skinFit.score >= 80 ? 'bg-green-500' :
-                      result.skinFit.score >= 60 ? 'bg-primary' :
-                      result.skinFit.score >= 40 ? 'bg-amber-500' : 'bg-red-500'
-                    }`}
-                    style={{ width: `${result.skinFit.score}%` }}
-                  />
-                </div>
-
-                <p className="text-xs text-muted-foreground leading-relaxed">{result.skinFit.reason}</p>
-
-                {result.skinFit.warnings.length > 0 && (
-                  <div className="mt-3 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5 space-y-1">
-                    {result.skinFit.warnings.map((w, i) => (
-                      <div key={i} className="flex items-start gap-1.5">
-                        <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0 mt-0.5" />
-                        <span className="text-xs text-amber-700">{w}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 프로필 미설정 → 매칭 점수 유도 */}
-            {!result.skinFit && (
-              <button
-                onClick={() => navigate('/profile')}
-                className="w-full rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-4 text-left flex items-center gap-3"
-              >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                  <Zap className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-primary">매칭 점수 확인하기</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">프로필을 설정하면 이 제품과 내 피부의 궁합을 점수로 알려드려요</p>
-                </div>
-              </button>
-            )}
-
-            {/* Overall grade */}
-            <div className={`rounded-xl border p-4 shadow-card ${
-              result.overallGrade === 'good' ? 'border-success/30 bg-success/5' :
-              result.overallGrade === 'bad' ? 'border-danger/30 bg-danger/5' :
-              'border-warning/30 bg-warning/5'
-            }`}>
-              <div className="flex items-center gap-2">
-                {result.overallGrade === 'good' ? (
-                  <ShieldCheck className="h-5 w-5 text-success shrink-0" />
-                ) : (
-                  <AlertTriangle className={`h-5 w-5 shrink-0 ${result.overallGrade === 'bad' ? 'text-danger' : 'text-warning'}`} />
-                )}
-                <span className={`text-sm font-bold ${
-                  result.overallGrade === 'good' ? 'text-success' :
-                  result.overallGrade === 'bad' ? 'text-danger' : 'text-warning'
-                }`}>
-                  {result.overallGrade === 'good' ? '안전한 제품' : result.overallGrade === 'bad' ? '주의 필요' : '보통 수준'}
-                </span>
-              </div>
-              <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{result.summary}</p>
-              <div className="mt-2 flex gap-4 text-xs">
-                <span className="text-success font-medium">안전 {safeCount}</span>
-                <span className="text-warning font-medium">주의 {cautionCount}</span>
-                <span className="text-danger font-medium">위험 {dangerCount}</span>
-              </div>
-
-              {/* 신뢰도 지표 — 분석 근거의 투명성 */}
-              {typeof result.confidence === 'number' && (
-                <div className="mt-3 rounded-lg bg-white/80 border border-border/60 p-2.5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">분석 신뢰도</span>
-                      <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-black ${
-                        result.confidence >= 80 ? 'bg-emerald-100 text-emerald-700' :
-                        result.confidence >= 60 ? 'bg-amber-100 text-amber-700' :
-                        'bg-neutral-100 text-neutral-600'
-                      }`}>
-                        {result.confidence}%
-                      </span>
-                    </div>
-                    {typeof result.ingredientCount === 'number' && result.ingredientCount > 0 && (
-                      <span className="text-[10px] text-muted-foreground">성분 {result.ingredientCount}개 분석</span>
-                    )}
-                  </div>
-                  <div className="mt-1.5 h-1 rounded-full bg-neutral-100 overflow-hidden">
-                    <div className={`h-full rounded-full transition-all ${
-                      result.confidence >= 80 ? 'bg-emerald-500' :
-                      result.confidence >= 60 ? 'bg-amber-500' : 'bg-neutral-400'
-                    }`} style={{ width: `${result.confidence}%` }} />
-                  </div>
-                  {result.confidenceReason && (
-                    <p className="mt-1 text-[10px] text-muted-foreground leading-snug">{result.confidenceReason}</p>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Allergy warning */}
             {allergyMatches.length > 0 && (
-              <div className="rounded-xl border border-danger/30 bg-danger/5 p-3">
-                <p className="text-xs font-semibold text-danger">⚠️ 알레르기 성분 감지</p>
+              <div className="rounded-2xl border border-danger/30 bg-danger/5 p-3">
+                <p className="text-xs font-semibold text-danger flex items-center gap-1.5">
+                  <AlertTriangle className="h-3.5 w-3.5" /> 알레르기 성분 감지
+                </p>
                 <p className="mt-1 text-xs text-muted-foreground">{allergyMatches.map(i => i.name).join(', ')}</p>
               </div>
             )}
 
-            {/* Key ingredients */}
-            {result.keyIngredients && result.keyIngredients.length > 0 && (
-              <div className="rounded-xl border border-border bg-card p-4 shadow-card">
-                <div className="flex items-center gap-1.5 mb-3">
-                  <Star className="h-4 w-4 text-warning fill-current" />
-                  <h2 className="text-sm font-bold text-foreground">핵심 성분</h2>
+            {/* P1: 메인 카드 — 제품명/브랜드 + 매칭 점수 + 종합 등급을 한 장에 */}
+            <div className="rounded-2xl border border-border bg-white shadow-card overflow-hidden">
+              {/* 헤더: 제품 정보 + 알림 등록 */}
+              <div className="flex items-start justify-between gap-2 px-4 pt-4 pb-3">
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-base font-bold text-foreground leading-tight">{result.productName}</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">{result.productBrand}</p>
+                  {result.groundingUsed && (
+                    <span className="inline-flex items-center gap-1 mt-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 text-[10px] font-medium text-blue-600">
+                      <Search className="h-2.5 w-2.5" />실시간 검색
+                    </span>
+                  )}
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {result.keyIngredients.map((ki, idx) => (
-                    <div key={idx} className="rounded-xl bg-primary/8 border border-primary/20 px-3 py-2">
-                      <p className="text-xs font-semibold text-primary">{ki.name}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{ki.role}</p>
-                    </div>
-                  ))}
-                </div>
+                <button
+                  onClick={handleAddDiscountAlert}
+                  disabled={alertingDiscount || alertRegistered}
+                  className={`flex h-9 shrink-0 items-center gap-1 rounded-full px-3 text-xs font-semibold transition-colors ${
+                    alertRegistered
+                      ? 'bg-green-50 text-green-600 border border-green-200'
+                      : 'bg-primary/10 text-primary hover:bg-primary/15 border border-primary/20 disabled:opacity-60'
+                  }`}
+                >
+                  {alertingDiscount ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    : alertRegistered ? <BellRing className="h-3.5 w-3.5" />
+                    : <BellPlus className="h-3.5 w-3.5" />}
+                  {alertRegistered ? '알림 ON' : '할인 알림'}
+                </button>
               </div>
-            )}
 
-            {/* Ingredient interactions */}
-            {result.interactions && result.interactions.length > 0 && (
-              <div className="rounded-xl border border-border bg-card p-4 shadow-card">
-                <div className="flex items-center gap-1.5 mb-3">
-                  <Zap className="h-4 w-4 text-warning" />
-                  <h2 className="text-sm font-bold text-foreground">성분 상호작용</h2>
-                </div>
-                <div className="space-y-2.5">
-                  {result.interactions.map((interaction, idx) => {
-                    const isConflict = interaction.type === 'conflict';
-                    const isSynergy = interaction.type === 'synergy';
-                    const severityBg = isConflict
-                      ? interaction.severity === 'high' ? 'border-danger/30 bg-danger/5' : 'border-warning/30 bg-warning/5'
-                      : isSynergy ? 'border-success/30 bg-success/5' : 'border-warning/20 bg-warning/5';
-                    const icon = isConflict ? '⚡' : isSynergy ? '✨' : '⚠️';
-                    const typeLabel = isConflict ? '충돌' : isSynergy ? '시너지' : '주의';
-                    const typeColor = isConflict ? 'text-danger' : isSynergy ? 'text-success' : 'text-warning';
-                    return (
-                      <div key={idx} className={`rounded-xl border p-3 ${severityBg}`}>
-                        <div className="flex items-center gap-1.5 mb-1">
-                          <span className="text-xs">{icon}</span>
-                          <span className={`text-xs font-bold ${typeColor}`}>{typeLabel}</span>
-                          <span className="text-xs text-muted-foreground">·</span>
-                          <span className="text-xs font-medium text-foreground">{interaction.ingredient_a}</span>
-                          <span className="text-xs text-muted-foreground">+</span>
-                          <span className="text-xs font-medium text-foreground">{interaction.ingredient_b}</span>
-                        </div>
-                        <p className="text-xs leading-relaxed text-muted-foreground">{interaction.description}</p>
+              {/* 본문: 매칭 점수 + 등급 통합 */}
+              <div className="px-4 pb-4 space-y-3">
+                {result.skinFit ? (
+                  <div className="rounded-2xl bg-neutral-50 border border-border/60 p-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${fit.bg}`}>
+                        <span className={`text-xl font-black ${fit.text}`}>{result.skinFit.score}</span>
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Ingredients list */}
-            <div>
-              <h2 className="mb-3 text-base font-bold text-foreground">전성분 분석 결과</h2>
-
-              {/* AI 면책 고지 */}
-              <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800 leading-relaxed">
-                ⚠️ AI가 제공하는 참고 정보입니다. 의학적 진단 또는 처방을 대체하지 않으며, 민감성 피부 또는 알레르기가 있는 경우 전문가와 상담하시기 바랍니다.
-              </div>
-
-              <div className="space-y-2">
-                {result.ingredients.map((ingredient, idx) => (
-                  <div key={idx} className="rounded-xl border border-border bg-card p-3">
-                    <div className="flex items-center justify-between">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="text-sm font-semibold text-foreground">{ingredient.name}</p>
-                          {ingredient.function && (
-                            <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">{ingredient.function}</span>
-                          )}
+                        <div className="flex items-center gap-1.5">
+                          <Zap className="h-3.5 w-3.5 text-primary" />
+                          <span className="text-xs font-bold text-foreground">내 피부 매칭</span>
+                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${fit.chip}`}>{fitLabel}</span>
                         </div>
-                        <p className="text-xs text-muted-foreground">{ingredient.name_en}</p>
-                        {/* 자극도/모공 수치 */}
-                        {(ingredient.irritancy !== undefined || ingredient.comedogenicity !== undefined) && (
-                          <div className="flex gap-3 mt-1">
-                            {ingredient.irritancy !== undefined && (
-                              <span className={`text-xs font-medium ${ingredient.irritancy >= 3 ? 'text-danger' : ingredient.irritancy >= 1 ? 'text-warning' : 'text-muted-foreground'}`}>
-                                자극 {ingredient.irritancy}/5
-                              </span>
-                            )}
-                            {ingredient.comedogenicity !== undefined && (
-                              <span className={`text-xs font-medium ${ingredient.comedogenicity >= 3 ? 'text-danger' : ingredient.comedogenicity >= 1 ? 'text-warning' : 'text-muted-foreground'}`}>
-                                모공 {ingredient.comedogenicity}/5
-                              </span>
-                            )}
-                          </div>
-                        )}
+                        <div className="w-full bg-white rounded-full h-1.5 mt-2">
+                          <div className={`h-1.5 rounded-full transition-all duration-500 ${fit.bar}`}
+                               style={{ width: `${result.skinFit.score}%` }} />
+                        </div>
                       </div>
-                      <SafetyBadge safety={ingredient.safety} />
                     </div>
-                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{ingredient.description}</p>
+                    <p className="mt-2 text-xs text-muted-foreground leading-relaxed line-clamp-2">{result.skinFit.reason}</p>
                   </div>
-                ))}
+                ) : (
+                  <button
+                    onClick={() => navigate('/profile')}
+                    className="w-full rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-3 text-left flex items-center gap-2.5"
+                  >
+                    <Zap className="h-4 w-4 text-primary shrink-0" />
+                    <p className="text-xs font-semibold text-primary flex-1">프로필 설정 후 매칭 점수 확인</p>
+                    <ChevronRight className="h-3.5 w-3.5 text-primary/60" />
+                  </button>
+                )}
+
+                {/* 종합 등급 + 안전 통계 */}
+                <div className={`rounded-2xl border ${grade.border} ${grade.bg} px-3 py-2.5`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <grade.Icon className={`h-4 w-4 shrink-0 ${grade.color}`} />
+                      <span className={`text-sm font-bold ${grade.color}`}>{grade.label}</span>
+                    </div>
+                    <div className="flex gap-2.5 text-[11px] shrink-0">
+                      <span className="text-success font-semibold">안전 {safeCount}</span>
+                      <span className="text-warning font-semibold">주의 {cautionCount}</span>
+                      <span className="text-danger font-semibold">위험 {dangerCount}</span>
+                    </div>
+                  </div>
+                  <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground line-clamp-2">{result.summary}</p>
+                </div>
+
+                {/* 매칭 경고 (있으면 1줄로 압축) */}
+                {result.skinFit?.warnings && result.skinFit.warnings.length > 0 && (
+                  <div className="rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 flex items-start gap-1.5">
+                    <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0 mt-0.5" />
+                    <span className="text-[11px] text-amber-700 leading-snug">
+                      {result.skinFit.warnings.join(' · ')}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Analyze another */}
-            <Button
-              onClick={() => { setResult(null); setIngredientsText(''); setProductName(''); setProductBrand(''); setUrlInput(''); }}
-              variant="outline"
-              className="w-full rounded-xl h-12"
-            >
-              다른 제품 분석하기
-            </Button>
-            <Button
-              onClick={handleShare}
-              variant="outline"
-              className="w-full rounded-xl h-12 gap-2"
-            >
-              {copied ? <><Check className="h-4 w-4 text-success" />복사 완료</> : <><Share2 className="h-4 w-4" />결과 공유하기</>}
-            </Button>
-            <Button
-              onClick={() => {
-                const grade = result.overallGrade;
-                const params = new URLSearchParams({
-                  title: `${result.productName} 성분 분석 결과`,
-                  body: result.summary,
-                  product_name: result.productName,
-                  product_brand: result.productBrand,
-                  overall_grade: grade,
-                });
-                navigate(`/community?${params.toString()}`);
-              }}
-              variant="outline"
-              className="w-full rounded-xl h-12 gap-2 border-primary/40 text-primary"
-            >
-              <Users className="h-4 w-4" />커뮤니티에 공유하기
-            </Button>
-
-            {/* 분석 결과 도움 피드백 */}
-            <AnalysisFeedback />
-
-            {/* 검색 출처 */}
-            {result.searchSources && result.searchSources.length > 0 && (
-              <div className="rounded-xl border border-border bg-card p-3">
-                <p className="text-xs font-medium text-muted-foreground mb-2">참고 출처 (Google Search)</p>
-                <div className="space-y-1">
-                  {result.searchSources.map((s, i) => (
-                    <a
-                      key={i}
-                      href={s.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-xs text-primary truncate hover:underline"
-                    >
-                      <Search className="h-2.5 w-2.5 shrink-0" />
-                      {s.title || s.url}
-                    </a>
+            {/* P2: 핵심 성분 (상단에 압축 표시) */}
+            {result.keyIngredients && result.keyIngredients.length > 0 && (
+              <div className="rounded-2xl border border-border bg-card px-4 py-3">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Star className="h-3.5 w-3.5 text-warning fill-current" />
+                  <h3 className="text-xs font-bold text-foreground">핵심 성분</h3>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {result.keyIngredients.slice(0, 6).map((ki, idx) => (
+                    <span key={idx} className="rounded-full bg-primary/10 border border-primary/15 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                      {ki.name}
+                    </span>
                   ))}
                 </div>
               </div>
             )}
+
+            {/* P3: 상세 진입점 (시트 팝업) */}
+            <div className="grid grid-cols-2 gap-2">
+              {/* 전성분 상세 */}
+              <Sheet>
+                <SheetTrigger asChild>
+                  <button className="flex items-center justify-between rounded-2xl border border-border bg-white px-3 py-3 text-left">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <ListTree className="h-4 w-4 text-primary shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-foreground">전성분 보기</p>
+                        <p className="text-[10px] text-muted-foreground">{result.ingredients.length}개</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="h-[85vh] overflow-y-auto rounded-t-3xl">
+                  <SheetHeader>
+                    <SheetTitle className="text-left">전성분 분석 ({result.ingredients.length}개)</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-3 space-y-2 pb-8">
+                    {result.ingredients.map((ingredient, idx) => (
+                      <div key={idx} className="rounded-xl border border-border bg-card p-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <p className="text-sm font-semibold text-foreground">{ingredient.name}</p>
+                              {ingredient.function && (
+                                <span className="rounded-full bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">{ingredient.function}</span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-muted-foreground">{ingredient.name_en}</p>
+                            {(ingredient.irritancy !== undefined || ingredient.comedogenicity !== undefined) && (
+                              <div className="flex gap-2 mt-1">
+                                {ingredient.irritancy !== undefined && (
+                                  <span className={`text-[11px] font-medium ${ingredient.irritancy >= 3 ? 'text-danger' : ingredient.irritancy >= 1 ? 'text-warning' : 'text-muted-foreground'}`}>
+                                    자극 {ingredient.irritancy}/5
+                                  </span>
+                                )}
+                                {ingredient.comedogenicity !== undefined && (
+                                  <span className={`text-[11px] font-medium ${ingredient.comedogenicity >= 3 ? 'text-danger' : ingredient.comedogenicity >= 1 ? 'text-warning' : 'text-muted-foreground'}`}>
+                                    모공 {ingredient.comedogenicity}/5
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          <SafetyBadge safety={ingredient.safety} />
+                        </div>
+                        <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground">{ingredient.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </SheetContent>
+              </Sheet>
+
+              {/* 성분 상호작용 */}
+              <Sheet>
+                <SheetTrigger asChild>
+                  <button
+                    disabled={interactionsCount === 0}
+                    className="flex items-center justify-between rounded-2xl border border-border bg-white px-3 py-3 text-left disabled:opacity-50"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Zap className="h-4 w-4 text-warning shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-foreground">성분 상호작용</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {interactionsCount > 0 ? `${interactionsCount}건` : '없음'}
+                        </p>
+                      </div>
+                    </div>
+                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="h-[70vh] overflow-y-auto rounded-t-3xl">
+                  <SheetHeader>
+                    <SheetTitle className="text-left">성분 상호작용 ({interactionsCount}건)</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-3 space-y-2 pb-8">
+                    {result.interactions?.map((interaction, idx) => {
+                      const isConflict = interaction.type === 'conflict';
+                      const isSynergy = interaction.type === 'synergy';
+                      const severityBg = isConflict
+                        ? interaction.severity === 'high' ? 'border-danger/30 bg-danger/5' : 'border-warning/30 bg-warning/5'
+                        : isSynergy ? 'border-success/30 bg-success/5' : 'border-warning/20 bg-warning/5';
+                      const icon = isConflict ? '⚡' : isSynergy ? '✨' : '⚠️';
+                      const typeLabel = isConflict ? '충돌' : isSynergy ? '시너지' : '주의';
+                      const typeColor = isConflict ? 'text-danger' : isSynergy ? 'text-success' : 'text-warning';
+                      return (
+                        <div key={idx} className={`rounded-xl border p-3 ${severityBg}`}>
+                          <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                            <span className="text-xs">{icon}</span>
+                            <span className={`text-xs font-bold ${typeColor}`}>{typeLabel}</span>
+                            <span className="text-xs text-muted-foreground">·</span>
+                            <span className="text-xs font-medium text-foreground">{interaction.ingredient_a}</span>
+                            <span className="text-xs text-muted-foreground">+</span>
+                            <span className="text-xs font-medium text-foreground">{interaction.ingredient_b}</span>
+                          </div>
+                          <p className="text-[11px] leading-relaxed text-muted-foreground">{interaction.description}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+
+            {/* P4: 액션 영역 — 가로 그룹화로 공간 절약 */}
+            <div className="grid grid-cols-2 gap-2">
+              <Button onClick={handleShare} variant="outline" className="rounded-xl h-11 gap-1.5 text-sm">
+                {copied ? <><Check className="h-4 w-4 text-success" />복사됨</> : <><Share2 className="h-4 w-4" />공유</>}
+              </Button>
+              <Button
+                onClick={() => {
+                  const params = new URLSearchParams({
+                    title: `${result.productName} 성분 분석 결과`,
+                    body: result.summary,
+                    product_name: result.productName,
+                    product_brand: result.productBrand,
+                    overall_grade: result.overallGrade,
+                  });
+                  navigate(`/community?${params.toString()}`);
+                }}
+                variant="outline"
+                className="rounded-xl h-11 gap-1.5 text-sm border-primary/40 text-primary"
+              >
+                <Users className="h-4 w-4" />커뮤니티
+              </Button>
+            </div>
+
+            <Button
+              onClick={() => { setResult(null); setIngredientsText(''); setProductName(''); setProductBrand(''); setUrlInput(''); setBlacklistHits([]); setAlertRegistered(false); }}
+              variant="outline"
+              className="w-full rounded-xl h-11 text-sm"
+            >
+              다른 제품 분석하기
+            </Button>
+
+            {/* 피드백 */}
+            <AnalysisFeedback />
+
+            {/* P5: 보조 정보 (작게, 하단) */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <button className="flex w-full items-center justify-between rounded-xl border border-border bg-white px-3 py-2.5 text-left">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Info className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    <span className="text-[11px] text-muted-foreground">
+                      분석 신뢰도 {typeof result.confidence === 'number' ? `${result.confidence}%` : '—'}
+                      {result.searchSources && result.searchSources.length > 0 && ` · 출처 ${result.searchSources.length}개`}
+                    </span>
+                  </div>
+                  <ChevronRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="max-h-[60vh] overflow-y-auto rounded-t-3xl">
+                <SheetHeader>
+                  <SheetTitle className="text-left">분석 정보 · 신뢰도 · 출처</SheetTitle>
+                </SheetHeader>
+                <div className="mt-3 space-y-3 pb-8">
+                  {typeof result.confidence === 'number' && (
+                    <div className="rounded-xl border border-border bg-card p-3">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs font-bold text-foreground">분석 신뢰도</span>
+                        <span className={`rounded-full px-2 py-0.5 text-[11px] font-black ${
+                          result.confidence >= 80 ? 'bg-emerald-100 text-emerald-700' :
+                          result.confidence >= 60 ? 'bg-amber-100 text-amber-700' :
+                          'bg-neutral-100 text-neutral-600'
+                        }`}>{result.confidence}%</span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-neutral-100 overflow-hidden">
+                        <div className={`h-full rounded-full ${
+                          result.confidence >= 80 ? 'bg-emerald-500' :
+                          result.confidence >= 60 ? 'bg-amber-500' : 'bg-neutral-400'
+                        }`} style={{ width: `${result.confidence}%` }} />
+                      </div>
+                      {result.confidenceReason && (
+                        <p className="mt-2 text-[11px] text-muted-foreground leading-snug">{result.confidenceReason}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* AI 추정 안내 — 보조 정보로 이동 + 직접 입력 진입점은 이 안에만 1번 */}
+                  {result.ingredientsFound === false && (
+                    <div className="rounded-xl border border-warning/30 bg-warning/5 p-3 flex gap-2 items-start">
+                      <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-warning">AI 추정 성분 기반 분석</p>
+                        <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+                          실제 전성분을 찾지 못해 유사 제품 성분으로 추정했습니다. 정확한 분석이 필요하면 전성분을 직접 입력해주세요.
+                        </p>
+                        <button
+                          onClick={() => {
+                            setResult(null);
+                            setMode('text');
+                            setProductName(result.productName);
+                            setProductBrand(result.productBrand);
+                          }}
+                          className="mt-1.5 text-[11px] font-semibold text-warning underline underline-offset-2"
+                        >
+                          전성분 직접 입력하기 →
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {result.searchSources && result.searchSources.length > 0 && (
+                    <div className="rounded-xl border border-border bg-card p-3">
+                      <p className="text-xs font-bold text-foreground mb-2">참고 출처 (Google Search)</p>
+                      <div className="space-y-1">
+                        {result.searchSources.map((s, i) => (
+                          <a
+                            key={i}
+                            href={s.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 text-[11px] text-primary truncate hover:underline"
+                          >
+                            <Search className="h-2.5 w-2.5 shrink-0" />
+                            {s.title || s.url}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-[11px] text-amber-800 leading-relaxed">
+                    AI가 제공하는 참고 정보입니다. 의학적 진단·처방을 대체하지 않으며, 민감성 피부 또는 알레르기가 있는 경우 전문가와 상담하시기 바랍니다.
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+
+            {/* AI 추정 안내가 있을 때만 결과 화면 본문에 작은 1줄 알림 (간결) */}
+            {result.ingredientsFound === false && (
+              <p className="text-center text-[10px] text-warning">
+                ⚠ 일부 성분은 AI 추정값입니다. 정확도가 필요하면 위 정보 시트에서 직접 입력으로 전환하세요.
+              </p>
+            )}
           </div>
-        )}
+          );
+        })()}
       </div>
 
       <BottomNav />

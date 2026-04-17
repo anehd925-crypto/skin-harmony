@@ -4,9 +4,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import {
   Camera, Link2, PenLine, ChevronRight, ScanLine,
-  Search, X, Clock, FlaskConical, Loader2, Package, GitCompare,
+  Search, X, Clock, FlaskConical, Loader2, Package, GitCompare, BellPlus, Check,
 } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
+import { registerDiscountAlert } from '@/utils/discountAlert';
+import { useToast } from '@/hooks/use-toast';
 
 interface HistoryItem {
   id: string;
@@ -33,6 +35,7 @@ const gradeLabel: Record<string, string> = { good: '안전', moderate: '보통',
 const ScanHub = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
@@ -40,6 +43,8 @@ const ScanHub = () => {
   const [recentHistory, setRecentHistory] = useState<HistoryItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [searchFocused, setSearchFocused] = useState(false);
+  const [alertingKey, setAlertingKey] = useState<string | null>(null);
+  const [alertedKeys, setAlertedKeys] = useState<Set<string>>(new Set());
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -85,6 +90,42 @@ const ScanHub = () => {
     navigate('/analyze', { state: { initialMode: 'product', productName: searchQuery.trim() } });
   };
 
+  const handleAddAlert = async (e: React.MouseEvent, s: SearchSuggestion) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!user) {
+      toast({ title: '로그인이 필요합니다', description: '할인 알림을 받으려면 로그인해 주세요.' });
+      navigate('/auth');
+      return;
+    }
+    const key = `${s.brand}::${s.name}`;
+    if (alertedKeys.has(key) || alertingKey === key) return;
+    setAlertingKey(key);
+    try {
+      const result = await registerDiscountAlert({
+        userId: user.id,
+        name: s.name,
+        brand: s.brand,
+        category: 'skincare',
+      });
+      if (result.ok) {
+        setAlertedKeys(prev => new Set(prev).add(key));
+        toast({
+          title: result.reason === 'already_registered' ? '이미 등록된 알림이에요' : '할인 알림을 등록했어요',
+          description: '가격이 내려가면 푸시로 알려드릴게요.',
+        });
+      } else {
+        toast({
+          title: '알림 등록 실패',
+          description: result.message ?? '잠시 후 다시 시도해주세요.',
+          variant: 'destructive',
+        });
+      }
+    } finally {
+      setAlertingKey(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-neutral-50 pb-24">
 
@@ -127,21 +168,53 @@ const ScanHub = () => {
                 </div>
               ) : suggestions.length > 0 ? (
                 <>
-                  {suggestions.map((s, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => handleSelectProduct(s)}
-                      className="flex w-full items-center gap-3 border-b border-border last:border-b-0 px-4 py-3 text-left hover:bg-neutral-50 transition-colors"
-                    >
-                      <FlaskConical className="h-4 w-4 shrink-0 text-primary/50" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate text-foreground">{s.name}</p>
-                        <p className="text-xs text-muted-foreground">{s.brand}{s.note ? ` · ${s.note}` : ''}</p>
+                  {suggestions.map((s, i) => {
+                    const key = `${s.brand}::${s.name}`;
+                    const alerted = alertedKeys.has(key);
+                    const alerting = alertingKey === key;
+                    return (
+                      <div
+                        key={i}
+                        className="flex w-full items-center gap-2 border-b border-border last:border-b-0 px-3 py-2.5 hover:bg-neutral-50 transition-colors"
+                      >
+                        <button
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => handleSelectProduct(s)}
+                          className="flex flex-1 items-center gap-2.5 text-left min-w-0"
+                        >
+                          <FlaskConical className="h-4 w-4 shrink-0 text-primary/50" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold truncate text-foreground">{s.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{s.brand}{s.note ? ` · ${s.note}` : ''}</p>
+                          </div>
+                        </button>
+
+                        {/* 작은 알림 아이콘 — 클릭 시 할인 알림 등록 */}
+                        <button
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={(e) => handleAddAlert(e, s)}
+                          disabled={alerted || alerting}
+                          aria-label={alerted ? '알림 등록됨' : '할인 알림 추가'}
+                          title={alerted ? '알림이 등록되어 있어요' : '가격 인하 시 푸시 알림을 받습니다'}
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${
+                            alerted
+                              ? 'bg-green-50 text-green-600'
+                              : 'text-muted-foreground hover:bg-primary/10 hover:text-primary disabled:opacity-50'
+                          }`}
+                        >
+                          {alerting ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : alerted ? (
+                            <Check className="h-4 w-4" />
+                          ) : (
+                            <BellPlus className="h-4 w-4" />
+                          )}
+                        </button>
                       </div>
-                      <ChevronRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                    </button>
-                  ))}
+                    );
+                  })}
                   <button
                     onClick={handleSearchSubmit}
                     className="flex w-full items-center gap-3 px-4 py-3 text-left bg-primary/5 hover:bg-primary/10 transition-colors"
