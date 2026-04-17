@@ -101,8 +101,25 @@ const ChatPanel = ({ className = '', variant = 'page' }: Props) => {
         },
       });
 
+      // Supabase Functions 에러는 error 자체에 담기지 않고 context.Response에 있을 수 있음.
+      // 더 구체적인 원인(EF 미배포, Groq 키 오류 등)을 사용자에게 전달한다.
       if (error || !data?.reply) {
-        throw new Error(data?.error ?? error?.message ?? 'AI 응답을 받지 못했어요');
+        let detail: string | undefined;
+        try {
+          const ctx = (error as { context?: Response } | null | undefined)?.context;
+          if (ctx && typeof ctx.clone === 'function') {
+            const body = await ctx.clone().json().catch(() => null);
+            if (body?.error) detail = String(body.error);
+          }
+        } catch { /* ignore */ }
+
+        const baseMsg = detail ?? data?.error ?? error?.message ?? 'AI 응답을 받지 못했어요';
+        // 404 / FunctionsHttpError → EF 미배포로 추정되는 안내 추가
+        const hint =
+          /not found|404|Function not found|functionsHttp|relation .* does not exist/i.test(baseMsg)
+            ? ' (AI 서비스가 아직 배포되지 않았을 수 있어요. 관리자에게 문의해주세요.)'
+            : '';
+        throw new Error(baseMsg + hint);
       }
 
       const reply: string = data.reply;
@@ -162,11 +179,14 @@ const ChatPanel = ({ className = '', variant = 'page' }: Props) => {
   };
 
   const inputBarBottomPad = variant === 'sheet' ? 'pb-3' : 'pb-24';
+  const lastError = sendMutation.isError
+    ? (sendMutation.error instanceof Error ? sendMutation.error.message : '응답 실패')
+    : null;
 
   return (
     <div className={`flex flex-col bg-neutral-50 ${className}`}>
       {/* 메시지 영역 */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
+      <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-4 py-4">
         {/* 상단 미니 프로필 컨텍스트 + 초기화 */}
         <div className="mb-3 flex items-center justify-between rounded-xl border border-border bg-white px-3 py-2">
           <div className="flex items-center gap-1.5 min-w-0">
@@ -244,12 +264,26 @@ const ChatPanel = ({ className = '', variant = 'page' }: Props) => {
                 </div>
               </div>
             )}
+            {lastError && !sendMutation.isPending && (
+              <div className="flex justify-start">
+                <div className="max-w-[85%] rounded-2xl rounded-bl-sm border border-danger/30 bg-danger/5 px-4 py-2.5">
+                  <p className="text-xs font-semibold text-danger">AI 응답 실패</p>
+                  <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground whitespace-pre-wrap">{lastError}</p>
+                  <button
+                    onClick={() => sendMutation.reset()}
+                    className="mt-1 text-[11px] font-semibold text-primary underline underline-offset-2"
+                  >
+                    다시 시도하기
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* 입력 영역 */}
-      <div className={`border-t border-border bg-white/95 backdrop-blur-md ${inputBarBottomPad}`}>
+      {/* 입력 영역 — shrink-0로 메시지에 밀리지 않게 고정 */}
+      <div className={`shrink-0 border-t border-border bg-white/95 backdrop-blur-md ${inputBarBottomPad}`}>
         <div className="flex items-center gap-2 px-3 py-2.5">
           <input
             type="text"
