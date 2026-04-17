@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUser } from '@/contexts/UserContext';
 import BottomNav from '@/components/BottomNav';
 import RoutineSafetyCard from '@/components/RoutineSafetyCard';
+import CleansingGuideCard from '@/components/CleansingGuideCard';
 import {
   Sun, Moon, Package, ChevronRight, Layers, TrendingUp,
   Plus, Sparkles, Loader2, Brain, RefreshCw, Mic, MicOff, ShoppingBag, CalendarDays,
@@ -667,6 +668,9 @@ const MySkin = () => {
               </button>
             </div>
           )}
+
+          {/* 피부 타입별 클렌징 가이드 */}
+          <CleansingGuideCard />
         </section>
 
         {/* ─────────── ④ 보관함 프리뷰 ─────────── */}

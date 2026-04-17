@@ -107,6 +107,66 @@ Deno.serve(async (req) => {
       ? `보관함 제품 (${cabinetItems.length}개): ${cabinetItems.map(c => c.product_name).join(', ')}`
       : '보관함 비어있음';
 
+    // ── cleansing 모드: 피부 타입별 클렌징 방법/제품 추천 ──
+    if (mode === 'cleansing') {
+      const cleansingPrompt = `당신은 한국 피부과·뷰티 전문가 AI입니다.
+사용자 프로필을 기반으로 피부 타입에 맞는 "클렌징 방법"과 "추천 제품"을 제시하세요.
+
+사용자 프로필:
+${profileStr}
+
+다음 JSON을 정확히 반환하세요:
+{
+  "overview": "이 피부 타입에 맞는 클렌징 핵심 1~2문장",
+  "steps": [
+    {
+      "title": "단계명 (예: 1차 클렌징 — 오일/밤)",
+      "detail": "어떻게 할지 2문장 이내",
+      "frequency": "빈도 (예: 저녁 매일 / 주 3회 등)"
+    }
+  ],
+  "avoid": ["피해야 할 성분·습관 3개 이내"],
+  "products": [
+    { "name": "제품명", "brand": "브랜드", "category": "cleansing_oil|cleansing_foam|cleansing_water|cleansing_balm|exfoliator", "reason": "추천 이유 1문장" }
+  ]
+}
+
+제품은 한국에서 실제 구매 가능하며 피부 타입에 적합한 것을 3~5개 추천하세요.
+JSON만 반환하세요.`;
+
+      const cleansingResp = await fetch(GROQ_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${GROQ_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          messages: [
+            { role: 'system', content: '당신은 한국 피부과·뷰티 전문가입니다. JSON만 반환합니다.' },
+            { role: 'user', content: cleansingPrompt },
+          ],
+          temperature: 0.3,
+          max_tokens: 1200,
+          response_format: { type: 'json_object' },
+        }),
+      });
+
+      if (!cleansingResp.ok) throw new Error(`Groq error: ${cleansingResp.status}`);
+      const cleansingData = await cleansingResp.json();
+      const cleansingContent = cleansingData.choices?.[0]?.message?.content ?? '{}';
+      let cleansingResult: Record<string, unknown> = {};
+      try { cleansingResult = JSON.parse(cleansingContent); } catch {
+        const m = cleansingContent.match(/\{[\s\S]*\}/);
+        if (m) cleansingResult = JSON.parse(m[0]);
+      }
+
+      return new Response(
+        JSON.stringify(cleansingResult),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
     // ── shopping 모드: 추가 구매 추천 ──
     if (mode === 'shopping') {
       const shoppingPrompt = `당신은 한국 화장품 큐레이터 AI입니다.
