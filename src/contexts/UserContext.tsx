@@ -91,7 +91,7 @@ interface UserContextType {
   setNickname: (n: string) => void;
   setSpecialCondition: (v: SpecialCondition) => void;
   completeOnboarding: (overrides?: Partial<UserProfile>) => Promise<void>;
-  saveProfile: () => Promise<void>;
+  saveProfile: (overrides?: Partial<UserProfile>) => Promise<void>;
 }
 
 const defaultProfile: UserProfile = {
@@ -236,9 +236,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const saveProfile = useCallback(async () => {
+  const saveProfile = useCallback(async (overrides?: Partial<UserProfile>) => {
     if (!user) return;
-    const err = await upsertProfile(buildDbPayload(profile), user.id);
+    // overrides가 있으면 setState race를 회피하기 위해 명시적으로 합성한다.
+    const next = overrides ? { ...profile, ...overrides } : profile;
+    if (overrides) setProfile(next);
+    const err = await upsertProfile(buildDbPayload(next), user.id);
     if (err) throw new Error(err.message);
   }, [user, profile]);
 

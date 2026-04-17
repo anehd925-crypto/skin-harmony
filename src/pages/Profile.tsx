@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-  useUser, SKIN_TYPES, SKIN_CONCERNS, PERSONAL_COLORS,
+  useUser, SKIN_CONCERNS, PERSONAL_COLORS,
   SKIN_SENSITIVITIES, SKIN_CONDITIONS, AGE_GROUPS, SKIN_GOALS, AVOID_INGREDIENTS,
   type SkinConcern,
 } from '@/contexts/UserContext';
@@ -38,9 +38,9 @@ const Section = ({ title, children, defaultOpen = true }: { title: string; child
 
 const Profile = () => {
   const {
-    profile, setSkinType, toggleConcern, setConcernPriority,
+    profile, toggleConcern, setConcernPriority,
     setPersonalColor, setAllergies, saveProfile,
-    setSkinSensitivity, setSkinCondition, setAgeGroup,
+    setAgeGroup,
     toggleGoal, toggleAvoid, setNickname,
   } = useUser();
   const { signOut, user } = useAuth();
@@ -218,59 +218,64 @@ const Profile = () => {
           </div>
         </Section>
 
-        <Section title="피부 타입 · 유수분 상태">
-          {/* AI 재진단 진입 - 섹션 내부로 통합 */}
-          <button
-            onClick={() => navigate('/skin-test')}
-            className="flex w-full items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3 text-left"
-          >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-              <span className="text-base">🧬</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-primary">AI로 다시 진단하기</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">6문항으로 피부 타입·유수분 상태를 한번에 재설정</p>
-            </div>
-            <ChevronDown className="h-4 w-4 text-primary/40 rotate-[-90deg] shrink-0" />
-          </button>
-
-          <div>
-            <p className="mb-2 text-xs font-semibold text-muted-foreground">피부 타입</p>
-            <div className="grid grid-cols-2 gap-2">
-              {SKIN_TYPES.map(type => (
-                <button key={type} onClick={() => setSkinType(type)}
-                  className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition-all ${profile.skinType === type ? 'border-primary bg-primary/10 text-primary' : 'border-border text-foreground'}`}>
-                  {type}
-                </button>
-              ))}
-            </div>
+        {/* ── 피부 진단 결과 (단일 진실: 6문항 진단으로만 결정) ── */}
+        <section className="rounded-xl border border-primary/20 bg-card overflow-hidden">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
+            <h2 className="text-sm font-bold text-foreground">내 피부 진단 결과</h2>
+            <button
+              onClick={() => navigate('/skin-test')}
+              className="text-xs font-semibold text-primary"
+            >
+              {profile.skinType ? '다시 진단' : '진단 시작'}
+            </button>
           </div>
 
-          <div>
-            <p className="mb-2 text-xs font-semibold text-muted-foreground">유수분 상태</p>
-            <div className="space-y-2">
-              {SKIN_CONDITIONS.map(({ value, label, desc }) => (
-                <button key={value} onClick={() => setSkinCondition(value)}
-                  className={`w-full rounded-xl border p-3 text-left transition-all ${profile.skinCondition === value ? 'border-primary bg-primary/10' : 'border-border'}`}>
-                  <p className={`text-sm font-semibold ${profile.skinCondition === value ? 'text-primary' : 'text-foreground'}`}>{label}</p>
-                  <p className="text-xs text-muted-foreground">{desc}</p>
-                </button>
-              ))}
-            </div>
-          </div>
-        </Section>
+          {profile.skinType ? (
+            <div className="px-4 py-3 space-y-3">
+              {/* 메인: 피부 타입 */}
+              <div className="rounded-2xl bg-primary/5 border border-primary/15 px-4 py-3">
+                <p className="text-[11px] font-semibold text-muted-foreground">피부 타입</p>
+                <p className="text-xl font-black text-primary mt-0.5">{profile.skinType}</p>
+              </div>
 
-        <Section title="피부 민감도" defaultOpen={false}>
-          <div className="space-y-2">
-            {SKIN_SENSITIVITIES.map(({ value, label, desc }) => (
-              <button key={value} onClick={() => setSkinSensitivity(value)}
-                className={`w-full rounded-xl border p-3 text-left transition-all ${profile.skinSensitivity === value ? 'border-primary bg-primary/10' : 'border-border'}`}>
-                <p className={`text-sm font-semibold ${profile.skinSensitivity === value ? 'text-primary' : 'text-foreground'}`}>{label}</p>
-                <p className="text-xs text-muted-foreground">{desc}</p>
-              </button>
-            ))}
-          </div>
-        </Section>
+              {/* 보조: 유수분 + 민감도 (모두 진단 결과) */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded-xl border border-border bg-white px-3 py-2.5">
+                  <p className="text-[11px] font-semibold text-muted-foreground">유수분 상태</p>
+                  <p className="text-sm font-bold text-foreground mt-0.5">
+                    {SKIN_CONDITIONS.find(c => c.value === profile.skinCondition)?.label ?? '미진단'}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-border bg-white px-3 py-2.5">
+                  <p className="text-[11px] font-semibold text-muted-foreground">민감도</p>
+                  <p className="text-sm font-bold text-foreground mt-0.5">
+                    {SKIN_SENSITIVITIES.find(s => s.value === profile.skinSensitivity)?.label ?? '미진단'}
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                피부 타입·유수분·민감도는 6문항 진단으로 한 번에 결정됩니다. 결과가 다르다고 느껴지면 "다시 진단"으로 답변을 수정해주세요.
+              </p>
+            </div>
+          ) : (
+            <button
+              onClick={() => navigate('/skin-test')}
+              className="flex w-full items-center gap-3 px-4 py-4 text-left"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                <span className="text-base">🧬</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-foreground">아직 피부 진단을 하지 않았어요</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  6문항으로 피부 타입·유수분·민감도를 한 번에 진단합니다
+                </p>
+              </div>
+              <ChevronDown className="h-4 w-4 text-muted-foreground rotate-[-90deg]" />
+            </button>
+          )}
+        </section>
 
         <Section title="피부 고민 (우선순위 순)">
           <p className="text-xs text-muted-foreground">먼저 누른 순서가 우선순위예요</p>

@@ -72,34 +72,37 @@ export const SKIN_TEST_QUESTIONS: Question[] = [
   },
 ];
 
+// UserContext의 SKIN_CONDITIONS / SKIN_SENSITIVITIES 실제 value와 1:1 매칭되어야 함
+export type SkinConditionValue = 'very_dry' | 'dry' | 'normal' | 'oily' | 'very_oily';
+export type SkinSensitivityValue = 'very_sensitive' | 'sensitive' | 'normal' | 'resilient';
+
 export interface DiagnosisResult {
   skinType: string;
-  skinTypeEn: string;
+  skinTypeEn: 'dry' | 'oily' | 'combination' | 'sensitive' | 'normal';
   summary: string;
   characteristics: string[];
   recommendations: string[];
   avoidIngredients: string[];
   score: number;
-  skinCondition?: 'very_dry' | 'dry' | 'normal' | 'slightly_oily' | 'oily';
-  suggestedSensitivity?: 'low' | 'normal' | 'high' | 'very_high' | 'sensitive';
+  skinCondition: SkinConditionValue;
+  skinSensitivity: SkinSensitivityValue;
 }
 
-// 설문 답변을 기반으로 유수분 상태(skin_condition) 자동 매핑
-const mapCondition = (a: Record<string, string>): DiagnosisResult['skinCondition'] => {
+const mapCondition = (a: Record<string, string>): SkinConditionValue => {
   switch (a.moisture) {
     case 'always_dry': return 'very_dry';
-    case 'afternoon_oily': return 'slightly_oily';
-    case 'always_oily': return 'oily';
+    case 'afternoon_oily': return 'oily';
+    case 'always_oily': return 'very_oily';
     case 'balanced': return 'normal';
     default: return a.wash === 'tight' ? 'dry' : 'normal';
   }
 };
 
-const mapSensitivity = (a: Record<string, string>): DiagnosisResult['suggestedSensitivity'] => {
-  if (a.sensitivity === 'always') return 'very_high';
-  if (a.sensitivity === 'often') return 'high';
+const mapSensitivity = (a: Record<string, string>): SkinSensitivityValue => {
+  if (a.sensitivity === 'always') return 'very_sensitive';
+  if (a.sensitivity === 'often') return 'sensitive';
   if (a.sensitivity === 'sometimes') return 'normal';
-  return 'low';
+  return 'resilient';
 };
 
 const fallbackDiagnose = (a: Record<string, string>): DiagnosisResult => {
@@ -182,20 +185,24 @@ const fallbackDiagnose = (a: Record<string, string>): DiagnosisResult => {
     avoidIngredients: avoids[type],
     score: type === '중성' ? 85 : type === '건성' ? 60 : type === '지성' ? 65 : type === '민감성' ? 55 : 70,
     skinCondition: mapCondition(a),
-    suggestedSensitivity: mapSensitivity(a),
+    skinSensitivity: mapSensitivity(a),
   };
 };
 
 interface Props {
   variant?: 'full' | 'compact';
-  onResolved?: (result: DiagnosisResult) => void;
+  onResolved?: (result: DiagnosisResult, answers: Record<string, string>) => void;
   onRestart?: () => void;
   initialResult?: DiagnosisResult | null;
+  /** 이전 진단 답변을 미리 채워 두고 시작 (재진단 시 사용자 편의) */
+  initialAnswers?: Record<string, string> | null;
 }
 
-const SkinTypeDecider = ({ variant = 'full', onResolved, onRestart, initialResult }: Props) => {
+const SkinTypeDecider = ({
+  variant = 'full', onResolved, onRestart, initialResult, initialAnswers,
+}: Props) => {
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Record<string, string>>(initialAnswers ?? {});
   const [diagnosing, setDiagnosing] = useState(false);
   const [result, setResult] = useState<DiagnosisResult | null>(initialResult ?? null);
 
@@ -242,16 +249,17 @@ const SkinTypeDecider = ({ variant = 'full', onResolved, onRestart, initialResul
         ? {
             ...fb,
             ...(data as Partial<DiagnosisResult>),
-            skinCondition: (data as DiagnosisResult)?.skinCondition ?? fb.skinCondition,
-            suggestedSensitivity: (data as DiagnosisResult)?.suggestedSensitivity ?? fb.suggestedSensitivity,
+            // 매핑 값은 항상 우리 enum과 호환되도록 fallback 우선 사용
+            skinCondition: fb.skinCondition,
+            skinSensitivity: fb.skinSensitivity,
           }
         : fb;
       setResult(resolved);
-      onResolved?.(resolved);
+      onResolved?.(resolved, answers);
     } catch {
       const resolved = fallbackDiagnose(answers);
       setResult(resolved);
-      onResolved?.(resolved);
+      onResolved?.(resolved, answers);
     } finally {
       setDiagnosing(false);
     }

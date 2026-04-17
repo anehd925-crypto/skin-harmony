@@ -2,24 +2,37 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   useUser,
-  SKIN_TYPES, SKIN_CONCERNS, PERSONAL_COLORS,
-  SKIN_SENSITIVITIES, SKIN_CONDITIONS, AGE_GROUPS, SKIN_GOALS, AVOID_INGREDIENTS,
+  SKIN_CONCERNS, PERSONAL_COLORS,
+  SKIN_CONDITIONS, AGE_GROUPS, SKIN_GOALS, AVOID_INGREDIENTS,
   SPECIAL_CONDITIONS,
   type SkinConcern,
 } from '@/contexts/UserContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sparkles, ChevronRight, ChevronLeft, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import SkinTypeDecider, { type DiagnosisResult } from '@/components/SkinTypeDecider';
+import { saveSkinTest } from '@/utils/skinTestStorage';
 
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 6;
+
+// 진단 결과의 enum값을 한글 라벨로 변환 (UserContext SKIN_SENSITIVITIES와 동기)
+const sensitivityLabel = (v: string | null | undefined): string => {
+  switch (v) {
+    case 'very_sensitive': return '매우 민감';
+    case 'sensitive': return '민감한 편';
+    case 'normal': return '보통';
+    case 'resilient': return '강한 편';
+    default: return '-';
+  }
+};
 
 const Onboarding = () => {
   const [step, setStep] = useState(0);
   const [allergyInput, setAllergyInput] = useState('');
   const [aiDiagnosis, setAiDiagnosis] = useState<DiagnosisResult | null>(null);
-  const [editingType, setEditingType] = useState(false);
+  const [restartKey, setRestartKey] = useState(0);
   const {
     profile,
     setSkinType, toggleConcern, setConcernPriority,
@@ -29,32 +42,24 @@ const Onboarding = () => {
     setSpecialCondition,
     completeOnboarding,
   } = useUser();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
 
-  const handleAiResolved = (r: DiagnosisResult) => {
+  // 진단 결과를 프로필 3개 필드(타입·유수분·민감도)에 일괄 반영하고 답변 캐시.
+  const handleAiResolved = (r: DiagnosisResult, ans: Record<string, string>) => {
     setAiDiagnosis(r);
     setSkinType(r.skinType);
-    // 설문의 moisture 답 → 유수분 상태 자동 매핑
-    if (r.skinCondition) setSkinCondition(r.skinCondition);
-    // 설문의 자극 민감도 → 피부 민감도 기본값 자동 매핑 (사용자는 Step 3에서 수정 가능)
-    const sensitivityMap: Record<string, string> = {
-      very_high: 'very_high',
-      high: 'high',
-      normal: 'normal',
-      low: 'low',
-    };
-    const mapped = r.suggestedSensitivity ? sensitivityMap[r.suggestedSensitivity] : undefined;
-    if (mapped) setSkinSensitivity(mapped);
-    else if (r.skinTypeEn === 'sensitive') setSkinSensitivity('high');
-    setEditingType(false);
+    setSkinCondition(r.skinCondition);
+    setSkinSensitivity(r.skinSensitivity);
+    if (user) saveSkinTest(user.id, ans, r);
   };
 
   const handleResetDiagnosis = () => {
     setAiDiagnosis(null);
     setSkinType('');
-    setEditingType(false);
+    setRestartKey(k => k + 1);
   };
 
   const handleComplete = async () => {
@@ -111,121 +116,61 @@ const Onboarding = () => {
       </div>
     </div>,
 
-    // Step 1: 피부타입 + 유수분 상태 (AI 설문 단일 흐름으로 통합)
+    // Step 1: 피부 진단 (타입·유수분·민감도 동시 결정 — 단일 진실)
     <div key="skin" className="space-y-5">
       <div className="text-center">
         <p className="text-xs font-semibold uppercase tracking-widest text-primary">Step 2</p>
-        <h2 className="mt-1 text-xl font-bold text-foreground">피부 타입을 알아볼게요</h2>
-        <p className="mt-1 text-sm text-muted-foreground">6가지 설문으로 피부 타입·유수분 상태가 자동 설정됩니다</p>
+        <h2 className="mt-1 text-xl font-bold text-foreground">피부 타입 진단</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          6문항으로 피부 타입·유수분·민감도가 한 번에 결정됩니다
+        </p>
       </div>
 
       {!aiDiagnosis ? (
-        // ── 설문 진행 ──
         <div className="rounded-2xl border border-border bg-card p-4">
-          <SkinTypeDecider variant="compact" onResolved={handleAiResolved} />
+          <SkinTypeDecider key={restartKey} variant="compact" onResolved={handleAiResolved} />
         </div>
       ) : (
-        // ── 결과 확인 + 필요 시 수정 ──
         <div className="space-y-3">
           <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="h-4 w-4 text-primary" />
               <p className="text-sm font-bold text-foreground">진단 결과</p>
             </div>
-            <p className="text-xs text-muted-foreground mb-1">진단된 피부 타입</p>
             <p className="text-lg font-bold text-primary">{profile.skinType}</p>
             <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{aiDiagnosis.summary}</p>
 
-            {profile.skinCondition && (
-              <div className="mt-3 rounded-lg bg-white/70 border border-primary/10 px-3 py-2">
-                <p className="text-[11px] font-semibold text-muted-foreground">자동 설정된 유수분 상태</p>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="rounded-lg bg-white/70 border border-primary/10 px-3 py-2">
+                <p className="text-[11px] font-semibold text-muted-foreground">유수분</p>
                 <p className="text-xs font-bold text-foreground">
-                  {SKIN_CONDITIONS.find(c => c.value === profile.skinCondition)?.label ?? profile.skinCondition}
+                  {SKIN_CONDITIONS.find(c => c.value === profile.skinCondition)?.label ?? '-'}
                 </p>
               </div>
-            )}
+              <div className="rounded-lg bg-white/70 border border-primary/10 px-3 py-2">
+                <p className="text-[11px] font-semibold text-muted-foreground">민감도</p>
+                <p className="text-xs font-bold text-foreground">
+                  {sensitivityLabel(profile.skinSensitivity)}
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* 결과 수정: 진단 결과가 실제와 다를 때만 사용 */}
-          {!editingType ? (
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setEditingType(true)}
-                className="flex-1 rounded-xl border border-border py-2.5 text-xs font-semibold text-foreground"
-              >
-                결과가 다른가요? 직접 수정
-              </button>
-              <button
-                type="button"
-                onClick={handleResetDiagnosis}
-                className="flex items-center justify-center gap-1 rounded-xl border border-border px-3 py-2.5 text-xs font-semibold text-muted-foreground"
-              >
-                <RotateCcw className="h-3 w-3" /> 재진단
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-3 rounded-2xl border border-border bg-card p-3">
-              <p className="text-xs font-semibold text-foreground">피부 타입 직접 선택</p>
-              <div className="grid grid-cols-2 gap-2">
-                {SKIN_TYPES.map(type => (
-                  <button key={type} type="button" onClick={() => setSkinType(type)}
-                    className={`rounded-xl border px-3 py-3 text-sm font-semibold transition-all ${
-                      profile.skinType === type ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-white text-foreground hover:border-primary/40'
-                    }`}>
-                    {type}
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs font-semibold text-foreground mt-2">유수분 상태</p>
-              <div className="space-y-1.5">
-                {SKIN_CONDITIONS.map(({ value, label, desc }) => (
-                  <button key={value} type="button" onClick={() => setSkinCondition(value)}
-                    className={`w-full rounded-xl border p-2.5 text-left transition-all ${
-                      profile.skinCondition === value ? 'border-primary bg-primary/10' : 'border-border bg-white hover:border-primary/40'
-                    }`}>
-                    <p className={`text-sm font-semibold ${profile.skinCondition === value ? 'text-primary' : 'text-foreground'}`}>{label}</p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">{desc}</p>
-                  </button>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={() => setEditingType(false)}
-                className="w-full rounded-xl bg-primary py-2 text-xs font-bold text-primary-foreground"
-              >
-                수정 완료
-              </button>
-            </div>
-          )}
+          <button
+            type="button"
+            onClick={handleResetDiagnosis}
+            className="flex w-full items-center justify-center gap-1 rounded-xl border border-border py-2.5 text-xs font-semibold text-muted-foreground"
+          >
+            <RotateCcw className="h-3 w-3" /> 답변을 바꿔서 다시 진단하기
+          </button>
         </div>
       )}
     </div>,
 
-    // Step 2: 민감도
-    <div key="sensitivity" className="space-y-5">
-      <div className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">Step 3</p>
-        <h2 className="mt-1 text-xl font-bold text-foreground">피부 민감도는 어느 정도인가요?</h2>
-        <p className="mt-1 text-sm text-muted-foreground">성분 안전도 기준을 맞춤 조정해요</p>
-      </div>
-      <div className="space-y-2">
-        {SKIN_SENSITIVITIES.map(({ value, label, desc }) => (
-          <button key={value} onClick={() => setSkinSensitivity(value)}
-            className={`w-full rounded-xl border p-4 text-left transition-all ${
-              profile.skinSensitivity === value ? 'border-primary bg-primary/10' : 'border-border bg-card hover:border-primary/40'
-            }`}>
-            <p className={`text-sm font-semibold ${profile.skinSensitivity === value ? 'text-primary' : 'text-foreground'}`}>{label}</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">{desc}</p>
-          </button>
-        ))}
-      </div>
-    </div>,
-
-    // Step 3: 피부 고민 (우선순위 포함)
+    // Step 2: 피부 고민 (우선순위 포함)
     <div key="concerns" className="space-y-5">
       <div className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">Step 4</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary">Step 3</p>
         <h2 className="mt-1 text-xl font-bold text-foreground">피부 고민을 선택해주세요</h2>
         <p className="mt-1 text-sm text-muted-foreground">먼저 선택한 순서가 우선순위가 돼요</p>
       </div>
@@ -255,10 +200,10 @@ const Onboarding = () => {
       )}
     </div>,
 
-    // Step 4: 스킨케어 목표 + 기피 성분
+    // Step 3: 스킨케어 목표 + 기피 성분
     <div key="goals" className="space-y-5">
       <div className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">Step 5</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary">Step 4</p>
         <h2 className="mt-1 text-xl font-bold text-foreground">스킨케어 목표와 기피 성분</h2>
         <p className="mt-1 text-sm text-muted-foreground">원하는 효과와 피하고 싶은 성분을 선택해요</p>
       </div>
@@ -286,10 +231,10 @@ const Onboarding = () => {
       </div>
     </div>,
 
-    // Step 5: 특수 피부 조건
+    // Step 4: 특수 피부 조건
     <div key="special" className="space-y-5">
       <div className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">Step 6</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary">Step 5</p>
         <h2 className="mt-1 text-xl font-bold text-foreground">특별한 피부 조건이 있으신가요?</h2>
         <p className="mt-1 text-sm text-muted-foreground">해당 조건에 맞는 성분 경고를 강화해 드려요</p>
       </div>
@@ -306,10 +251,10 @@ const Onboarding = () => {
       </div>
     </div>,
 
-    // Step 6: 퍼스널컬러 + 알레르기
+    // Step 5: 퍼스널컬러 + 알레르기
     <div key="color" className="space-y-5">
       <div className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">Step 7</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary">Step 6</p>
         <h2 className="mt-1 text-xl font-bold text-foreground">마지막 단계예요</h2>
         <p className="mt-1 text-sm text-muted-foreground">색조 추천과 알레르기 정보를 입력해주세요</p>
       </div>
@@ -339,9 +284,9 @@ const Onboarding = () => {
 
   const canProceed = () => {
     if (step === 0) return !!profile.ageGroup;
-    if (step === 1) return !!profile.skinType && !!profile.skinCondition;
-    if (step === 2) return !!profile.skinSensitivity;
-    if (step === 3) return profile.skinConcerns.length > 0;
+    // Step 1(진단): 진단을 완료해야 다음으로 (skinType + skinCondition + skinSensitivity 모두 결정됨)
+    if (step === 1) return !!aiDiagnosis && !!profile.skinType && !!profile.skinCondition && !!profile.skinSensitivity;
+    if (step === 2) return profile.skinConcerns.length > 0;
     return true;
   };
 
