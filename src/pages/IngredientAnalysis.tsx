@@ -130,6 +130,7 @@ const IngredientAnalysis = () => {
   const location = useLocation();
   const { profile } = useUser();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [mode, setMode] = useState<'url' | 'text'>('url');
   const [productName, setProductName] = useState('');
   const [productBrand, setProductBrand] = useState('');
@@ -149,14 +150,14 @@ const IngredientAnalysis = () => {
       setMode('text');
       setIngredientsText(state.prefilledIngredients);
       window.history.replaceState({}, '');
-    } else if (state?.initialMode === 'product' && state?.productName) {
+    } else if (state?.initialMode === 'product') {
       // 제품명 검색으로 진입 → text 모드로 전환 후 제품명/브랜드 채우기
       setMode('text');
-      setProductName(state.productName);
+      if (state.productName) setProductName(state.productName);
       if (state.productBrand) setProductBrand(state.productBrand);
       window.history.replaceState({}, '');
-    } else if (state?.initialMode) {
-      setMode(state.initialMode as 'url' | 'text');
+    } else if (state?.initialMode === 'url' || state?.initialMode === 'text') {
+      setMode(state.initialMode);
       window.history.replaceState({}, '');
     }
   }, [location.state]);
@@ -300,45 +301,60 @@ BeautyLens로 분석했습니다`;
         ingredient_count: analysisResult.ingredients?.length ?? 0,
       });
 
-      if (urlInput.trim()) {
-        const tags = analysisResult.productTags;
-        const { error: upsertErr } = await supabase.from('products').upsert({
-          name: analysisResult.productName || pName || '이름 없음',
-          brand: analysisResult.productBrand || pBrand || '',
-          category: 'skincare',
-          product_url: urlInput.trim(),
-          ingredients_text: text,
-          overall_grade: analysisResult.overallGrade,
-          ...(tags && {
-            skin_types: tags.skin_types,
-            skin_concerns: tags.skin_concerns,
-            suitable_sensitivity: tags.suitable_sensitivity,
-            suitable_age_groups: tags.suitable_age_groups,
-            avoid_skin_conditions: tags.avoid_skin_conditions,
-            description: tags.description_ko,
-            ai_tagged_at: new Date().toISOString(),
-          }),
-        }, { onConflict: 'product_url', ignoreDuplicates: false });
-        if (upsertErr) console.error('products upsert 실패:', upsertErr.message);
-      }
+      // 분석 성공 이후 후속 저장/동기화는 실패해도 본 결과 화면을 훼손하지 않는다.
+      // 사용자에게는 비차단 토스트로만 알린다.
+      try {
+        if (urlInput.trim()) {
+          const tags = analysisResult.productTags;
+          const { error: upsertErr } = await supabase.from('products').upsert({
+            name: analysisResult.productName || pName || '이름 없음',
+            brand: analysisResult.productBrand || pBrand || '',
+            category: 'skincare',
+            product_url: urlInput.trim(),
+            ingredients_text: text,
+            overall_grade: analysisResult.overallGrade,
+            ...(tags && {
+              skin_types: tags.skin_types,
+              skin_concerns: tags.skin_concerns,
+              suitable_sensitivity: tags.suitable_sensitivity,
+              suitable_age_groups: tags.suitable_age_groups,
+              avoid_skin_conditions: tags.avoid_skin_conditions,
+              description: tags.description_ko,
+              ai_tagged_at: new Date().toISOString(),
+            }),
+          }, { onConflict: 'product_url', ignoreDuplicates: false });
+          if (upsertErr) console.error('[analyze] products upsert 실패:', upsertErr.message);
+        }
 
-      if (user) {
-        const { error: histErr } = await supabase.from('analysis_history').insert({
-          user_id: user.id,
-          product_name: analysisResult.productName || pName || '이름 없음',
-          product_brand: analysisResult.productBrand || pBrand || '',
-          ingredients_text: text,
-          result: analysisResult as unknown as Record<string, unknown>,
-          overall_grade: analysisResult.overallGrade,
-          skin_fit_score: analysisResult.skinFit?.score ?? null,
-          ...(urlInput.trim() && { product_url: urlInput.trim() }),
-        });
-        if (histErr) console.error('analysis_history insert 실패:', histErr.message);
+        if (user) {
+          const { error: histErr } = await supabase.from('analysis_history').insert({
+            user_id: user.id,
+            product_name: analysisResult.productName || pName || '이름 없음',
+            product_brand: analysisResult.productBrand || pBrand || '',
+            ingredients_text: text,
+            result: analysisResult as unknown as Record<string, unknown>,
+            overall_grade: analysisResult.overallGrade,
+            skin_fit_score: analysisResult.skinFit?.score ?? null,
+            ...(urlInput.trim() && { product_url: urlInput.trim() }),
+          });
+          if (histErr) {
+            console.error('[analyze] analysis_history insert 실패:', histErr.message);
+            toast({
+              title: '분석 기록 저장 실패',
+              description: '결과는 확인하실 수 있지만 기록에는 남지 않았습니다.',
+            });
+          }
 
-        // 블랙리스트 자동 동기화 & 경보 체크
-        await syncBlacklist(user.id, analysisResult.ingredients);
-        const hits = await checkBlacklistHits(user.id, analysisResult.ingredients);
-        setBlacklistHits(hits);
+          try {
+            await syncBlacklist(user.id, analysisResult.ingredients);
+            const hits = await checkBlacklistHits(user.id, analysisResult.ingredients);
+            setBlacklistHits(hits);
+          } catch (e) {
+            console.error('[analyze] blacklist sync 실패:', e);
+          }
+        }
+      } catch (postErr) {
+        console.error('[analyze] 후처리 실패:', postErr);
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : '분석 중 오류가 발생했습니다.';

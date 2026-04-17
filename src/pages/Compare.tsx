@@ -85,18 +85,27 @@ const Compare = () => {
   const ingByProduct = (productId: string) =>
     allIngredients.filter(i => i.product_id === productId);
 
+  // DB 값에 name_kr이 null로 저장된 레코드 방어
+  const normalize = (n?: string | null) => (n ?? '').trim().toLowerCase();
+
   const getCommonIngredients = () => {
     if (products.length < 2) return [];
     const [a, b] = [ingByProduct(products[0].id), ingByProduct(products[1].id)];
-    const bNames = new Set(b.map(i => i.name_kr.toLowerCase()));
-    return a.filter(i => bNames.has(i.name_kr.toLowerCase()));
+    const bNames = new Set(b.map(i => normalize(i.name_kr)));
+    return a.filter(i => {
+      const key = normalize(i.name_kr);
+      return key && bNames.has(key);
+    });
   };
 
   const getOnlyInProduct = (idx: 0 | 1) => {
     if (products.length < 2) return [];
     const [a, b] = [ingByProduct(products[0].id), ingByProduct(products[1].id)];
-    const other = new Set((idx === 0 ? b : a).map(i => i.name_kr.toLowerCase()));
-    return (idx === 0 ? a : b).filter(i => !other.has(i.name_kr.toLowerCase()));
+    const other = new Set((idx === 0 ? b : a).map(i => normalize(i.name_kr)));
+    return (idx === 0 ? a : b).filter(i => {
+      const key = normalize(i.name_kr);
+      return key && !other.has(key);
+    });
   };
 
   const commonIngredients = getCommonIngredients();
@@ -144,6 +153,21 @@ const Compare = () => {
         {isLoading && (
           <div className="flex justify-center py-16">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          </div>
+        )}
+
+        {!isLoading && products.length < 2 && (
+          <div className="flex flex-col items-center justify-center py-16 text-center px-4">
+            <GitCompare className="h-10 w-10 text-muted-foreground/30 mb-3" />
+            <p className="text-sm font-medium text-foreground">비교할 제품을 불러오지 못했어요</p>
+            <p className="mt-1 text-xs text-muted-foreground">제품이 삭제되었거나 링크가 잘못되었을 수 있어요.</p>
+            <button
+              type="button"
+              onClick={() => navigate('/explore')}
+              className="mt-5 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"
+            >
+              제품 다시 선택하기
+            </button>
           </div>
         )}
 

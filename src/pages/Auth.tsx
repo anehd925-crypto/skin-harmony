@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,9 +17,22 @@ const Auth = () => {
   const [showReset, setShowReset] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
-  const { signIn, signUp, signInWithGoogle } = useAuth();
+  const { signIn, signUp, signInWithGoogle, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Google OAuth는 외부 이동 후 콜백으로 돌아오므로, 혹시 리다이렉트 없이 응답만 오는 경우에도
+  // 로딩이 풀리도록 20초 타임아웃을 둔다.
+  useEffect(() => {
+    if (!googleLoading) return;
+    const t = setTimeout(() => setGoogleLoading(false), 20_000);
+    return () => clearTimeout(t);
+  }, [googleLoading]);
+
+  // 이미 로그인된 사용자가 /auth로 들어오면 홈으로 돌려보낸다.
+  if (!authLoading && user) {
+    return <Navigate to="/" replace />;
+  }
 
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);

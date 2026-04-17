@@ -11,59 +11,78 @@ interface Ingredient {
 }
 
 export async function syncBlacklist(userId: string, ingredients: Ingredient[]) {
-  const targets = ingredients.filter(i => i.safety === 'danger' || i.safety === 'caution');
-  if (targets.length === 0) return;
+  const raw = ingredients.filter(i => i.safety === 'danger' || i.safety === 'caution');
+  if (raw.length === 0) return;
 
-  // 기존 블랙리스트 일괄 조회 (1회 쿼리)
-  const names = targets.map(i => i.name);
-  const { data: existing } = await supabase
+  // 동일 응답 내 같은 성분이 중복 등장하는 경우를 ingredient_name 기준으로 통합한다.
+  // (unique 제약 위반·중복 집계 방지)
+  const mergedMap = new Map<string, { name: string; name_en?: string; danger: number; caution: number }>();
+  for (const ing of raw) {
+    const key = ing.name.trim();
+    if (!key) continue;
+    const prev = mergedMap.get(key) ?? { name: key, name_en: ing.name_en, danger: 0, caution: 0 };
+    if (ing.safety === 'danger') prev.danger += 1;
+    else prev.caution += 1;
+    if (!prev.name_en && ing.name_en) prev.name_en = ing.name_en;
+    mergedMap.set(key, prev);
+  }
+  const targets = Array.from(mergedMap.values());
+  const names = targets.map(t => t.name);
+
+  const { data: existing, error: fetchErr } = await supabase
     .from('skin_blacklist' as never)
     .select('id, ingredient_name, danger_count, caution_count')
     .eq('user_id', userId)
     .in('ingredient_name', names);
+
+  if (fetchErr) {
+    console.error('[blacklist] fetch existing failed:', fetchErr.message);
+    return;
+  }
 
   const existingMap = new Map(
     ((existing as Array<{ id: string; ingredient_name: string; danger_count: number; caution_count: number }>) ?? [])
       .map(e => [e.ingredient_name, e])
   );
 
-  // 업데이트/삽입을 분리하여 병렬 처리
-  const updates: Promise<unknown>[] = [];
+  const updates: Array<Promise<{ error: unknown }>> = [];
   const inserts: Array<Record<string, unknown>> = [];
 
-  for (const ing of targets) {
-    const isDanger = ing.safety === 'danger';
-    const current = existingMap.get(ing.name);
-
+  for (const t of targets) {
+    const current = existingMap.get(t.name);
     if (current) {
       updates.push(
         supabase
           .from('skin_blacklist' as never)
           .update({
-            danger_count: isDanger ? current.danger_count + 1 : current.danger_count,
-            caution_count: !isDanger ? current.caution_count + 1 : current.caution_count,
+            danger_count: current.danger_count + t.danger,
+            caution_count: current.caution_count + t.caution,
             last_seen_at: new Date().toISOString(),
           } as never)
-          .eq('id', current.id)
+          .eq('id', current.id) as unknown as Promise<{ error: unknown }>
       );
     } else {
       inserts.push({
         user_id: userId,
-        ingredient_name: ing.name,
-        ingredient_name_en: ing.name_en ?? null,
-        danger_count: isDanger ? 1 : 0,
-        caution_count: !isDanger ? 1 : 0,
+        ingredient_name: t.name,
+        ingredient_name_en: t.name_en ?? null,
+        danger_count: t.danger,
+        caution_count: t.caution,
       });
     }
   }
 
-  // 병렬 실행 (업데이트들 + 일괄 삽입 1건)
-  await Promise.all([
+  const results = await Promise.all([
     ...updates,
     inserts.length > 0
       ? supabase.from('skin_blacklist' as never).insert(inserts as never)
-      : Promise.resolve(),
+      : Promise.resolve({ error: null }),
   ]);
+
+  for (const r of results) {
+    const err = (r as { error?: { message?: string } } | null)?.error;
+    if (err) console.error('[blacklist] sync error:', err.message ?? err);
+  }
 }
 
 /**

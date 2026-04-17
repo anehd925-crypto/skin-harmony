@@ -92,7 +92,15 @@ const MISSIONS: Mission[] = [
     subtitle: '내 루틴의 성분 궁합을 AI가 분석해줍니다',
     path: '/routine',
     cta: '루틴 보기',
-    checker: (uid) => checkTable(uid, 'routines'),
+    // 단순히 routines 행 존재가 아니라, 실제로 제품 1개 이상이 담긴 루틴이 있어야 완료 처리
+    checker: async (uid) => {
+      const { data } = await supabase
+        .from('routines')
+        .select('id, routine_products!inner(id)')
+        .eq('user_id', uid)
+        .limit(1);
+      return !!(data && data.length > 0);
+    },
   },
   {
     key: 'day7_weekly_report',
@@ -101,12 +109,19 @@ const MISSIONS: Mission[] = [
     subtitle: 'AI 코치의 첫 주 피부 리포트를 받아보세요',
     path: '/myskin',
     cta: '리포트 보기',
+    // 일기 3건 이상 + 주간 리포트 페이지(/myskin) 진입 기록이 있어야 완료 처리
     checker: async (uid) => {
-      const { count } = await supabase
+      const { count: diaryCount } = await supabase
         .from('skin_diary' as never)
         .select('id', { count: 'exact', head: true })
         .eq('user_id' as never, uid);
-      return (count ?? 0) >= 3;
+      if ((diaryCount ?? 0) < 3) return false;
+      const { count: viewCount } = await supabase
+        .from('app_events' as never)
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id' as never, uid)
+        .eq('event_name' as never, 'coach_report_viewed');
+      return (viewCount ?? 0) > 0;
     },
   },
 ];
@@ -182,7 +197,10 @@ const DailyMissionCard = () => {
 
   return (
     <button
-      onClick={() => { track(EVENT.MISSION_COMPLETED, { action: 'cta_click', mission_key: currentMission.key }); navigate(currentMission.path); }}
+      onClick={() => {
+        track(EVENT.MISSION_CTA_CLICKED, { mission_key: currentMission.key, day: currentMission.day });
+        navigate(currentMission.path);
+      }}
       className="w-full rounded-2xl border border-primary/20 bg-white p-4 text-left shadow-card press"
     >
       <div className="flex items-center gap-3">

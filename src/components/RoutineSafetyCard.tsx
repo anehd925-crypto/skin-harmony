@@ -41,11 +41,13 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
     if (!user) { setLoading(false); return; }
     setLoading(true);
     try {
+      // 오전·오후·저녁 루틴 모두를 포함해 안전도를 계산한다.
+      // 오후 루틴은 프로필에서 opt-in된 경우에만 생성되지만, 존재하면 점수에 반영되어야 한다.
       const { data: routines } = await supabase
         .from('routines')
         .select('id, name, routine_products(product_name, ingredients_snapshot)')
         .eq('user_id', user.id)
-        .in('name', ['morning', 'evening']);
+        .in('name', ['morning', 'afternoon', 'evening']);
 
       if (!routines || routines.length === 0) { setLoading(false); return; }
 

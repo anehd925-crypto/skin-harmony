@@ -164,12 +164,21 @@ const ScanAnalysis = () => {
     const reader = new FileReader();
     reader.onload = async (ev) => {
       const dataUrl = ev.target?.result as string;
+      if (!dataUrl) {
+        setStatus('error');
+        setErrorMsg('이미지 읽기에 실패했어요. 다른 사진으로 시도해주세요.');
+        return;
+      }
       setCapturedImage(dataUrl);
       if (scanMode === 'ingredient') {
         await runOcr(dataUrl);
       } else {
         await recognizeProduct(dataUrl);
       }
+    };
+    reader.onerror = () => {
+      setStatus('error');
+      setErrorMsg('이미지 파일을 읽지 못했어요. 권한 또는 파일 상태를 확인해주세요.');
     };
     reader.readAsDataURL(file);
   };

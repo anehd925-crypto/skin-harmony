@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useUser } from '@/contexts/UserContext';
@@ -30,8 +30,17 @@ const Explore = () => {
   const navigate = useNavigate();
   const { profile } = useUser();
   const { user } = useAuth();
-  const [query, setQuery] = useState('');
+  const [searchParams] = useSearchParams();
+  // ?q=... 파라미터가 있으면 검색어로 초기화 (커뮤니티 등 외부 진입점 지원)
+  const [query, setQuery] = useState(() => searchParams.get('q') ?? '');
   const [category, setCategory] = useState<string>('all');
+
+  // URL 파라미터 동기화: ?q 변경 시 반영
+  useEffect(() => {
+    const q = searchParams.get('q') ?? '';
+    if (q !== query) setQuery(q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
   const [sort, setSort] = useState<SortKey>('match');
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -133,9 +142,9 @@ const Explore = () => {
     if (query.trim()) {
       const q = query.toLowerCase();
       list = list.filter(p =>
-        p.name.toLowerCase().includes(q) ||
-        p.brand.toLowerCase().includes(q) ||
-        (p as { description?: string }).description?.toLowerCase().includes(q)
+        (p.name ?? '').toLowerCase().includes(q) ||
+        (p.brand ?? '').toLowerCase().includes(q) ||
+        ((p as { description?: string | null }).description ?? '').toLowerCase().includes(q)
       );
     }
 

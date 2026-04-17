@@ -68,9 +68,11 @@ const SkinTimeline = () => {
       const entries: DiaryEntry[] = (diaryData ?? []) as DiaryEntry[];
 
       // 루틴 변경 이력: routine_products의 created_at 활용
+      // inner join으로 서버에서 본인 소유 routines만 받도록 제한해 RLS 의존도를 낮춘다.
       const { data: rpData } = await supabase
         .from('routine_products')
-        .select('id, product_name, created_at, routines(name, user_id)')
+        .select('id, product_name, created_at, routines!inner(name, user_id)')
+        .eq('routines.user_id', user!.id)
         .gte('created_at', from.toISOString())
         .order('created_at', { ascending: true });
 
@@ -78,14 +80,12 @@ const SkinTimeline = () => {
         product_name: string;
         created_at: string;
         routines: { name: string; user_id: string } | null;
-      }>)
-        .filter(rp => rp.routines?.user_id === user!.id)
-        .map(rp => ({
-          date: rp.created_at.split('T')[0],
-          type: 'added' as const,
-          product_name: rp.product_name,
-          routine_name: rp.routines?.name ?? 'morning',
-        }));
+      }>).map(rp => ({
+        date: rp.created_at.split('T')[0],
+        type: 'added' as const,
+        product_name: rp.product_name,
+        routine_name: rp.routines?.name ?? 'morning',
+      }));
 
       // 날짜 범위를 합쳐 timeline 생성
       const dateMap = new Map<string, TimelinePoint>();
@@ -102,15 +102,16 @@ const SkinTimeline = () => {
       const sorted = Array.from(dateMap.values()).sort((a, b) => a.date.localeCompare(b.date));
       setPoints(sorted);
 
-      // 간단 인사이트 계산
+      // 간단 인사이트 계산 — "최근 5회 기록 평균"으로 카피와 로직을 일치시킨다.
       if (entries.length >= 3) {
         const scores = entries.map(e => e.skin_score);
         const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
-        const recentAvg = scores.slice(-5).reduce((a, b) => a + b, 0) / Math.min(5, scores.length);
+        const recentSlice = scores.slice(-5);
+        const recentAvg = recentSlice.reduce((a, b) => a + b, 0) / recentSlice.length;
         if (recentAvg > avg + 0.3) {
-          setInsight(`최근 5일 평균 ${recentAvg.toFixed(1)}점으로 전체 평균(${avg.toFixed(1)}점)보다 좋아지고 있어요.`);
+          setInsight(`최근 기록 ${recentSlice.length}회 평균 ${recentAvg.toFixed(1)}점으로 전체 평균(${avg.toFixed(1)}점)보다 좋아지고 있어요.`);
         } else if (recentAvg < avg - 0.3) {
-          setInsight(`최근 5일 평균 ${recentAvg.toFixed(1)}점으로 전체 평균(${avg.toFixed(1)}점)보다 낮아지고 있어요. 루틴을 점검해보세요.`);
+          setInsight(`최근 기록 ${recentSlice.length}회 평균 ${recentAvg.toFixed(1)}점으로 전체 평균(${avg.toFixed(1)}점)보다 낮아지고 있어요. 루틴을 점검해보세요.`);
         } else {
           setInsight(`피부 상태가 평균 ${avg.toFixed(1)}점으로 안정적으로 유지되고 있어요.`);
         }

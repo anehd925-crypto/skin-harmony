@@ -122,9 +122,19 @@ const NotificationSettingsCard = () => {
 
   const togglePref = async (key: keyof NotifyPrefs) => {
     if (!user) return;
+    const prev = prefs;
     const next = { ...prefs, [key]: !prefs[key] };
     setPrefs(next);
-    await supabase.from('profiles').update({ [key]: next[key] }).eq('user_id', user.id);
+    const { error } = await supabase.from('profiles').update({ [key]: next[key] }).eq('user_id', user.id);
+    if (error) {
+      // 서버 저장 실패 시 UI 상태를 원복하고 사용자에게 알린다.
+      setPrefs(prev);
+      toast({
+        title: '설정 저장 실패',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
   };
 
   if (!user || loading) return null;

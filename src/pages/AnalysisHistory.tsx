@@ -94,9 +94,11 @@ const History = () => {
   const { data: history = [], isLoading: historyLoading } = useQuery({
     queryKey: ['analysis_history', user?.id],
     queryFn: async () => {
+      // RLS에 전적으로 의존하지 않고 클라이언트에서도 user_id를 명시한다.
       const { data } = await supabase
         .from('analysis_history')
         .select('*')
+        .eq('user_id', user!.id)
         .order('created_at', { ascending: false });
       return (data ?? []) as HistoryItem[];
     },
@@ -163,11 +165,19 @@ const History = () => {
 
   const deleteHistory = useMutation({
     mutationFn: async (id: string) => {
-      await supabase.from('analysis_history').delete().eq('id', id);
+      const { error } = await supabase.from('analysis_history').delete().eq('id', id);
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['analysis_history'] });
       toast({ title: '삭제됐습니다.' });
+    },
+    onError: (err) => {
+      toast({
+        title: '삭제 실패',
+        description: err instanceof Error ? err.message : '잠시 후 다시 시도해주세요.',
+        variant: 'destructive',
+      });
     },
   });
 

@@ -241,7 +241,7 @@ const Home = () => {
               onClick={() => navigate('/scan')}
               className="rounded-xl gradient-primary px-4 py-2.5 text-xs font-bold text-white shadow-primary press"
             >
-              첫 번째 성분 분析하기
+              첫 번째 성분 분석하기
             </button>
           </div>
         )}

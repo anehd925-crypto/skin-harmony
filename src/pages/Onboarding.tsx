@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sparkles, ChevronRight, ChevronLeft } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const TOTAL_STEPS = 7;
 
@@ -26,13 +27,31 @@ const Onboarding = () => {
     completeOnboarding,
   } = useUser();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [submitting, setSubmitting] = useState(false);
 
   const handleComplete = async () => {
-    if (allergyInput.trim()) {
-      setAllergies(allergyInput.split(',').map(s => s.trim()).filter(Boolean));
+    if (submitting) return;
+    setSubmitting(true);
+    const finalAllergies = allergyInput.trim()
+      ? allergyInput.split(',').map(s => s.trim()).filter(Boolean)
+      : profile.allergies;
+    // UI 상태도 동기화
+    setAllergies(finalAllergies);
+
+    try {
+      // 최종 payload에 알레르기를 명시적으로 합성해 setState race를 회피한다.
+      await completeOnboarding({ allergies: finalAllergies });
+      navigate('/');
+    } catch (err) {
+      toast({
+        title: '프로필 저장 실패',
+        description: err instanceof Error ? err.message : '잠시 후 다시 시도해주세요.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSubmitting(false);
     }
-    await completeOnboarding();
-    navigate('/');
   };
 
   // 고민 우선순위: 선택 순서가 곧 우선순위
@@ -260,9 +279,10 @@ const Onboarding = () => {
             <p className="text-xs text-muted-foreground">{step + 1} / {TOTAL_STEPS}</p>
             <button
               onClick={handleComplete}
-              className="text-xs text-muted-foreground underline underline-offset-2 hover:text-primary"
+              disabled={submitting}
+              className="text-xs text-muted-foreground underline underline-offset-2 hover:text-primary disabled:opacity-40"
             >
-              건너뛰기
+              {submitting ? '저장 중...' : '건너뛰기'}
             </button>
           </div>
         </div>
@@ -280,8 +300,12 @@ const Onboarding = () => {
               다음<ChevronRight className="ml-1 h-4 w-4" />
             </Button>
           ) : (
-            <Button onClick={handleComplete} className="flex-1 rounded-xl gradient-primary text-primary-foreground">
-              시작하기 ✨
+            <Button
+              onClick={handleComplete}
+              disabled={submitting}
+              className="flex-1 rounded-xl gradient-primary text-primary-foreground"
+            >
+              {submitting ? '저장 중...' : '시작하기 ✨'}
             </Button>
           )}
         </div>

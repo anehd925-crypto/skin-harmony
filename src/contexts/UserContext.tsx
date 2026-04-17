@@ -90,7 +90,7 @@ interface UserContextType {
   setConcernPriority: (list: SkinConcern[]) => void;
   setNickname: (n: string) => void;
   setSpecialCondition: (v: SpecialCondition) => void;
-  completeOnboarding: () => Promise<void>;
+  completeOnboarding: (overrides?: Partial<UserProfile>) => Promise<void>;
   saveProfile: () => Promise<void>;
 }
 
@@ -124,15 +124,25 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
+    // 계정 전환 race 방어: 응답이 늦게 도착했을 때 과거 user의 결과로 덮어쓰지 않도록
+    let cancelled = false;
+    const currentUserId = user.id;
+
     const loadProfile = async () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', currentUserId)
         .maybeSingle();
 
+      if (cancelled || currentUserId !== user.id) return;
+
       if (error) {
-        console.error('프로필 로드 오류:', error);
+        // 프로필 로드 실패 시 기본값으로 온보딩 강제 이동 방지를 위해
+        // onboardingComplete는 보수적으로 true 처리(기존 사용자로 간주).
+        // 실제 프로필은 설정 페이지에서 수동 보정 가능하며, 다음 진입 시 재시도됨.
+        console.error('[UserContext] profile load error:', error.message);
+        setProfile(prev => ({ ...prev, onboardingComplete: true }));
         setLoading(false);
         return;
       }
@@ -158,6 +168,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     loadProfile();
+    return () => { cancelled = true; };
   }, [user]);
 
   const setSkinType = (type: SkinType) => setProfile(p => ({ ...p, skinType: type }));
@@ -231,11 +242,18 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (err) throw new Error(err.message);
   }, [user, profile]);
 
-  const completeOnboarding = async () => {
-    const next = { ...profile, onboardingComplete: true };
+  const completeOnboarding = async (overrides?: Partial<UserProfile>) => {
+    // 호출 시점의 최신 입력(알레르기 등 setState 반영 전 값)을 명시적으로 합성해
+    // 클로저가 참조하는 이전 스냅샷과의 race를 방지한다.
+    const next = { ...profile, ...(overrides ?? {}), onboardingComplete: true };
     setProfile(next);
     if (!user) return;
-    await upsertProfile(buildDbPayload(next), user.id);
+    const err = await upsertProfile(buildDbPayload(next), user.id);
+    if (err) {
+      // 저장 실패 시 로컬 상태도 롤백해 Index가 홈으로 강제 이동하지 않도록 한다.
+      setProfile(prev => ({ ...prev, onboardingComplete: false }));
+      throw new Error(err.message);
+    }
   };
 
   return (

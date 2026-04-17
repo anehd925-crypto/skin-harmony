@@ -27,6 +27,7 @@ export const EVENT = {
 
   // 미션
   MISSION_COMPLETED: 'mission_completed',
+  MISSION_CTA_CLICKED: 'mission_cta_clicked',
 
   // 알림
   PUSH_SUBSCRIBED: 'push_subscribed',

@@ -258,7 +258,7 @@ const Routine = () => {
       analysis_history_id: item.id,
       product_name: item.product_name || '이름 없음',
       product_brand: item.product_brand || '',
-      ingredients_snapshot: item.ingredients_text.slice(0, 500),
+      ingredients_snapshot: (item.ingredients_text ?? '').slice(0, 500),
     });
 
     if (error) {

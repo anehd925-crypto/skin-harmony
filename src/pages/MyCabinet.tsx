@@ -285,7 +285,10 @@ const MyCabinet = () => {
         body: { products },
       });
       if (error || !data) return;
-      const conflicts = (data.conflicts ?? []).map((c: { description: string }) => c.description);
+      // Edge Function(`check-routine-conflicts`)은 `reason` 필드를 반환한다.
+      const conflicts = (data.conflicts ?? [])
+        .map((c: { reason?: string; description?: string }) => c.reason ?? c.description ?? '')
+        .filter((s: string) => s.trim().length > 0);
       if (conflicts.length > 0 || (data.compatibilityScore && data.compatibilityScore < 60)) {
         setConflictAlert({
           conflicts: conflicts.slice(0, 3),
@@ -315,11 +318,20 @@ const MyCabinet = () => {
       updated_at: new Date().toISOString(),
     };
 
-    if (editId) {
-      await supabase.from('my_cabinet' as never).update(payload as never).eq('id', editId);
-    } else {
-      await supabase.from('my_cabinet' as never).insert(payload as never);
+    const { error: saveErr } = editId
+      ? await supabase.from('my_cabinet' as never).update(payload as never).eq('id', editId)
+      : await supabase.from('my_cabinet' as never).insert(payload as never);
+
+    if (saveErr) {
+      console.error('[MyCabinet] save failed:', saveErr.message);
+      toast({
+        title: '저장에 실패했어요',
+        description: saveErr.message,
+        variant: 'destructive',
+      });
+      return;
     }
+
     setShowModal(false);
     await loadCabinet();
     toast({ title: editId ? '수정했어요' : '보관함에 추가했어요' });

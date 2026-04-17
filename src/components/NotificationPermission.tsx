@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Bell, BellOff, X } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
 
@@ -14,6 +15,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 
 const NotificationPermission = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -42,11 +44,20 @@ const NotificationPermission = () => {
   const handleEnable = async () => {
     if (!user) return;
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      alert('이 브라우저는 푸시 알림을 지원하지 않습니다.');
+      toast({
+        title: '알림을 켤 수 없어요',
+        description: '이 브라우저는 푸시 알림을 지원하지 않습니다.',
+        variant: 'destructive',
+      });
       return;
     }
     if (!VAPID_PUBLIC_KEY) {
-      console.error('VAPID 공개키가 설정되지 않았습니다.');
+      console.error('[NotificationPermission] VAPID 공개키가 설정되지 않았습니다.');
+      toast({
+        title: '알림을 켤 수 없어요',
+        description: '서버 설정이 완료되지 않았습니다. 잠시 후 다시 시도해주세요.',
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -76,8 +87,14 @@ const NotificationPermission = () => {
 
       if (error) throw error;
       setSubscribed(true);
+      toast({ title: '알림을 켰어요', description: '루틴·리포트 알림을 받을 수 있어요.' });
     } catch (e) {
       console.error('푸시 구독 실패:', e);
+      toast({
+        title: '알림 등록 실패',
+        description: e instanceof Error ? e.message : '잠시 후 다시 시도해주세요.',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
