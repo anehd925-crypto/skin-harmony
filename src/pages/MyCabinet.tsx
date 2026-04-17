@@ -7,6 +7,7 @@ import {
   ChevronLeft, Plus, Trash2, Sun, Moon, Pencil,
   Package, X, Check, ChevronDown, ChevronUp,
   FlaskConical, Layers, Search, Sparkles, Info, Star,
+  Link as LinkIcon, Loader2,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { track, EVENT } from '@/lib/analytics';
@@ -24,6 +25,8 @@ interface CabinetItem {
   analysis_history_id: string | null;
   my_rating: number | null;
   my_review: string | null;
+  image_url: string | null;
+  product_url: string | null;
 }
 
 interface ProductSuggestion {
@@ -104,6 +107,8 @@ const EMPTY_FORM = {
   is_morning: true,
   is_evening: true,
   notes: '',
+  product_url: '',
+  image_url: '',
 };
 
 type FilterTab = 'all' | 'morning' | 'evening';
@@ -142,6 +147,51 @@ const MyCabinet = () => {
   const [ratingEditId, setRatingEditId] = useState<string | null>(null);
   const [tempRating, setTempRating] = useState(0);
   const [tempReview, setTempReview] = useState('');
+
+  // URL 자동 스크랩
+  const [scraping, setScraping] = useState(false);
+
+  const handleScrapeUrl = async () => {
+    const url = form.product_url.trim();
+    if (!url) {
+      toast({ title: '제품 URL을 먼저 입력해주세요', variant: 'destructive' });
+      return;
+    }
+    setScraping(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-product', {
+        body: { url },
+      });
+      if (error || !data) {
+        toast({
+          title: '스크랩 실패',
+          description: data?.error ?? error?.message ?? '해당 URL에서 정보를 가져오지 못했어요',
+          variant: 'destructive',
+        });
+        return;
+      }
+      setForm(f => ({
+        ...f,
+        product_name: data.productName ? data.productName : f.product_name,
+        product_brand: data.productBrand ? data.productBrand : f.product_brand,
+        image_url: data.imageUrl ? data.imageUrl : f.image_url,
+        product_url: data.productUrl || f.product_url,
+      }));
+      if (data.imageUrl || data.productName) {
+        toast({ title: '상품 정보를 불러왔어요' });
+      } else {
+        toast({ title: '정보를 충분히 가져오지 못했어요', description: '이름/이미지를 직접 확인해주세요' });
+      }
+    } catch (err) {
+      toast({
+        title: '스크랩 실패',
+        description: err instanceof Error ? err.message : '네트워크 오류',
+        variant: 'destructive',
+      });
+    } finally {
+      setScraping(false);
+    }
+  };
 
   // ─── 데이터 로드 ─────────────────────────────────────────────────────────────
   const loadCabinet = useCallback(async () => {
@@ -232,6 +282,8 @@ const MyCabinet = () => {
       is_morning: item.is_morning,
       is_evening: item.is_evening,
       notes: item.notes ?? '',
+      product_url: item.product_url ?? '',
+      image_url: item.image_url ?? '',
     });
     setSearchQuery('');
     setSuggestions([]);
@@ -315,6 +367,8 @@ const MyCabinet = () => {
       opened_at: null,
       pao_months: null,
       notes: form.notes.trim() || null,
+      image_url: form.image_url.trim() || null,
+      product_url: form.product_url.trim() || null,
       updated_at: new Date().toISOString(),
     };
 
@@ -625,10 +679,26 @@ const MyCabinet = () => {
                     onClick={() => setExpandedId(isExpanded ? null : item.id)}
                     className="flex w-full items-center gap-3 px-4 py-3.5 text-left"
                   >
-                    {/* 카테고리 아이콘 */}
-                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg ${catInfo.color}`}>
-                      {catInfo.emoji}
-                    </div>
+                    {/* 제품 이미지 (있으면) 또는 카테고리 아이콘 */}
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.product_name}
+                        onError={e => {
+                          const img = e.target as HTMLImageElement;
+                          img.style.display = 'none';
+                          img.parentElement?.classList.add(catInfo.color);
+                          if (img.parentElement && !img.parentElement.textContent?.trim()) {
+                            img.parentElement.textContent = catInfo.emoji;
+                          }
+                        }}
+                        className={`h-10 w-10 shrink-0 rounded-xl object-cover border border-border bg-white`}
+                      />
+                    ) : (
+                      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg ${catInfo.color}`}>
+                        {catInfo.emoji}
+                      </div>
+                    )}
 
                     {/* 텍스트 */}
                     <div className="flex-1 min-w-0">
@@ -761,6 +831,53 @@ const MyCabinet = () => {
             </div>
 
             <div className="px-4 py-5 space-y-6 pb-12">
+
+              {/* ⓪ 제품 URL 자동 스크랩 */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                  <LinkIcon className="h-3.5 w-3.5" /> 제품 URL
+                </label>
+                <p className="text-xs text-muted-foreground">쿠팡·올리브영 등 상품 링크를 붙여넣으면 이미지·이름을 자동으로 가져와요</p>
+                <div className="flex gap-2">
+                  <input
+                    value={form.product_url}
+                    onChange={e => setForm(f => ({ ...f, product_url: e.target.value }))}
+                    placeholder="https://..."
+                    className="flex-1 rounded-xl border border-border bg-neutral-50 px-3 py-2.5 text-xs outline-none focus:border-primary"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleScrapeUrl}
+                    disabled={scraping || !form.product_url.trim()}
+                    className="shrink-0 rounded-xl bg-primary px-3 py-2.5 text-xs font-bold text-primary-foreground disabled:opacity-40 flex items-center gap-1"
+                  >
+                    {scraping ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                    자동 채움
+                  </button>
+                </div>
+                {form.image_url && (
+                  <div className="flex items-center gap-3 rounded-xl border border-border bg-neutral-50 p-2.5">
+                    <img
+                      src={form.image_url}
+                      alt=""
+                      onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                      className="h-14 w-14 rounded-lg object-cover border border-border bg-white"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold text-foreground truncate">{form.product_name || '(이름 없음)'}</p>
+                      <p className="text-xs text-muted-foreground truncate">{form.product_brand || '(브랜드 없음)'}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setForm(f => ({ ...f, image_url: '' }))}
+                      className="shrink-0 rounded-full bg-white border border-border p-1"
+                      title="이미지 제거"
+                    >
+                      <X className="h-3 w-3 text-muted-foreground" />
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* ① 제품 검색 */}
               <div className="space-y-2">

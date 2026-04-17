@@ -367,7 +367,23 @@ const Explore = () => {
                         onClick={() => navigate(`/product/${p.id}`)}
                         className="flex flex-1 items-center gap-3 p-3 text-left min-w-0"
                       >
-                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-accent text-xl">
+                        {p.image_url ? (
+                          <img
+                            src={p.image_url}
+                            alt={p.name}
+                            onError={e => {
+                              const img = e.target as HTMLImageElement;
+                              img.style.display = 'none';
+                              const fallback = img.nextElementSibling as HTMLElement | null;
+                              if (fallback) fallback.style.display = 'flex';
+                            }}
+                            className="h-14 w-14 shrink-0 rounded-xl object-cover border border-border bg-white"
+                          />
+                        ) : null}
+                        <div
+                          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-accent text-xl"
+                          style={p.image_url ? { display: 'none' } : undefined}
+                        >
                           {p.category === 'makeup' ? '💄' : p.category === 'suncare' ? '☀️' : '🧴'}
                         </div>
                         <div className="min-w-0 flex-1">

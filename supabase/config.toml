@@ -8,6 +8,10 @@ verify_jwt = false
 [functions.scrape-oliveyoung]
 verify_jwt = false
 
+# scrape-product: 제품 URL → 이름/이미지 OpenGraph 스크랩, 로그인 불필요
+[functions.scrape-product]
+verify_jwt = false
+
 [functions.check-routine-conflicts]
 verify_jwt = true
 

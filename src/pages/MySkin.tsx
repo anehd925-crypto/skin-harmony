@@ -28,6 +28,7 @@ interface CabinetItem {
   is_morning: boolean;
   is_evening: boolean;
   step_order: number;
+  image_url?: string | null;
 }
 
 const SCORE_EMOJI: Record<number, string> = { 1: '😞', 2: '😐', 3: '🙂', 4: '😊', 5: '😄' };
@@ -282,7 +283,7 @@ const MySkin = () => {
     setCabinetLoading(true);
     const { data } = await supabase
       .from('my_cabinet' as never)
-      .select('id, product_name, product_brand, category, is_morning, is_evening, step_order')
+      .select('id, product_name, product_brand, category, is_morning, is_evening, step_order, image_url')
       .eq('user_id', user.id)
       .order('step_order', { ascending: true });
     setCabinetItems((data as CabinetItem[]) ?? []);
@@ -703,9 +704,18 @@ const MySkin = () => {
                   onClick={() => navigate('/cabinet')}
                   className="flex items-center gap-2 rounded-xl border border-border bg-white p-2.5 text-left"
                 >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-base">
-                    {item.category === 'makeup' ? '💄' : item.category === 'suncare' ? '☀️' : '🧴'}
-                  </div>
+                  {item.image_url ? (
+                    <img
+                      src={item.image_url}
+                      alt={item.product_name}
+                      onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                      className="h-9 w-9 shrink-0 rounded-lg object-cover border border-border bg-white"
+                    />
+                  ) : (
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-base">
+                      {item.category === 'makeup' ? '💄' : item.category === 'suncare' ? '☀️' : '🧴'}
+                    </div>
+                  )}
                   <div className="min-w-0">
                     <p className="truncate text-xs font-semibold text-foreground">{item.product_name}</p>
                     {item.product_brand && (
