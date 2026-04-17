@@ -7,6 +7,8 @@ import { supabase } from '@/integrations/supabase/client';
 import BottomNav from '@/components/BottomNav';
 import WeatherRoutineCard from '@/components/WeatherRoutineCard';
 import RoutineSafetyCard from '@/components/RoutineSafetyCard';
+import DailyMissionCard from '@/components/DailyMissionCard';
+import NotificationPermission from '@/components/NotificationPermission';
 import {
   Camera, ChevronRight, FlaskConical,
   Layers, BookMarked, ShieldAlert, Package, TrendingUp,
@@ -103,6 +105,12 @@ const Home = () => {
       </div>
 
       <div className="space-y-4 px-4 pt-4">
+
+        {/* ── 푸시 알림 유도 배너 (세션당 1회, 이미 구독 시 숨김) ── */}
+        <div className="-mx-4"><NotificationPermission /></div>
+
+        {/* ── 오늘의 미션 (7일 온보딩 시퀀스) ── */}
+        <DailyMissionCard />
 
         {/* ── Hero: 날씨 기반 루틴 추천 ── */}
         <WeatherRoutineCard period={currentPeriod} />

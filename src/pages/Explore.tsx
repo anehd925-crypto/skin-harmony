@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useUser } from '@/contexts/UserContext';
+import { useAuth } from '@/contexts/AuthContext';
 import BottomNav from '@/components/BottomNav';
-import { Search, SlidersHorizontal, Star, Heart, GitCompare, X, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
+import { track, EVENT } from '@/lib/analytics';
+import { Search, SlidersHorizontal, Star, Heart, GitCompare, X, TrendingUp, ChevronDown, ChevronUp, Users as UsersIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 const CATEGORIES = [
@@ -27,6 +29,7 @@ const PAGE_SIZE = 12;
 const Explore = () => {
   const navigate = useNavigate();
   const { profile } = useUser();
+  const { user } = useAuth();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<string>('all');
   const [sort, setSort] = useState<SortKey>('match');
@@ -58,6 +61,28 @@ const Explore = () => {
       const { data } = await supabase.from('products').select('*');
       return data ?? [];
     },
+  });
+
+  // ─── 나와 비슷한 피부 유저의 인기 제품 TOP10 ────────────────────────────────
+  const { data: similarSkinProducts = [] } = useQuery({
+    queryKey: ['similar_skin_products', profile.skinType, user?.id],
+    queryFn: async () => {
+      if (!profile.skinType || !user?.id) return [];
+      const { data } = await supabase.rpc('get_similar_skin_popular_products', {
+        target_skin_type: profile.skinType,
+        target_user_id: user.id,
+        result_limit: 10,
+      });
+      return (data ?? []) as Array<{
+        product_name: string;
+        product_brand: string | null;
+        avg_rating: number;
+        review_count: number;
+        total_cabinet: number;
+      }>;
+    },
+    enabled: !!profile.skinType && !!user?.id,
+    staleTime: 1000 * 60 * 30,
   });
 
   const toggleCompare = (id: string) => {
@@ -215,6 +240,51 @@ const Explore = () => {
             </div>
           )}
         </div>
+
+        {/* 비슷한 피부 유저의 인기 제품 TOP10 */}
+        {profile.skinType && similarSkinProducts.length > 0 && (
+          <div className="rounded-2xl border border-primary/20 bg-primary/5 overflow-hidden">
+            <div className="px-4 py-3 border-b border-primary/15 flex items-center gap-2">
+              <UsersIcon className="h-4 w-4 text-primary" />
+              <p className="text-sm font-bold text-primary">{profile.skinType} 유저가 가장 만족한 제품 TOP {similarSkinProducts.length}</p>
+            </div>
+            <div className="divide-y divide-primary/10">
+              {similarSkinProducts.map((p, idx) => (
+                <button
+                  key={`${p.product_name}-${idx}`}
+                  onClick={() => {
+                    track(EVENT.SIMILAR_SKIN_CLICKED, { product_name: p.product_name, rank: idx + 1 });
+                    const q = encodeURIComponent(p.product_name);
+                    navigate(`/analyze?q=${q}`);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-left"
+                >
+                  <span className={`w-6 shrink-0 text-center text-xs font-black ${idx < 3 ? 'text-primary' : 'text-muted-foreground'}`}>
+                    {idx + 1}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground truncate">{p.product_name}</p>
+                    {p.product_brand && (
+                      <p className="text-xs text-muted-foreground truncate">{p.product_brand}</p>
+                    )}
+                  </div>
+                  <div className="shrink-0 flex items-center gap-2">
+                    <span className="flex items-center gap-0.5 text-xs font-bold text-amber-500">
+                      <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                      {Number(p.avg_rating).toFixed(1)}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">({p.review_count})</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <div className="px-4 py-2 bg-primary/5 border-t border-primary/15">
+              <p className="text-[10px] text-muted-foreground leading-relaxed">
+                같은 피부 타입 유저들이 보관함에 추가하고 직접 남긴 별점 평균이에요. (익명 집계)
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* 카테고리 필터 */}
         <div className="flex gap-2 overflow-x-auto pb-1">

@@ -1,5 +1,6 @@
 import { Home, ScanLine, User, HeartPulse } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { track, EVENT } from '@/lib/analytics';
 
 const navItems = [
   { icon: Home,       label: '홈',    path: '/' },
@@ -34,7 +35,7 @@ const BottomNav = () => {
             return (
               <button
                 key={path}
-                onClick={() => navigate(path)}
+                onClick={() => { track(EVENT.BOTTOM_NAV_CLICKED, { path, label }); navigate(path); }}
                 className={`relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2.5 transition-all duration-150 press ${
                   active ? 'text-primary' : 'text-muted-foreground'
                 }`}

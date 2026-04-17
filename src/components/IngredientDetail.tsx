@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X, Loader2, BookOpen, AlertTriangle, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Loader2, BookOpen, AlertTriangle, Sparkles, ExternalLink, Leaf } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface IngredientInfo {
@@ -12,7 +12,23 @@ interface IngredientInfo {
   ewgGrade: string;
   suitableFor: string;
   avoidFor: string;
+  similar?: Array<{ name: string; reason: string }>;
+  sources?: Array<{ title: string; url: string }>;
 }
+
+// EWG 등급 라벨
+const EWG_LABELS: Record<string, { label: string; color: string }> = {
+  '1': { label: '낮은 위험', color: 'text-green-700' },
+  '2': { label: '낮은 위험', color: 'text-green-700' },
+  '3': { label: '보통 위험', color: 'text-amber-700' },
+  '4': { label: '보통 위험', color: 'text-amber-700' },
+  '5': { label: '중간 위험', color: 'text-amber-700' },
+  '6': { label: '중간 위험', color: 'text-amber-700' },
+  '7': { label: '높은 위험', color: 'text-red-700' },
+  '8': { label: '높은 위험', color: 'text-red-700' },
+  '9': { label: '매우 높은 위험', color: 'text-red-700' },
+  '10': { label: '매우 높은 위험', color: 'text-red-700' },
+};
 
 interface IngredientDetailProps {
   ingredientName: string;
@@ -24,7 +40,8 @@ const IngredientDetail = ({ ingredientName, onClose }: IngredientDetailProps) =>
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  useState(() => {
+  useEffect(() => {
+    let cancelled = false;
     const fetchInfo = async () => {
       try {
         const { data } = await supabase.functions.invoke('product-search', {
@@ -33,19 +50,21 @@ const IngredientDetail = ({ ingredientName, onClose }: IngredientDetailProps) =>
             query: ingredientName,
           },
         });
+        if (cancelled) return;
         if (data?.ingredient) {
           setInfo(data.ingredient as IngredientInfo);
         } else {
           setError(true);
         }
       } catch {
-        setError(true);
+        if (!cancelled) setError(true);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
-    fetchInfo();
-  });
+    void fetchInfo();
+    return () => { cancelled = true; };
+  }, [ingredientName]);
 
   const ewgColor = (grade: string) => {
     const n = parseInt(grade);
@@ -86,11 +105,14 @@ const IngredientDetail = ({ ingredientName, onClose }: IngredientDetailProps) =>
               <div>
                 <h2 className="text-lg font-bold text-foreground">{info.name}</h2>
                 {info.nameEn && <p className="text-xs text-muted-foreground mt-0.5">{info.nameEn}</p>}
-                <div className="flex items-center gap-2 mt-2">
+                <div className="flex flex-wrap items-center gap-2 mt-2">
                   <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">{info.category}</span>
                   {info.ewgGrade && (
                     <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${ewgColor(info.ewgGrade)}`}>
                       EWG {info.ewgGrade}등급
+                      {EWG_LABELS[info.ewgGrade]?.label && (
+                        <span className="ml-1 opacity-80">· {EWG_LABELS[info.ewgGrade].label}</span>
+                      )}
                     </span>
                   )}
                 </div>
@@ -141,6 +163,53 @@ const IngredientDetail = ({ ingredientName, onClose }: IngredientDetailProps) =>
                     <p className="text-xs text-red-500">{info.avoidFor}</p>
                   </div>
                 )}
+              </div>
+
+              {/* 유사 성분군 */}
+              {info.similar && info.similar.length > 0 && (
+                <div className="rounded-xl border border-border bg-card p-3">
+                  <p className="text-xs font-bold text-foreground mb-2 flex items-center gap-1">
+                    <Leaf className="h-3 w-3 text-emerald-600" /> 비슷한 역할의 성분
+                  </p>
+                  <ul className="space-y-1.5">
+                    {info.similar.slice(0, 4).map((s, i) => (
+                      <li key={i} className="text-xs text-foreground">
+                        <span className="font-semibold">{s.name}</span>
+                        <span className="text-muted-foreground"> — {s.reason}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* 출처 및 참고 링크 */}
+              <div className="rounded-xl border border-border bg-neutral-50 p-3">
+                <p className="text-xs font-bold text-muted-foreground mb-2">참고 자료</p>
+                <div className="space-y-1.5">
+                  {info.sources?.slice(0, 3).map((s, i) => (
+                    <a key={i} href={s.url} target="_blank" rel="noreferrer"
+                      className="flex items-center gap-1.5 text-xs text-primary hover:underline">
+                      <ExternalLink className="h-3 w-3" />{s.title}
+                    </a>
+                  ))}
+                  {/* EWG 공식 DB 기본 링크 */}
+                  <a
+                    href={`https://www.ewg.org/skindeep/search/?search=${encodeURIComponent(info.nameEn || info.name)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                  >
+                    <ExternalLink className="h-3 w-3" />EWG Skin Deep에서 보기
+                  </a>
+                  <a
+                    href={`https://www.hwahae.co.kr/search?q=${encodeURIComponent(info.name)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                  >
+                    <ExternalLink className="h-3 w-3" />화해에서 보기
+                  </a>
+                </div>
               </div>
             </>
           )}

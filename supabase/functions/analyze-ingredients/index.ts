@@ -84,6 +84,27 @@ Deno.serve(async (req) => {
 
     result.groundingUsed = false;
 
+    // ─── 신뢰도 점수 계산 ──────────────────────────────────────────────
+    // 입력 특성에 따라 휴리스틱으로 confidence를 산출한다.
+    // - 성분 텍스트 미제공 + 제품명 검색 추정: 40~55
+    // - 성분 텍스트 제공 + AI가 성분 인식: 70~95 (성분 수 기반)
+    const ingredientCount = Array.isArray(result.ingredients) ? result.ingredients.length : 0;
+    const aiConfirmed = result.ingredientsFound === true;
+    let confidence = 50;
+    let confidenceReason = '제품명만으로 추정한 분석 결과입니다';
+    if (!noIngredients) {
+      if (ingredientCount >= 15) { confidence = aiConfirmed ? 92 : 85; confidenceReason = '전성분 기반 고정확도 분석'; }
+      else if (ingredientCount >= 8) { confidence = aiConfirmed ? 82 : 75; confidenceReason = '전성분 기반 표준 분석'; }
+      else if (ingredientCount >= 3) { confidence = aiConfirmed ? 70 : 62; confidenceReason = '부분 성분 기반 분석 (전성분 확인 권장)'; }
+      else { confidence = 55; confidenceReason = '성분 수가 적어 정확도가 제한적입니다'; }
+    } else {
+      confidence = aiConfirmed ? 55 : 42;
+      confidenceReason = aiConfirmed ? '제품명 기반 추정 (공식 전성분으로 재확인 권장)' : '전성분 미제공 — 일반화된 추정치';
+    }
+    result.confidence = confidence;
+    result.confidenceReason = confidenceReason;
+    result.ingredientCount = ingredientCount;
+
     return new Response(
       JSON.stringify(result),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

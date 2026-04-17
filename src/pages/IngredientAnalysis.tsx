@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { syncBlacklist, checkBlacklistHits } from '@/utils/blacklist';
+import { track, EVENT } from '@/lib/analytics';
 import { ChevronLeft, Search, FlaskConical, ShieldCheck, AlertTriangle, Loader2, Link2, History, Share2, Check, Zap, Star, Users } from 'lucide-react';
 
 interface AnalyzedIngredient {
@@ -70,6 +71,9 @@ interface AnalysisResult {
   searchSources?: SearchSource[];
   groundingUsed?: boolean;
   ingredientsFound?: boolean;
+  confidence?: number;
+  confidenceReason?: string;
+  ingredientCount?: number;
 }
 
 const AnalysisFeedback = () => {
@@ -247,6 +251,7 @@ BeautyLens로 분석했습니다`;
     setLoading(true);
     setError('');
     setResult(null);
+    track(EVENT.ANALYSIS_STARTED, { has_url: !!urlInput.trim(), has_profile: !!profile.skinType });
 
     // 피부 프로필이 설정된 경우 함께 전송
     const userProfile = profile.skinType ? {
@@ -289,6 +294,11 @@ BeautyLens로 분석했습니다`;
 
       const analysisResult = data as AnalysisResult;
       setResult(analysisResult);
+      track(EVENT.ANALYSIS_COMPLETED, {
+        overall_grade: analysisResult.overallGrade,
+        skin_fit_score: analysisResult.skinFit?.score ?? null,
+        ingredient_count: analysisResult.ingredients?.length ?? 0,
+      });
 
       if (urlInput.trim()) {
         const tags = analysisResult.productTags;
@@ -331,7 +341,9 @@ BeautyLens로 분석했습니다`;
         setBlacklistHits(hits);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : '분석 중 오류가 발생했습니다.');
+      const message = err instanceof Error ? err.message : '분석 중 오류가 발생했습니다.';
+      setError(message);
+      track(EVENT.ANALYSIS_FAILED, { message });
     } finally {
       setLoading(false);
     }
@@ -619,6 +631,36 @@ BeautyLens로 분석했습니다`;
                 <span className="text-warning font-medium">주의 {cautionCount}</span>
                 <span className="text-danger font-medium">위험 {dangerCount}</span>
               </div>
+
+              {/* 신뢰도 지표 — 분석 근거의 투명성 */}
+              {typeof result.confidence === 'number' && (
+                <div className="mt-3 rounded-lg bg-white/80 border border-border/60 p-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">분석 신뢰도</span>
+                      <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-black ${
+                        result.confidence >= 80 ? 'bg-emerald-100 text-emerald-700' :
+                        result.confidence >= 60 ? 'bg-amber-100 text-amber-700' :
+                        'bg-neutral-100 text-neutral-600'
+                      }`}>
+                        {result.confidence}%
+                      </span>
+                    </div>
+                    {typeof result.ingredientCount === 'number' && result.ingredientCount > 0 && (
+                      <span className="text-[10px] text-muted-foreground">성분 {result.ingredientCount}개 분석</span>
+                    )}
+                  </div>
+                  <div className="mt-1.5 h-1 rounded-full bg-neutral-100 overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${
+                      result.confidence >= 80 ? 'bg-emerald-500' :
+                      result.confidence >= 60 ? 'bg-amber-500' : 'bg-neutral-400'
+                    }`} style={{ width: `${result.confidence}%` }} />
+                  </div>
+                  {result.confidenceReason && (
+                    <p className="mt-1 text-[10px] text-muted-foreground leading-snug">{result.confidenceReason}</p>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Allergy warning */}

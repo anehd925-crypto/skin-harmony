@@ -41,8 +41,15 @@ Deno.serve(async (req) => {
   "risks": ["주의사항1", "주의사항2"],
   "ewgGrade": "1~10 사이 숫자 (EWG 등급 추정)",
   "suitableFor": "추천 피부 타입 한 줄",
-  "avoidFor": "주의 피부 타입 한 줄 (없으면 빈 문자열)"
+  "avoidFor": "주의 피부 타입 한 줄 (없으면 빈 문자열)",
+  "similar": [
+    { "name": "유사 성분명", "reason": "왜 비슷한지 한 줄" }
+  ]
 }
+규칙:
+- similar: 동일한 기능/역할을 하는 대체 성분 3~4개.
+  예: 히알루론산 → 나트륨히알루로네이트, 글리세린, 베타인.
+- 한국 화장품에서 흔하게 쓰이는 성분 위주로.
 JSON만 반환하세요.`;
 
       const response = await fetch(GROQ_URL, {
@@ -55,7 +62,7 @@ JSON만 반환하세요.`;
             { role: 'user', content: ingredientPrompt },
           ],
           temperature: 0.2,
-          max_tokens: 600,
+          max_tokens: 900,
           response_format: { type: 'json_object' },
         }),
       });

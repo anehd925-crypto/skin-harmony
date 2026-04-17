@@ -9,6 +9,7 @@ import {
   FlaskConical, Layers, Search, Sparkles, Info, Star,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { track, EVENT } from '@/lib/analytics';
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
 interface CabinetItem {
@@ -291,6 +292,7 @@ const MyCabinet = () => {
           score: data.compatibilityScore ?? 0,
           label: data.scoreLabel ?? '확인 필요',
         });
+        track(EVENT.CABINET_CONFLICT_SHOWN, { score: data.compatibilityScore, count: conflicts.length });
       }
     } catch { /* 충돌 검사 실패해도 저장은 완료됨 */ }
   };
@@ -323,6 +325,7 @@ const MyCabinet = () => {
     toast({ title: editId ? '수정했어요' : '보관함에 추가했어요' });
 
     if (!editId) {
+      track(EVENT.CABINET_ADDED, { brand: form.product_brand, category: form.category });
       checkConflictsAfterSave(form.product_name.trim(), form.is_morning, form.is_evening);
     }
   };
@@ -340,6 +343,7 @@ const MyCabinet = () => {
     } as never).eq('id', id);
     setItems(prev => prev.map(i => i.id === id ? { ...i, my_rating: tempRating || null, my_review: tempReview.trim() || null } : i));
     setRatingEditId(null);
+    track(EVENT.CABINET_RATED, { rating: tempRating, has_review: !!tempReview.trim() });
     toast({ title: '평가를 저장했어요' });
   };
 

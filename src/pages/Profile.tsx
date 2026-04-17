@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '@/components/BottomNav';
 import FeedbackModal from '@/components/FeedbackModal';
+import NotificationSettingsCard from '@/components/NotificationSettingsCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Check, LogOut, ChevronDown, ChevronUp, Users, MessageSquare, Star, Package } from 'lucide-react';
@@ -182,6 +183,9 @@ const Profile = () => {
             <p className="text-xs text-muted-foreground mt-0.5">보관함에서 제품을 평가하면 TOP5에 표시돼요</p>
           </button>
         )}
+
+        {/* 알림 설정 */}
+        <NotificationSettingsCard />
 
         {/* 피부 진단 테스트 */}
         <button
