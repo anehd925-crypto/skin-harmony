@@ -9,10 +9,12 @@ import WeatherRoutineCard from '@/components/WeatherRoutineCard';
 import RoutineSafetyCard from '@/components/RoutineSafetyCard';
 import DailyMissionCard from '@/components/DailyMissionCard';
 import NotificationPermission from '@/components/NotificationPermission';
+import ChatFab from '@/components/ChatFab';
+import OliveYoungDealsCard from '@/components/OliveYoungDealsCard';
 import {
   Camera, ChevronRight, FlaskConical,
   BookMarked, ShieldAlert, TrendingUp,
-  Grid3X3, X, Pill, Dna, MessageCircle, type LucideIcon,
+  Grid3X3, X, Pill, Dna, type LucideIcon,
 } from 'lucide-react';
 
 /* ─── 더보기 메뉴 항목 ─── */
@@ -44,7 +46,6 @@ const Home = () => {
   const navigate = useNavigate();
 
   const currentPeriod: 'morning' | 'evening' = new Date().getHours() < 14 ? 'morning' : 'evening';
-  const greetingPeriod = new Date().getHours() < 12 ? '좋은 아침' : new Date().getHours() < 18 ? '안녕하세요' : '좋은 저녁';
 
   const [showMore, setShowMore] = useState(false);
 
@@ -89,67 +90,33 @@ const Home = () => {
       {/* ── 헤더 ── */}
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-bold text-foreground">BeautyLens</h1>
+          <h1 className="text-lg font-bold text-foreground">BeautyLens</h1>
+          <div className="flex items-center gap-2">
+            {/* 할인 알림: 종 아이콘 토글 (구독 시 보라, 미구독 시 빨간 점) */}
+            <NotificationPermission variant="icon" />
+            <button
+              onClick={() => navigate('/profile')}
+              aria-label="프로필"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 text-foreground text-xs font-bold ring-1 ring-border"
+            >
+              {displayName.slice(0, 1).toUpperCase() || 'B'}
+            </button>
           </div>
-          <button
-            onClick={() => navigate('/profile')}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 text-foreground text-xs font-bold ring-1 ring-border"
-          >
-            {displayName.slice(0, 1).toUpperCase() || 'B'}
-          </button>
         </div>
       </div>
 
       <div className="space-y-4 px-4 pt-4">
 
-        {/* ── 푸시 알림 유도 배너 (세션당 1회, 이미 구독 시 숨김) ── */}
-        <div className="-mx-4"><NotificationPermission /></div>
-
-        {/* ── 오늘의 미션 (7일 온보딩 시퀀스) ── */}
+        {/* ── 오늘의 미션 ── */}
         <DailyMissionCard />
-
-        {/* ── AI 피부 비서 진입 카드 ── */}
-        <button
-          onClick={() => navigate('/chat')}
-          className="flex w-full items-center gap-3 rounded-2xl border border-primary/25 bg-primary/5 px-4 py-3.5 text-left press"
-        >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15">
-            <MessageCircle className="h-5 w-5 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-foreground">AI 피부 비서에게 물어보기</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              내 프로필·분석 이력 기반 맞춤 대화
-            </p>
-          </div>
-          <ChevronRight className="h-4 w-4 text-primary/50 shrink-0" />
-        </button>
 
         {/* ── Hero: 날씨 기반 루틴 추천 ── */}
         <WeatherRoutineCard period={currentPeriod} />
 
-        {/* ── Primary CTA: 성분 스캔 ── */}
-        <button
-          onClick={() => navigate('/scan')}
-          className="flex w-full items-center gap-4 rounded-2xl gradient-primary px-4 py-4 text-left shadow-primary press"
-        >
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15">
-            <Camera className="h-5 w-5 text-white" />
-          </div>
-          <div className="flex-1">
-            <p className="text-base font-bold text-white">성분 스캔</p>
-            <p className="text-xs text-white/60 mt-0.5">URL · 카메라 · 직접입력으로 즉시 분석</p>
-          </div>
-          <ChevronRight className="h-4 w-4 text-white/50 shrink-0" />
-        </button>
-
         {/* ── Today's Insights: 루틴 안전도 + 오늘 일기 ── */}
         <div className="grid grid-cols-2 gap-3">
-          {/* 루틴 안전도 — 미니 카드 */}
           <RoutineSafetyCard compact />
 
-          {/* 오늘 피부 일기 — 미니 카드 */}
           <button
             onClick={() => navigate('/diary')}
             className="flex flex-col justify-between rounded-2xl border border-border bg-card p-4 shadow-card press text-left min-h-[100px]"
@@ -176,14 +143,8 @@ const Home = () => {
           </button>
         </div>
 
-        {/* ── 더보기 버튼 → 바텀시트 ── */}
-        <button
-          onClick={() => setShowMore(true)}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-white py-3.5 text-sm font-semibold text-muted-foreground press"
-        >
-          <Grid3X3 className="h-4 w-4" />
-          모든 기능 보기
-        </button>
+        {/* ── 올리브영 행사·쿠폰 (외부 링크) ── */}
+        <OliveYoungDealsCard />
 
         {/* ── 최근 분석 피드 ── */}
         {user && (analysisLoading || recentAnalysis.length > 0) && (
@@ -249,28 +210,29 @@ const Home = () => {
             </div>
             <p className="text-sm font-bold text-foreground mb-1">아직 분석 기록이 없어요</p>
             <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
-              화장품 성분을 스캔하면<br />내 피부에 맞는지 바로 확인할 수 있어요
+              하단 <span className="font-semibold text-primary">스캔</span> 탭에서 화장품 성분을 분석해보세요
             </p>
-            <button
-              onClick={() => navigate('/scan')}
-              className="rounded-xl gradient-primary px-4 py-2.5 text-xs font-bold text-white shadow-primary press"
-            >
-              첫 번째 성분 분석하기
-            </button>
           </div>
         )}
+
+        {/* ── 더보기 (작게, 맨 아래로 이동) ── */}
+        <button
+          onClick={() => setShowMore(true)}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-white py-3 text-xs font-semibold text-muted-foreground press"
+        >
+          <Grid3X3 className="h-3.5 w-3.5" />
+          모든 기능 보기
+        </button>
 
       </div>
 
       {/* ── 더보기 바텀시트 ── */}
       {showMore && (
         <div className="fixed inset-0 z-50 flex items-end">
-          {/* 딤 배경 */}
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setShowMore(false)}
           />
-          {/* 시트 */}
           <div className="relative w-full rounded-t-3xl bg-white px-4 pt-5 pb-10 safe-bottom animate-in slide-in-from-bottom duration-300">
             <div className="flex items-center justify-between mb-5">
               <h3 className="text-base font-black text-foreground">모든 기능</h3>
@@ -301,6 +263,9 @@ const Home = () => {
           </div>
         </div>
       )}
+
+      {/* ── AI 채팅 플로팅 버튼 + 시트 ── */}
+      <ChatFab />
 
       <BottomNav />
     </div>

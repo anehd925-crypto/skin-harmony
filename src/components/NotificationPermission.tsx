@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { Bell, BellOff, X } from 'lucide-react';
+import { Bell, BellOff, X, BellRing, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
@@ -13,7 +13,15 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
 }
 
-const NotificationPermission = () => {
+interface Props {
+  /**
+   * banner: 큰 카드 배너 (기본). 미구독·미닫음일 때만 표시.
+   * icon: 헤더용 작은 종 아이콘. 항상 표시되며 토글로 켜기/끄기 동작.
+   */
+  variant?: 'banner' | 'icon';
+}
+
+const NotificationPermission = ({ variant = 'banner' }: Props) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [permission, setPermission] = useState<NotificationPermission>('default');
@@ -131,6 +139,51 @@ const NotificationPermission = () => {
   if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) return null;
   // 로그인 안 한 경우 숨김
   if (!user) return null;
+
+  // ── 아이콘 변형 (헤더 등 작은 영역용) ──
+  if (variant === 'icon') {
+    const isOn = subscribed && permission === 'granted';
+    const isBlocked = permission === 'denied';
+    const handleClick = () => {
+      if (isBlocked) {
+        toast({
+          title: '브라우저 설정에서 알림을 허용해주세요',
+          description: '주소창 좌측 자물쇠 → 사이트 설정 → 알림에서 변경할 수 있습니다.',
+        });
+        return;
+      }
+      if (isOn) handleDisable();
+      else handleEnable();
+    };
+    return (
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={loading}
+        title={isOn ? '할인 알림 켜짐' : '할인 알림 켜기'}
+        aria-label={isOn ? '할인 알림 끄기' : '할인 알림 켜기'}
+        className={`relative flex h-8 w-8 items-center justify-center rounded-full ring-1 transition-colors ${
+          isOn ? 'bg-primary/10 ring-primary/30 text-primary' : 'bg-neutral-100 ring-border text-foreground'
+        } disabled:opacity-50`}
+      >
+        {loading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : isBlocked ? (
+          <BellOff className="h-4 w-4" />
+        ) : isOn ? (
+          <BellRing className="h-4 w-4" />
+        ) : (
+          <>
+            <Bell className="h-4 w-4" />
+            {/* 미구독 시 빨간 점으로 액션 유도 */}
+            <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
+          </>
+        )}
+      </button>
+    );
+  }
+
+  // ── 배너 변형 ──
   // 닫기 눌렀으면 숨김
   if (dismissed) return null;
   // 이미 구독 중이면 숨김
