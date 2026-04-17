@@ -49,13 +49,15 @@ Deno.serve(async (req) => {
       analysisHistory = [],
       cabinetItems = [],
       userProfile = {},
-      period = 'weekly', // 'weekly' | 'monthly'
+      period = 'weekly',
+      mode = 'coach',
     }: {
       diaryEntries: DiaryEntry[];
       analysisHistory: AnalysisEntry[];
       cabinetItems: CabinetItem[];
       userProfile: UserProfile;
       period: string;
+      mode: string;
     } = await req.json();
 
     // 데이터가 너무 적으면 짧은 답변 반환
@@ -104,6 +106,83 @@ Deno.serve(async (req) => {
     const cabinetContext = cabinetItems.length > 0
       ? `보관함 제품 (${cabinetItems.length}개): ${cabinetItems.map(c => c.product_name).join(', ')}`
       : '보관함 비어있음';
+
+    // ── shopping 모드: 추가 구매 추천 ──
+    if (mode === 'shopping') {
+      const shoppingPrompt = `당신은 한국 화장품 큐레이터 AI입니다.
+
+사용자 프로필:
+${profileStr}
+
+${cabinetContext}
+
+${diaryContext}
+
+사용자가 현재 보유한 제품들을 분석하고, 피부 고민과 환경에 맞춰 추가로 구매하면 좋을 제품을 추천해주세요.
+
+다음 JSON을 정확히 반환하세요:
+{
+  "summary": "현재 보관함 분석 요약 (2문장)",
+  "missingSteps": [
+    {
+      "step": "부족한 단계명 (예: 세럼, 아이크림)",
+      "reason": "왜 필요한지 1문장",
+      "recommendations": [
+        { "name": "구체적 제품명", "brand": "브랜드", "reason": "추천 이유 1문장", "priceRange": "가격대 (예: 2~3만원)" }
+      ]
+    }
+  ],
+  "upgradeAdvice": [
+    {
+      "currentProduct": "현재 사용 중인 제품명",
+      "suggestion": "업그레이드 제안 (1문장)",
+      "alternatives": [
+        { "name": "대안 제품명", "brand": "브랜드", "reason": "이유 1문장" }
+      ]
+    }
+  ],
+  "seasonalPick": {
+    "title": "계절/환경 추천 (10자 이내)",
+    "products": [
+      { "name": "제품명", "brand": "브랜드", "reason": "이유 1문장" }
+    ]
+  }
+}
+
+JSON만 반환하세요.`;
+
+      const shoppingResp = await fetch(GROQ_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${GROQ_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          messages: [
+            { role: 'system', content: '당신은 한국 화장품 큐레이션 전문가입니다. JSON만 반환합니다.' },
+            { role: 'user', content: shoppingPrompt },
+          ],
+          temperature: 0.4,
+          max_tokens: 1500,
+          response_format: { type: 'json_object' },
+        }),
+      });
+
+      if (!shoppingResp.ok) throw new Error(`Groq error: ${shoppingResp.status}`);
+      const shoppingData = await shoppingResp.json();
+      const shoppingContent = shoppingData.choices?.[0]?.message?.content ?? '{}';
+      let shoppingResult: Record<string, unknown> = {};
+      try { shoppingResult = JSON.parse(shoppingContent); } catch {
+        const m = shoppingContent.match(/\{[\s\S]*\}/);
+        if (m) shoppingResult = JSON.parse(m[0]);
+      }
+
+      return new Response(
+        JSON.stringify(shoppingResult),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
 
     const prompt = `당신은 친절하고 전문적인 한국 피부관리 AI 코치입니다.
 

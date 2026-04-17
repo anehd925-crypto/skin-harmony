@@ -6,7 +6,7 @@ import BottomNav from '@/components/BottomNav';
 import {
   ChevronLeft, Plus, Trash2, Sun, Moon, Pencil,
   Package, X, Check, ChevronDown, ChevronUp,
-  FlaskConical, Layers, Search, Sparkles, Info,
+  FlaskConical, Layers, Search, Sparkles, Info, Star,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -21,6 +21,8 @@ interface CabinetItem {
   is_evening: boolean;
   notes: string | null;
   analysis_history_id: string | null;
+  my_rating: number | null;
+  my_review: string | null;
 }
 
 interface ProductSuggestion {
@@ -134,6 +136,11 @@ const MyCabinet = () => {
 
   // 클렌징 가이드 토글
   const [guideOpenKey, setGuideOpenKey] = useState<string | null>(null);
+
+  // 별점/리뷰 인라인 수정
+  const [ratingEditId, setRatingEditId] = useState<string | null>(null);
+  const [tempRating, setTempRating] = useState(0);
+  const [tempReview, setTempReview] = useState('');
 
   // ─── 데이터 로드 ─────────────────────────────────────────────────────────────
   const loadCabinet = useCallback(async () => {
@@ -257,6 +264,37 @@ const MyCabinet = () => {
     setSuggestions([]);
   };
 
+  // ─── 충돌 알림 ──────────────────────────────────────────────────────────────
+  const [conflictAlert, setConflictAlert] = useState<{ conflicts: string[]; score: number; label: string } | null>(null);
+
+  const checkConflictsAfterSave = async (savedName: string, isMorning: boolean, isEvening: boolean) => {
+    const sameTimeItems = items.filter(i =>
+      (isMorning && i.is_morning) || (isEvening && i.is_evening)
+    ).filter(i => i.product_name !== savedName);
+
+    if (sameTimeItems.length === 0) return;
+
+    const products = [
+      { name: savedName, brand: form.product_brand, ingredients: '' },
+      ...sameTimeItems.slice(0, 4).map(i => ({ name: i.product_name, brand: i.product_brand ?? '', ingredients: '' })),
+    ];
+
+    try {
+      const { data, error } = await supabase.functions.invoke('check-routine-conflicts', {
+        body: { products },
+      });
+      if (error || !data) return;
+      const conflicts = (data.conflicts ?? []).map((c: { description: string }) => c.description);
+      if (conflicts.length > 0 || (data.compatibilityScore && data.compatibilityScore < 60)) {
+        setConflictAlert({
+          conflicts: conflicts.slice(0, 3),
+          score: data.compatibilityScore ?? 0,
+          label: data.scoreLabel ?? '확인 필요',
+        });
+      }
+    } catch { /* 충돌 검사 실패해도 저장은 완료됨 */ }
+  };
+
   // ─── 저장 ────────────────────────────────────────────────────────────────────
   const handleSave = async () => {
     if (!form.product_name.trim() || !user) return;
@@ -283,6 +321,26 @@ const MyCabinet = () => {
     setShowModal(false);
     await loadCabinet();
     toast({ title: editId ? '수정했어요' : '보관함에 추가했어요' });
+
+    if (!editId) {
+      checkConflictsAfterSave(form.product_name.trim(), form.is_morning, form.is_evening);
+    }
+  };
+
+  const openRatingEdit = (item: CabinetItem) => {
+    setRatingEditId(item.id);
+    setTempRating(item.my_rating ?? 0);
+    setTempReview(item.my_review ?? '');
+  };
+
+  const saveRating = async (id: string) => {
+    await supabase.from('my_cabinet' as never).update({
+      my_rating: tempRating || null,
+      my_review: tempReview.trim() || null,
+    } as never).eq('id', id);
+    setItems(prev => prev.map(i => i.id === id ? { ...i, my_rating: tempRating || null, my_review: tempReview.trim() || null } : i));
+    setRatingEditId(null);
+    toast({ title: '평가를 저장했어요' });
   };
 
   const handleDelete = async (id: string) => {
@@ -383,6 +441,35 @@ const MyCabinet = () => {
                 )}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ── 충돌 알림 배너 ── */}
+        {conflictAlert && (
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">⚠️</span>
+                <span className="text-sm font-bold text-red-800">성분 충돌 감지</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+                  conflictAlert.score >= 60 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
+                }`}>{conflictAlert.label} · {conflictAlert.score}점</span>
+                <button onClick={() => setConflictAlert(null)} className="p-1 rounded-full hover:bg-red-100">
+                  <X className="h-3.5 w-3.5 text-red-400" />
+                </button>
+              </div>
+            </div>
+            {conflictAlert.conflicts.map((c, i) => (
+              <p key={i} className="text-xs text-red-700 leading-relaxed pl-7">· {c}</p>
+            ))}
+            <button
+              onClick={() => { setConflictAlert(null); navigate('/routine'); }}
+              className="w-full rounded-xl bg-red-600 py-2 text-xs font-bold text-white mt-1"
+            >
+              루틴 체커에서 자세히 보기
+            </button>
           </div>
         )}
 
@@ -540,8 +627,13 @@ const MyCabinet = () => {
                       )}
                     </div>
 
-                    {/* 시간대 아이콘 + 화살표 */}
+                    {/* 별점 + 시간대 아이콘 + 화살표 */}
                     <div className="flex shrink-0 items-center gap-1.5">
+                      {item.my_rating && (
+                        <span className="flex items-center gap-0.5 text-xs font-bold text-amber-500">
+                          <Star className="h-3 w-3 fill-amber-400 text-amber-400" />{item.my_rating}
+                        </span>
+                      )}
                       {item.is_morning && <Sun className="h-3.5 w-3.5 text-yellow-400" />}
                       {item.is_evening && <Moon className="h-3.5 w-3.5 text-indigo-400" />}
                       {isExpanded
@@ -557,6 +649,51 @@ const MyCabinet = () => {
                       {item.notes && (
                         <p className="text-xs text-muted-foreground leading-relaxed">{item.notes}</p>
                       )}
+
+                      {/* 별점/리뷰 표시 or 편집 */}
+                      {ratingEditId === item.id ? (
+                        <div className="rounded-xl border border-primary/20 bg-white p-3 space-y-2.5">
+                          <div className="flex items-center gap-1">
+                            {[1, 2, 3, 4, 5].map(v => (
+                              <button key={v} type="button" onClick={() => setTempRating(v)}>
+                                <Star className={`h-6 w-6 transition-colors ${v <= tempRating ? 'text-amber-400 fill-amber-400' : 'text-neutral-200'}`} />
+                              </button>
+                            ))}
+                            {tempRating > 0 && <span className="ml-2 text-xs font-bold text-amber-600">{tempRating}점</span>}
+                          </div>
+                          <input
+                            value={tempReview}
+                            onChange={e => setTempReview(e.target.value)}
+                            placeholder="한줄평을 남겨보세요 (선택)"
+                            maxLength={80}
+                            className="w-full rounded-lg border border-border bg-neutral-50 px-3 py-2 text-sm outline-none focus:border-primary"
+                          />
+                          <div className="flex gap-2">
+                            <button onClick={() => setRatingEditId(null)} className="flex-1 rounded-lg border border-border py-2 text-xs font-semibold text-muted-foreground">취소</button>
+                            <button onClick={() => saveRating(item.id)} disabled={tempRating === 0} className="flex-1 rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground disabled:opacity-40">저장</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button type="button" onClick={() => openRatingEdit(item)} className="flex items-center gap-2 rounded-xl border border-border bg-white px-3 py-2.5 w-full text-left">
+                          {item.my_rating ? (
+                            <>
+                              <div className="flex items-center gap-0.5">
+                                {[1, 2, 3, 4, 5].map(v => (
+                                  <Star key={v} className={`h-3.5 w-3.5 ${v <= (item.my_rating ?? 0) ? 'text-amber-400 fill-amber-400' : 'text-neutral-200'}`} />
+                                ))}
+                              </div>
+                              <span className="text-xs text-foreground flex-1 truncate">{item.my_review || '탭하여 한줄평 추가'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Star className="h-3.5 w-3.5 text-neutral-300" />
+                              <span className="text-xs text-muted-foreground">탭하여 별점/한줄평 남기기</span>
+                            </>
+                          )}
+                          <Pencil className="h-3 w-3 text-muted-foreground shrink-0" />
+                        </button>
+                      )}
+
                       <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => openEdit(item)}

@@ -8,7 +8,7 @@ import RoutineSafetyCard from '@/components/RoutineSafetyCard';
 import {
   Sun, Moon, Package, ChevronRight, BookOpen,
   Layers, TrendingUp, Plus, Sparkles, Loader2,
-  TrendingDown, Minus, Brain, RefreshCw, Mic, MicOff,
+  TrendingDown, Minus, Brain, RefreshCw, Mic, MicOff, ShoppingBag,
 } from 'lucide-react';
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
@@ -42,6 +42,102 @@ const TROUBLE_OPTIONS = ['건조', '트러블', '홍조', '번들거림', '각�
 
 const toYYYYMMDD = (d: Date) => d.toISOString().split('T')[0];
 const todayStr = toYYYYMMDD(new Date());
+
+// ── AI 장바구니 추천 서브 컴포넌트 ──
+interface ShoppingAdviceData {
+  summary?: string;
+  missingSteps?: Array<{ step: string; reason: string; recommendations: Array<{ name: string; brand: string; reason: string; priceRange?: string }> }>;
+  upgradeAdvice?: Array<{ currentProduct: string; suggestion: string; alternatives: Array<{ name: string; brand: string; reason: string }> }>;
+  seasonalPick?: { title: string; products: Array<{ name: string; brand: string; reason: string }> };
+}
+
+const ShoppingAdviceCard = ({ cabinetItems }: { cabinetItems: CabinetItem[] }) => {
+  const { user } = useAuth();
+  const { profile } = useUser();
+  const [data, setData] = useState<ShoppingAdviceData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const fetchAdvice = async () => {
+    if (!user || loading) return;
+    setLoading(true);
+    try {
+      const { data: result, error } = await supabase.functions.invoke('skin-coach', {
+        body: {
+          mode: 'shopping',
+          cabinetItems: cabinetItems.map(c => ({ product_name: c.product_name, product_brand: c.product_brand, category: c.category ?? 'skincare', is_morning: c.is_morning, is_evening: c.is_evening })),
+          userProfile: {
+            skinType: profile.skinType, skinConcerns: profile.skinConcerns,
+            skinSensitivity: profile.skinSensitivity, ageGroup: profile.ageGroup,
+            avoidIngredients: profile.avoidIngredients, skinGoals: profile.skinGoals,
+          },
+        },
+      });
+      if (!error && result) setData(result as ShoppingAdviceData);
+    } catch { /* ignore */ }
+    finally { setLoading(false); }
+  };
+
+  const handleOpen = () => {
+    if (!data && !loading) fetchAdvice();
+    setOpen(o => !o);
+  };
+
+  return (
+    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 overflow-hidden">
+      <button onClick={handleOpen} className="flex w-full items-center gap-3 px-4 py-3.5 text-left">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
+          <ShoppingBag className="h-4 w-4 text-emerald-600" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-bold text-emerald-800">AI 추가 구매 추천</p>
+          <p className="text-xs text-emerald-600">보관함 분석 → 부족한 제품 추천</p>
+        </div>
+        {loading ? <Loader2 className="h-4 w-4 text-emerald-400 animate-spin shrink-0" /> :
+         <ChevronRight className={`h-4 w-4 text-emerald-400 shrink-0 transition-transform ${open ? 'rotate-90' : ''}`} />}
+      </button>
+
+      {open && (
+        <div className="border-t border-emerald-200 bg-white px-4 py-3 space-y-3">
+          {loading && <div className="flex justify-center py-4"><Loader2 className="h-6 w-6 animate-spin text-emerald-400" /></div>}
+          {data && (
+            <>
+              {data.summary && <p className="text-xs text-muted-foreground leading-relaxed">{data.summary}</p>}
+
+              {(data.missingSteps ?? []).length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-bold text-foreground">부족한 단계</p>
+                  {data.missingSteps!.map((s, i) => (
+                    <div key={i} className="rounded-xl border border-border bg-neutral-50 p-3">
+                      <p className="text-xs font-bold text-primary">{s.step}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{s.reason}</p>
+                      {s.recommendations.map((r, j) => (
+                        <div key={j} className="mt-2 flex items-center gap-2">
+                          <span className="text-xs font-semibold text-foreground">{r.brand} {r.name}</span>
+                          {r.priceRange && <span className="text-xs text-muted-foreground">{r.priceRange}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {data.seasonalPick && (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3">
+                  <p className="text-xs font-bold text-emerald-800">{data.seasonalPick.title}</p>
+                  {data.seasonalPick.products.map((p, i) => (
+                    <p key={i} className="text-xs text-emerald-700 mt-1">{p.brand} {p.name} — {p.reason}</p>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+          {!loading && !data && <p className="text-xs text-muted-foreground text-center py-3">추천을 불러오지 못했어요</p>}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const MySkin = () => {
   const navigate = useNavigate();
@@ -752,6 +848,11 @@ const MySkin = () => {
             <div className="space-y-2">
               {[1, 2, 3].map(i => <div key={i} className="h-14 rounded-2xl bg-neutral-200 animate-pulse" />)}
             </div>
+          )}
+
+          {/* AI 추가 구매 추천 */}
+          {cabinetItems.length >= 2 && (
+            <ShoppingAdviceCard cabinetItems={cabinetItems} />
           )}
 
           {/* 성분 블랙리스트 바로가기 */}

@@ -33,6 +33,7 @@ interface HistoryItem {
   overall_grade: 'good' | 'moderate' | 'bad';
   result: AnalysisResult;
   created_at: string;
+  skin_fit_score: number | null;
 }
 
 interface WishItem {
@@ -408,10 +409,19 @@ const History = () => {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-foreground truncate">{item.product_name}</p>
                         {item.product_brand && <p className="text-xs text-muted-foreground">{item.product_brand}</p>}
-                        <div className="mt-2 flex items-center gap-2">
+                        <div className="mt-2 flex items-center gap-2 flex-wrap">
                           <span className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${gradeColor[item.overall_grade]}`}>
                             {gradeIcon(item.overall_grade)}{gradeLabel[item.overall_grade]}
                           </span>
+                          {item.skin_fit_score != null && (
+                            <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+                              item.skin_fit_score >= 80 ? 'bg-green-100 text-green-700' :
+                              item.skin_fit_score >= 60 ? 'bg-primary/15 text-primary' :
+                              item.skin_fit_score >= 40 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
+                            }`}>
+                              매칭 {item.skin_fit_score}점
+                            </span>
+                          )}
                           <span className="text-xs text-muted-foreground">{formatDate(item.created_at)}</span>
                         </div>
                         <div className="mt-1 flex gap-3 text-xs">

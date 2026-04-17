@@ -10,7 +10,7 @@ import RoutineSafetyCard from '@/components/RoutineSafetyCard';
 import {
   Camera, ChevronRight, FlaskConical,
   Layers, BookMarked, ShieldAlert, Package, TrendingUp,
-  Grid3X3, X, Pill, type LucideIcon,
+  Grid3X3, X, Pill, Dna, type LucideIcon,
 } from 'lucide-react';
 
 /* ─── 더보기 메뉴 항목 ─── */
@@ -29,6 +29,7 @@ const MORE_ITEMS: MoreItem[] = [
   { Icon: ShieldAlert, label: '성분 블랙리스트', sub: '위험 성분 자동 경보', path: '/blacklist',     color: 'text-red-500 bg-red-50' },
   { Icon: TrendingUp,  label: '피부 타임라인',   sub: '변화 추세 시각화',   path: '/timeline',      color: 'text-indigo-600 bg-indigo-50' },
   { Icon: Pill,        label: '트러블 솔루션',   sub: '약국 의약품 추천',   path: '/skin-solution', color: 'text-rose-500 bg-rose-50' },
+  { Icon: Dna,         label: '피부 진단',       sub: 'AI 타입 재진단',     path: '/skin-test',     color: 'text-cyan-600 bg-cyan-50' },
 ];
 
 const gradeColor = {

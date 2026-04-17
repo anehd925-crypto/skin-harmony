@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   useUser, SKIN_TYPES, SKIN_CONCERNS, PERSONAL_COLORS,
   SKIN_SENSITIVITIES, SKIN_CONDITIONS, AGE_GROUPS, SKIN_GOALS, AVOID_INGREDIENTS,
@@ -10,9 +10,17 @@ import BottomNav from '@/components/BottomNav';
 import FeedbackModal from '@/components/FeedbackModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, LogOut, ChevronDown, ChevronUp, Users, MessageSquare } from 'lucide-react';
+import { Check, LogOut, ChevronDown, ChevronUp, Users, MessageSquare, Star, Package } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+
+interface TopProduct {
+  id: string;
+  product_name: string;
+  product_brand: string | null;
+  my_rating: number;
+  my_review: string | null;
+}
 
 const Section = ({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) => {
   const [open, setOpen] = useState(defaultOpen);
@@ -34,7 +42,7 @@ const Profile = () => {
     setSkinSensitivity, setSkinCondition, setAgeGroup,
     toggleGoal, toggleAvoid, setNickname,
   } = useUser();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const navigate = useNavigate();
   const [allergyInput, setAllergyInput] = useState(profile.allergies.join(', '));
   const [nicknameInput, setNicknameInput] = useState(profile.nickname ?? '');
@@ -43,6 +51,21 @@ const Profile = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('my_cabinet' as never)
+      .select('id, product_name, product_brand, my_rating, my_review')
+      .eq('user_id', user.id)
+      .not('my_rating', 'is', null)
+      .order('my_rating', { ascending: false })
+      .limit(5)
+      .then(({ data }) => {
+        setTopProducts((data as TopProduct[]) ?? []);
+      });
+  }, [user]);
 
   const handleDeleteAccount = async () => {
     setDeleteLoading(true);
@@ -116,6 +139,65 @@ const Profile = () => {
             {profile.skinConcerns.slice(0, 3).map(c => <span key={c} className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{c}</span>)}
           </div>
         </div>
+        {/* 내 화장품 TOP5 */}
+        {topProducts.length > 0 && (
+          <div className="rounded-xl border border-border bg-card overflow-hidden">
+            <div className="px-4 py-3 flex items-center gap-2 border-b border-border">
+              <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
+              <h2 className="text-sm font-bold text-foreground">내 화장품 TOP {topProducts.length}</h2>
+            </div>
+            <div className="divide-y divide-border">
+              {topProducts.map((p, idx) => (
+                <div key={p.id} className="px-4 py-2.5 flex items-center gap-3">
+                  <span className="text-xs font-black text-primary w-5 text-center">{idx + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground truncate">{p.product_name}</p>
+                    {p.product_brand && <p className="text-xs text-muted-foreground truncate">{p.product_brand}</p>}
+                    {p.my_review && <p className="text-xs text-muted-foreground mt-0.5 truncate">"{p.my_review}"</p>}
+                  </div>
+                  <div className="flex items-center gap-0.5 shrink-0">
+                    {[1, 2, 3, 4, 5].map(v => (
+                      <Star key={v} className={`h-3 w-3 ${v <= p.my_rating ? 'text-amber-400 fill-amber-400' : 'text-neutral-200'}`} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => navigate('/cabinet')}
+              className="w-full py-2.5 text-xs font-semibold text-primary border-t border-border"
+            >
+              보관함에서 평가하기
+            </button>
+          </div>
+        )}
+
+        {topProducts.length === 0 && (
+          <button
+            onClick={() => navigate('/cabinet')}
+            className="w-full rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4 text-center"
+          >
+            <Package className="h-6 w-6 text-primary/40 mx-auto mb-1.5" />
+            <p className="text-xs font-bold text-primary">내 화장품에 별점을 남겨보세요</p>
+            <p className="text-xs text-muted-foreground mt-0.5">보관함에서 제품을 평가하면 TOP5에 표시돼요</p>
+          </button>
+        )}
+
+        {/* 피부 진단 테스트 */}
+        <button
+          onClick={() => navigate('/skin-test')}
+          className="flex w-full items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3.5 text-left"
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+            <span className="text-lg">🧬</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-primary">피부 타입 재진단</p>
+            <p className="text-xs text-muted-foreground mt-0.5">6문항 AI 진단으로 피부 타입을 다시 확인해보세요</p>
+          </div>
+          <ChevronDown className="h-4 w-4 text-primary/40 rotate-[-90deg] shrink-0" />
+        </button>
+
         {/* 닉네임 섹션 */}
         <div className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="px-4 py-3 flex items-center gap-2 border-b border-border">

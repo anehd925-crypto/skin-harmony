@@ -320,6 +320,7 @@ BeautyLens로 분석했습니다`;
           ingredients_text: text,
           result: analysisResult as unknown as Record<string, unknown>,
           overall_grade: analysisResult.overallGrade,
+          skin_fit_score: analysisResult.skinFit?.score ?? null,
           ...(urlInput.trim() && { product_url: urlInput.trim() }),
         });
         if (histErr) console.error('analysis_history insert 실패:', histErr.message);
@@ -517,55 +518,59 @@ BeautyLens로 분석했습니다`;
               </div>
             )}
 
-            {/* 내 피부 적합도 카드 */}
+            {/* ── BeautyLens 매칭 점수 ── */}
             {result.skinFit && (
-              <div className={`rounded-xl border p-4 shadow-card ${
-                result.skinFit.label === '최적' ? 'border-success/40 bg-success/5' :
-                result.skinFit.label === '적합' ? 'border-primary/30 bg-primary/5' :
-                result.skinFit.label === '보통' ? 'border-warning/30 bg-warning/5' :
-                'border-danger/30 bg-danger/5'
-              }`}>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Zap className={`h-4 w-4 ${
-                      result.skinFit.label === '최적' ? 'text-success' :
-                      result.skinFit.label === '적합' ? 'text-primary' :
-                      result.skinFit.label === '보통' ? 'text-warning' : 'text-danger'
-                    }`} />
-                    <span className="text-sm font-bold text-foreground">내 피부 적합도</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-lg font-bold ${
-                      result.skinFit.label === '최적' ? 'text-success' :
-                      result.skinFit.label === '적합' ? 'text-primary' :
-                      result.skinFit.label === '보통' ? 'text-warning' : 'text-danger'
+              <div className="rounded-2xl border border-border bg-white p-5 shadow-card overflow-hidden">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl ${
+                    result.skinFit.score >= 80 ? 'bg-green-50' :
+                    result.skinFit.score >= 60 ? 'bg-primary/10' :
+                    result.skinFit.score >= 40 ? 'bg-amber-50' : 'bg-red-50'
+                  }`}>
+                    <span className={`text-2xl font-black ${
+                      result.skinFit.score >= 80 ? 'text-green-600' :
+                      result.skinFit.score >= 60 ? 'text-primary' :
+                      result.skinFit.score >= 40 ? 'text-amber-600' : 'text-red-600'
                     }`}>{result.skinFit.score}</span>
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                      result.skinFit.label === '최적' ? 'bg-success/20 text-success' :
-                      result.skinFit.label === '적합' ? 'bg-primary/20 text-primary' :
-                      result.skinFit.label === '보통' ? 'bg-warning/20 text-warning' :
-                      'bg-danger/20 text-danger'
-                    }`}>{result.skinFit.label}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Zap className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-bold text-foreground">내 피부 매칭 점수</span>
+                    </div>
+                    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                      result.skinFit.score >= 80 ? 'bg-green-100 text-green-700' :
+                      result.skinFit.score >= 60 ? 'bg-primary/15 text-primary' :
+                      result.skinFit.score >= 40 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
+                    }`}>
+                      {result.skinFit.score >= 90 ? '퍼펙트 매치' :
+                       result.skinFit.score >= 80 ? '최적' :
+                       result.skinFit.score >= 60 ? '적합' :
+                       result.skinFit.score >= 40 ? '보통' : '주의'}
+                    </span>
                   </div>
                 </div>
-                {/* 점수 바 */}
-                <div className="w-full rounded-full bg-muted h-2 mb-3">
+
+                {/* 프로그레스 바 */}
+                <div className="w-full bg-neutral-100 rounded-full h-2.5 mb-3">
                   <div
-                    className={`h-2 rounded-full transition-all ${
-                      result.skinFit.label === '최적' ? 'bg-success' :
-                      result.skinFit.label === '적합' ? 'bg-primary' :
-                      result.skinFit.label === '보통' ? 'bg-warning' : 'bg-danger'
+                    className={`h-2.5 rounded-full transition-all duration-500 ${
+                      result.skinFit.score >= 80 ? 'bg-green-500' :
+                      result.skinFit.score >= 60 ? 'bg-primary' :
+                      result.skinFit.score >= 40 ? 'bg-amber-500' : 'bg-red-500'
                     }`}
                     style={{ width: `${result.skinFit.score}%` }}
                   />
                 </div>
+
                 <p className="text-xs text-muted-foreground leading-relaxed">{result.skinFit.reason}</p>
+
                 {result.skinFit.warnings.length > 0 && (
-                  <div className="mt-2 space-y-1">
+                  <div className="mt-3 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5 space-y-1">
                     {result.skinFit.warnings.map((w, i) => (
                       <div key={i} className="flex items-start gap-1.5">
-                        <AlertTriangle className="h-3 w-3 text-warning shrink-0 mt-0.5" />
-                        <p className="text-xs text-warning">{w}</p>
+                        <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0 mt-0.5" />
+                        <span className="text-xs text-amber-700">{w}</span>
                       </div>
                     ))}
                   </div>
@@ -573,14 +578,19 @@ BeautyLens로 분석했습니다`;
               </div>
             )}
 
-            {/* 프로필 미설정 안내 */}
+            {/* 프로필 미설정 → 매칭 점수 유도 */}
             {!result.skinFit && (
               <button
                 onClick={() => navigate('/profile')}
-                className="w-full rounded-xl border border-dashed border-primary/30 bg-primary/5 p-3 text-left"
+                className="w-full rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-4 text-left flex items-center gap-3"
               >
-                <p className="text-xs font-medium text-primary">내 피부 적합도를 확인하려면 프로필을 설정해주세요</p>
-                <p className="text-xs text-muted-foreground mt-0.5">피부 타입·고민을 설정하면 이 제품과의 적합도를 분석해드려요 →</p>
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                  <Zap className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-primary">매칭 점수 확인하기</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">프로필을 설정하면 이 제품과 내 피부의 궁합을 점수로 알려드려요</p>
+                </div>
               </button>
             )}
 
