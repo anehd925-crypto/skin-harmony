@@ -41,6 +41,11 @@ export const EVENT = {
   // 인증
   ONBOARDING_STEP: 'onboarding_step',
   ONBOARDING_COMPLETED: 'onboarding_completed',
+
+  // AI 대화
+  CHAT_OPENED: 'chat_opened',
+  CHAT_MESSAGE_SENT: 'chat_message_sent',
+  CHAT_REPLY_RECEIVED: 'chat_reply_received',
 } as const;
 
 export type EventName = typeof EVENT[keyof typeof EVENT];

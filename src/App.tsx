@@ -36,6 +36,7 @@ import MyCabinet from "./pages/MyCabinet.tsx";
 import MySkin from "./pages/MySkin.tsx";
 import ProductCompare from "./pages/ProductCompare.tsx";
 import SkinTest from "./pages/SkinTest.tsx";
+import SkinChat from "./pages/SkinChat.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -87,6 +88,7 @@ const AnimatedRoutes = () => {
                 <Route path="/compare" element={<ProtectedRoute><P><Compare /></P></ProtectedRoute>} />
                 <Route path="/compare-ai" element={<ProtectedRoute><P><ProductCompare /></P></ProtectedRoute>} />
                 <Route path="/skin-test" element={<ProtectedRoute><P><SkinTest /></P></ProtectedRoute>} />
+                <Route path="/chat" element={<ProtectedRoute><P><SkinChat /></P></ProtectedRoute>} />
                 <Route path="/community" element={<ProtectedRoute><P><Community /></P></ProtectedRoute>} />
 
                 <Route path="*" element={<NotFound />} />

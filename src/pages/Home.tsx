@@ -12,7 +12,7 @@ import NotificationPermission from '@/components/NotificationPermission';
 import {
   Camera, ChevronRight, FlaskConical,
   BookMarked, ShieldAlert, TrendingUp,
-  Grid3X3, X, Pill, Dna, type LucideIcon,
+  Grid3X3, X, Pill, Dna, MessageCircle, type LucideIcon,
 } from 'lucide-react';
 
 /* ─── 더보기 메뉴 항목 ─── */
@@ -108,6 +108,23 @@ const Home = () => {
 
         {/* ── 오늘의 미션 (7일 온보딩 시퀀스) ── */}
         <DailyMissionCard />
+
+        {/* ── AI 피부 비서 진입 카드 ── */}
+        <button
+          onClick={() => navigate('/chat')}
+          className="flex w-full items-center gap-3 rounded-2xl border border-primary/25 bg-primary/5 px-4 py-3.5 text-left press"
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15">
+            <MessageCircle className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-foreground">AI 피부 비서에게 물어보기</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              내 프로필·분석 이력 기반 맞춤 대화
+            </p>
+          </div>
+          <ChevronRight className="h-4 w-4 text-primary/50 shrink-0" />
+        </button>
 
         {/* ── Hero: 날씨 기반 루틴 추천 ── */}
         <WeatherRoutineCard period={currentPeriod} />
