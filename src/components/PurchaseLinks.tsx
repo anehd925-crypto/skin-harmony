@@ -93,7 +93,7 @@ const PurchaseLinks = ({
         <ShoppingCart className="h-4 w-4 text-primary" />
         <p className="text-sm font-semibold text-foreground">구매처 비교</p>
         {isOnSale && discountRate && discountRate > 0 && (
-          <span className="flex items-center gap-0.5 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-bold text-destructive">
+          <span className="flex items-center gap-0.5 rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-bold text-destructive">
             <Tag className="h-2.5 w-2.5" />{Math.round(discountRate)}% 할인 중
           </span>
         )}
@@ -119,7 +119,7 @@ const PurchaseLinks = ({
               </span>
             )}
           </div>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             실제 가격은 구매 시점에 다를 수 있습니다
           </p>
         </div>
@@ -153,7 +153,7 @@ const PurchaseLinks = ({
       </div>
 
       {/* 안내 문구 */}
-      <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
+      <p className="text-xs text-muted-foreground text-center leading-relaxed">
         구매 링크를 탭하면 해당 쇼핑몰로 이동합니다.<br />
         쿠팡·네이버쇼핑은 검색 결과 페이지로 연결됩니다.
       </p>

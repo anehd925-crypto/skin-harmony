@@ -123,12 +123,14 @@ const Explore = () => {
   }, [scored, category, query, sort]);
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-20">
+    <div className="min-h-screen bg-neutral-50 pb-24">
       {/* 헤더 */}
-      <div className="gradient-brand px-5 pb-5 pt-12">
-        <h1 className="text-lg font-bold text-primary-foreground">탐색</h1>
-        <p className="mt-0.5 text-sm text-primary-foreground/80">제품명, 브랜드, 성분으로 검색하세요</p>
-        <div className="relative mt-3">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
+        <h1 className="text-base font-bold text-foreground flex-1 min-w-0">탐색</h1>
+      </div>
+      <div className="px-4 pt-3">
+        <p className="text-sm text-muted-foreground">제품명, 브랜드, 성분으로 검색하세요</p>
+        <div className="relative mt-2">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="제품명, 브랜드 검색"
@@ -139,7 +141,7 @@ const Explore = () => {
         </div>
       </div>
 
-      <div className="px-5 pt-3 space-y-3">
+      <div className="px-4 pt-3 space-y-3">
         {/* 트렌드 대시보드 (접힌 형태) */}
         <div className="rounded-2xl border border-border bg-card overflow-hidden">
           <button
@@ -170,7 +172,7 @@ const Explore = () => {
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {g.grade === 'good' ? '안전' : g.grade === 'moderate' ? '보통' : '주의'}
                         </p>
-                        <p className="text-[10px] text-muted-foreground">{g.count}건</p>
+                        <p className="text-xs text-muted-foreground">{g.count}건</p>
                       </div>
                     ))}
                   </div>
@@ -191,7 +193,7 @@ const Explore = () => {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-0.5">
                               <p className="text-xs font-medium text-foreground truncate">{ing.ingredient_name}</p>
-                              <p className="text-[10px] text-muted-foreground ml-2 shrink-0">{ing.total_count}회</p>
+                              <p className="text-xs text-muted-foreground ml-2 shrink-0">{ing.total_count}회</p>
                             </div>
                             <div className="h-1.5 rounded-full bg-border overflow-hidden">
                               <div
@@ -274,7 +276,7 @@ const Explore = () => {
                 return (
                   <div key={p.id} className="relative">
                     {isTopMatch && (
-                      <span className="absolute -top-1.5 left-3 z-10 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                      <span className="absolute -top-1.5 left-3 z-10 rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">
                         최적 매칭
                       </span>
                     )}
@@ -304,7 +306,7 @@ const Explore = () => {
                               </span>
                             )}
                             {sort === 'match' && matchScore > 0 && (
-                              <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                              <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-xs font-medium text-primary">
                                 매칭 {matchScore}점
                               </span>
                             )}

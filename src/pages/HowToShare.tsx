@@ -21,7 +21,7 @@ const HowToShare = () => {
 
   return (
     <div className="min-h-screen bg-background pb-10">
-      <div className="gradient-primary px-5 pb-6 pt-12">
+      <div className="gradient-primary px-4 pb-6 pt-12">
         <button onClick={() => navigate(-1)} className="mb-4 flex items-center gap-1 text-sm text-primary-foreground/80">
           <ChevronLeft className="h-4 w-4" />뒤로
         </button>
@@ -34,7 +34,7 @@ const HowToShare = () => {
         </p>
       </div>
 
-      <div className="px-5 -mt-4 space-y-4">
+      <div className="px-4 -mt-4 space-y-4">
         {/* 안내 배너 */}
         <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 flex gap-3">
           <Smartphone className="h-6 w-6 text-primary shrink-0 mt-0.5" />

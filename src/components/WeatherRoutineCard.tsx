@@ -216,7 +216,7 @@ const WeatherRoutineCard = ({ period }: Props) => {
         <Loader2 className="h-4 w-4 animate-spin text-primary shrink-0" />
         <div>
           <p className="text-xs font-semibold text-foreground">날씨 확인 중...</p>
-          <p className="text-[10px] text-muted-foreground">오늘 날씨에 맞는 루틴을 준비해요</p>
+          <p className="text-xs text-muted-foreground">오늘 날씨에 맞는 루틴을 준비해요</p>
         </div>
       </div>
     );
@@ -229,7 +229,7 @@ const WeatherRoutineCard = ({ period }: Props) => {
           <CloudSun className="h-8 w-8 shrink-0 text-muted-foreground/50 mt-0.5" />
           <div className="flex-1">
             <p className="text-xs font-semibold text-muted-foreground">날씨 정보를 가져올 수 없어요</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">
+            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
               위치 권한을 허용하면 오늘 날씨에 맞는 루틴 추천을 받을 수 있어요.<br />
               브라우저 주소창 왼쪽의 자물쇠 아이콘 → 위치 권한을 <span className="font-semibold text-foreground">허용</span>으로 변경해주세요.
             </p>
@@ -256,7 +256,7 @@ const WeatherRoutineCard = ({ period }: Props) => {
         </div>
         <div className="flex-1">
           <p className="text-xs font-semibold text-foreground">화장품 보관함을 채워보세요</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">오늘 {weather.temp}°C · {weather.weather} — 날씨 맞춤 루틴을 받으려면 제품 등록이 필요해요</p>
+          <p className="text-xs text-muted-foreground mt-0.5">오늘 {weather.temp}°C · {weather.weather} — 날씨 맞춤 루틴을 받으려면 제품 등록이 필요해요</p>
         </div>
         <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </button>
@@ -284,21 +284,21 @@ const WeatherRoutineCard = ({ period }: Props) => {
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-foreground">{periodEmoji} {periodLabel} 루틴 추천</span>
               {result?.weatherAlert && (
-                <span className="text-[10px] text-primary font-medium truncate max-w-[140px]">{result.weatherAlert}</span>
+                <span className="text-xs text-primary font-medium truncate max-w-[140px]">{result.weatherAlert}</span>
               )}
             </div>
             {/* 날씨 데이터 칩 */}
             <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
-              <span className="flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-semibold text-foreground">
+              <span className="flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-semibold text-foreground">
                 🌡️ {weather.temp}°C
               </span>
-              <span className="flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-semibold text-foreground">
+              <span className="flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-semibold text-foreground">
                 <Droplets className="h-2.5 w-2.5 text-blue-400" /> {weather.humidity}%
               </span>
-              <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${dustCfg.bg} ${dustCfg.color}`}>
+              <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${dustCfg.bg} ${dustCfg.color}`}>
                 <Wind className="h-2.5 w-2.5" /> 미세먼지 {dustCfg.label}
               </span>
-              <span className={`flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-semibold ${uvCfg.color}`}>
+              <span className={`flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-semibold ${uvCfg.color}`}>
                 <Sun className="h-2.5 w-2.5" /> UV {weather.uv}
               </span>
             </div>
@@ -336,17 +336,17 @@ const WeatherRoutineCard = ({ period }: Props) => {
                   <div className="space-y-2">
                     {result.recommendedRoutine.map(step => (
                       <div key={step.step} className="flex items-start gap-2.5">
-                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground mt-0.5">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground mt-0.5">
                           {step.step}
                         </span>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <p className="text-xs font-semibold text-foreground">{step.productName}</p>
                             {step.isFromCabinet && (
-                              <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-medium">보관함</span>
+                              <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-medium">보관함</span>
                             )}
                           </div>
-                          <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">{step.reason}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{step.reason}</p>
                         </div>
                       </div>
                     ))}
@@ -357,10 +357,10 @@ const WeatherRoutineCard = ({ period }: Props) => {
               {/* 추가 추천 */}
               {result.extraRecommendations?.length > 0 && (
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 space-y-2">
-                  <p className="text-[10px] font-bold text-primary">오늘 이것도 추가하면 좋아요</p>
+                  <p className="text-xs font-bold text-primary">오늘 이것도 추가하면 좋아요</p>
                   {result.extraRecommendations.map((rec, i) => (
                     <div key={i} className="flex items-start gap-2">
-                      <span className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                      <span className={`shrink-0 text-xs px-1.5 py-0.5 rounded-full font-bold ${
                         rec.urgency === 'high' ? 'bg-red-100 text-red-600' :
                         rec.urgency === 'medium' ? 'bg-yellow-100 text-yellow-600' :
                         'bg-muted text-muted-foreground'
@@ -369,13 +369,13 @@ const WeatherRoutineCard = ({ period }: Props) => {
                       </span>
                       <div>
                         <p className="text-xs font-semibold text-foreground">{rec.productType}</p>
-                        <p className="text-[10px] text-muted-foreground">{rec.reason}</p>
+                        <p className="text-xs text-muted-foreground">{rec.reason}</p>
                       </div>
                     </div>
                   ))}
                   <button
                     onClick={() => navigate('/cabinet')}
-                    className="text-[10px] text-primary font-medium underline underline-offset-2"
+                    className="text-xs text-primary font-medium underline underline-offset-2"
                   >
                     보관함에 제품 추가하기 →
                   </button>
@@ -392,11 +392,11 @@ const WeatherRoutineCard = ({ period }: Props) => {
               {/* 새로고침 + 마지막 업데이트 */}
               <div className="flex items-center justify-between">
                 {lastFetched && (
-                  <p className="text-[10px] text-muted-foreground">마지막 업데이트 {lastFetched}</p>
+                  <p className="text-xs text-muted-foreground">마지막 업데이트 {lastFetched}</p>
                 )}
                 <button
                   onClick={() => loadWeatherAndRoutine(true)}
-                  className="flex items-center gap-1 text-[10px] text-primary font-medium"
+                  className="flex items-center gap-1 text-xs text-primary font-medium"
                 >
                   <RefreshCw className="h-3 w-3" /> 새로고침
                 </button>

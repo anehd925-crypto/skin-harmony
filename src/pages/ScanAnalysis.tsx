@@ -253,7 +253,7 @@ const ScanAnalysis = () => {
           <div className="relative overflow-hidden rounded-2xl bg-black aspect-[4/3]">
             <video ref={videoRef} className="w-full h-full object-cover" playsInline muted />
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-3/4 h-1/2 border-2 border-white/60 rounded-xl relative">
+              <div className="w-3/4 h-1/2 border border-white/60 rounded-xl relative">
                 <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-primary rounded-tl-xl" />
                 <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-primary rounded-tr-xl" />
                 <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-primary rounded-bl-xl" />
@@ -322,7 +322,7 @@ const ScanAnalysis = () => {
                 value={extractedText}
                 onChange={e => setExtractedText(e.target.value)}
               />
-              <p className="text-[10px] text-muted-foreground mt-1">잘못 인식된 내용은 직접 수정할 수 있어요</p>
+              <p className="text-xs text-muted-foreground mt-1">잘못 인식된 내용은 직접 수정할 수 있어요</p>
             </div>
             <Button
               onClick={() => navigate('/analyze', { state: { prefilledIngredients: extractedText, fromScan: true } })}
@@ -342,7 +342,7 @@ const ScanAnalysis = () => {
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />
               <p className="text-sm font-bold text-foreground">제품 인식 완료</p>
-              <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+              <span className={`ml-auto text-xs px-2 py-0.5 rounded-full font-semibold ${
                 confidenceColor[recognizedProduct.confidence ?? 'medium']
               }`}>
                 인식 신뢰도 {confidenceLabel[recognizedProduct.confidence ?? 'medium']}
@@ -359,32 +359,32 @@ const ScanAnalysis = () => {
                   <p className="text-sm font-bold text-foreground">{recognizedProduct.name || '인식된 제품'}</p>
                   <p className="text-xs text-muted-foreground">{recognizedProduct.brand}</p>
                   {recognizedProduct.note && (
-                    <p className="text-[11px] text-primary/70 mt-1">{recognizedProduct.note}</p>
+                    <p className="text-xs text-primary/70 mt-1">{recognizedProduct.note}</p>
                   )}
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="rounded-xl bg-neutral-50 px-3 py-2">
-                  <p className="text-muted-foreground text-[10px] mb-0.5">카테고리</p>
+                  <p className="text-muted-foreground text-xs mb-0.5">카테고리</p>
                   <p className="font-semibold text-foreground">{recognizedProduct.category}</p>
                 </div>
                 <div className="rounded-xl bg-neutral-50 px-3 py-2">
-                  <p className="text-muted-foreground text-[10px] mb-0.5">사용 단계</p>
+                  <p className="text-muted-foreground text-xs mb-0.5">사용 단계</p>
                   <p className="font-semibold text-foreground">{recognizedProduct.step}</p>
                 </div>
               </div>
 
               <div className="flex gap-2">
                 {recognizedProduct.is_morning && (
-                  <span className="text-[10px] text-yellow-700 bg-yellow-50 border border-yellow-200 px-2 py-1 rounded-full font-semibold">☀️ 아침</span>
+                  <span className="text-xs text-yellow-700 bg-yellow-50 border border-yellow-200 px-2 py-1 rounded-full font-semibold">☀️ 아침</span>
                 )}
                 {recognizedProduct.is_evening && (
-                  <span className="text-[10px] text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-1 rounded-full font-semibold">🌙 저녁</span>
+                  <span className="text-xs text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-1 rounded-full font-semibold">🌙 저녁</span>
                 )}
               </div>
 
-              <p className="text-[10px] text-muted-foreground">인식 내용이 다르면 아래에서 수정 후 추가할 수 있어요</p>
+              <p className="text-xs text-muted-foreground">인식 내용이 다르면 아래에서 수정 후 추가할 수 있어요</p>
             </div>
 
             <Button
@@ -409,7 +409,7 @@ const ScanAnalysis = () => {
             </Button>
             <label className="cursor-pointer block">
               <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
-              <div className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-white h-14 text-sm font-semibold text-muted-foreground hover:border-primary/50 transition-colors">
+              <div className="w-full flex items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-white h-14 text-sm font-semibold text-muted-foreground hover:border-primary/50 transition-colors">
                 <ImagePlus className="h-5 w-5" />
                 갤러리에서 선택
               </div>

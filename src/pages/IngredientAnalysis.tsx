@@ -355,26 +355,20 @@ BeautyLens로 분석했습니다`;
   const dangerCount = result?.ingredients.filter(i => i.safety === 'danger').length ?? 0;
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-20">
-      <div className="gradient-brand px-5 pb-6 pt-12">
-        <button onClick={() => navigate(-1)} className="mb-4 flex items-center gap-1 text-sm text-primary-foreground/80">
-          <ChevronLeft className="h-4 w-4" />뒤로
+    <div className="min-h-screen bg-neutral-50 pb-24">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
+        <button onClick={() => navigate(-1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
+          <ChevronLeft className="h-5 w-5" />
         </button>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <FlaskConical className="h-5 w-5 text-primary-foreground" />
-            <h1 className="text-lg font-bold text-primary-foreground">전성분 분석</h1>
-          </div>
-          <button onClick={() => navigate('/history')} className="flex items-center gap-1 rounded-full bg-primary-foreground/20 px-3 py-1.5 text-xs text-primary-foreground">
-            <History className="h-3.5 w-3.5" />분석 기록
-          </button>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-base font-bold text-foreground">성분 분석</h1>
         </div>
-        <p className="mt-1 text-sm text-primary-foreground/80">
-          올리브영·쿠팡 URL 붙여넣기로 자동 분석해드려요
-        </p>
+        <button onClick={() => navigate('/history')} className="flex items-center gap-1 rounded-full border border-border bg-neutral-50 px-3 py-1.5 text-xs font-medium text-muted-foreground">
+          <History className="h-3.5 w-3.5" />분석 기록
+        </button>
       </div>
 
-      <div className="px-5">
+      <div className="px-4">
         {!result && (
           <div className="-mt-4 space-y-4">
 
@@ -497,7 +491,7 @@ BeautyLens로 분석했습니다`;
                   <p className="text-sm text-muted-foreground">{result.productBrand}</p>
                 </div>
                 {result.groundingUsed && (
-                  <span className="shrink-0 flex items-center gap-1 rounded-full bg-blue-500/10 border border-blue-500/20 px-2 py-1 text-[10px] font-medium text-blue-600">
+                  <span className="shrink-0 flex items-center gap-1 rounded-full bg-blue-500/10 border border-blue-500/20 px-2 py-1 text-xs font-medium text-blue-600">
                     <Search className="h-3 w-3" />실시간 검색
                   </span>
                 )}
@@ -510,12 +504,12 @@ BeautyLens로 분석했습니다`;
                 <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-semibold text-warning">AI 추정 성분 기반 분석</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                     실제 전성분을 찾지 못해 유사 제품 성분으로 추정했습니다. 정확한 분석을 위해 전성분을 직접 입력해 주세요.
                   </p>
                   <button
                     onClick={() => { setResult(null); setMode('text'); setProductName(result.productName); setProductBrand(result.productBrand); }}
-                    className="mt-1.5 text-[10px] font-medium text-warning underline underline-offset-2"
+                    className="mt-1.5 text-xs font-medium text-warning underline underline-offset-2"
                   >
                     전성분 직접 입력하기 →
                   </button>
@@ -586,7 +580,7 @@ BeautyLens로 분석했습니다`;
                 className="w-full rounded-xl border border-dashed border-primary/30 bg-primary/5 p-3 text-left"
               >
                 <p className="text-xs font-medium text-primary">내 피부 적합도를 확인하려면 프로필을 설정해주세요</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">피부 타입·고민을 설정하면 이 제품과의 적합도를 분석해드려요 →</p>
+                <p className="text-xs text-muted-foreground mt-0.5">피부 타입·고민을 설정하면 이 제품과의 적합도를 분석해드려요 →</p>
               </button>
             )}
 
@@ -636,7 +630,7 @@ BeautyLens로 분석했습니다`;
                   {result.keyIngredients.map((ki, idx) => (
                     <div key={idx} className="rounded-xl bg-primary/8 border border-primary/20 px-3 py-2">
                       <p className="text-xs font-semibold text-primary">{ki.name}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{ki.role}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{ki.role}</p>
                     </div>
                   ))}
                 </div>
@@ -695,7 +689,7 @@ BeautyLens로 분석했습니다`;
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="text-sm font-semibold text-foreground">{ingredient.name}</p>
                           {ingredient.function && (
-                            <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">{ingredient.function}</span>
+                            <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">{ingredient.function}</span>
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground">{ingredient.name_en}</p>
@@ -703,12 +697,12 @@ BeautyLens로 분석했습니다`;
                         {(ingredient.irritancy !== undefined || ingredient.comedogenicity !== undefined) && (
                           <div className="flex gap-3 mt-1">
                             {ingredient.irritancy !== undefined && (
-                              <span className={`text-[10px] font-medium ${ingredient.irritancy >= 3 ? 'text-danger' : ingredient.irritancy >= 1 ? 'text-warning' : 'text-muted-foreground'}`}>
+                              <span className={`text-xs font-medium ${ingredient.irritancy >= 3 ? 'text-danger' : ingredient.irritancy >= 1 ? 'text-warning' : 'text-muted-foreground'}`}>
                                 자극 {ingredient.irritancy}/5
                               </span>
                             )}
                             {ingredient.comedogenicity !== undefined && (
-                              <span className={`text-[10px] font-medium ${ingredient.comedogenicity >= 3 ? 'text-danger' : ingredient.comedogenicity >= 1 ? 'text-warning' : 'text-muted-foreground'}`}>
+                              <span className={`text-xs font-medium ${ingredient.comedogenicity >= 3 ? 'text-danger' : ingredient.comedogenicity >= 1 ? 'text-warning' : 'text-muted-foreground'}`}>
                                 모공 {ingredient.comedogenicity}/5
                               </span>
                             )}
@@ -762,7 +756,7 @@ BeautyLens로 분석했습니다`;
             {/* 검색 출처 */}
             {result.searchSources && result.searchSources.length > 0 && (
               <div className="rounded-xl border border-border bg-card p-3">
-                <p className="text-[10px] font-medium text-muted-foreground mb-2">참고 출처 (Google Search)</p>
+                <p className="text-xs font-medium text-muted-foreground mb-2">참고 출처 (Google Search)</p>
                 <div className="space-y-1">
                   {result.searchSources.map((s, i) => (
                     <a
@@ -770,7 +764,7 @@ BeautyLens로 분석했습니다`;
                       href={s.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-[10px] text-primary truncate hover:underline"
+                      className="flex items-center gap-1.5 text-xs text-primary truncate hover:underline"
                     >
                       <Search className="h-2.5 w-2.5 shrink-0" />
                       {s.title || s.url}

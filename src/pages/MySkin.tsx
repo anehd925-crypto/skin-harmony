@@ -312,7 +312,7 @@ const MySkin = () => {
                     {todayEntry.trouble_spots?.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-1.5">
                         {todayEntry.trouble_spots.map(t => (
-                          <span key={t} className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{t}</span>
+                          <span key={t} className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{t}</span>
                         ))}
                       </div>
                     )}
@@ -346,12 +346,12 @@ const MySkin = () => {
                       key={s}
                       type="button"
                       onClick={() => setSkinScore(s)}
-                      className={`flex-1 flex flex-col items-center rounded-xl border-2 py-2 transition-all ${
+                      className={`flex-1 flex flex-col items-center rounded-xl border py-2 transition-all ${
                         skinScore === s ? SCORE_COLOR[s] : 'border-border text-muted-foreground'
                       }`}
                     >
                       <span className="text-xl">{SCORE_EMOJI[s]}</span>
-                      <span className="text-[9px] mt-0.5 font-semibold">{s}점</span>
+                      <span className="text-xs mt-0.5 font-semibold">{s}점</span>
                     </button>
                   ))}
                 </div>
@@ -442,7 +442,7 @@ const MySkin = () => {
             <div className="p-3">
               <div className="grid grid-cols-7 mb-1">
                 {['일', '월', '화', '수', '목', '금', '토'].map((d, i) => (
-                  <div key={d} className={`text-center text-[10px] font-medium py-1 ${i === 0 ? 'text-red-400' : i === 6 ? 'text-primary' : 'text-muted-foreground'}`}>
+                  <div key={d} className={`text-center text-xs font-medium py-1 ${i === 0 ? 'text-red-400' : i === 6 ? 'text-primary' : 'text-muted-foreground'}`}>
                     {d}
                   </div>
                 ))}
@@ -458,7 +458,7 @@ const MySkin = () => {
                     <button
                       key={d}
                       onClick={() => navigate('/diary')}
-                      className={`aspect-square flex flex-col items-center justify-center rounded-lg text-[11px] font-medium transition-all ${
+                      className={`aspect-square flex flex-col items-center justify-center rounded-lg text-xs font-medium transition-all ${
                         isToday ? 'ring-2 ring-primary ring-offset-1' : ''
                       } ${entry ? '' : 'hover:bg-neutral-50'}`}
                     >
@@ -487,7 +487,7 @@ const MySkin = () => {
                 <Sparkles className="h-4 w-4 text-primary" />
                 <span className="text-xs font-bold text-foreground">AI 인사이트</span>
               </div>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 {entries.length >= 3 ? `${entries.length}일 데이터 기반 분석` : '3일 이상 기록 후 확인'}
               </p>
               <ChevronRight className="h-3.5 w-3.5 text-muted-foreground ml-auto" />
@@ -500,22 +500,22 @@ const MySkin = () => {
                 <TrendingUp className="h-4 w-4 text-indigo-500" />
                 <span className="text-xs font-bold text-foreground">피부 타임라인</span>
               </div>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">장기 변화 추세 시각화</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">장기 변화 추세 시각화</p>
               <ChevronRight className="h-3.5 w-3.5 text-muted-foreground ml-auto" />
             </button>
           </div>
 
-          {/* ── AI 코치 레포트 ── */}
+          {/* ── 주간 피부 리포트 ── */}
           <div className="rounded-2xl border border-border bg-white overflow-hidden shadow-card">
             <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-border">
               <div className="flex items-center gap-2">
                 <Brain className="h-4 w-4 text-primary" />
-                <span className="text-sm font-bold text-foreground">AI 피부 코치</span>
+                <span className="text-sm font-bold text-foreground">주간 피부 리포트</span>
               </div>
               <button
                 onClick={fetchCoachReport}
                 disabled={coachLoading}
-                className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary transition-colors"
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
               >
                 <RefreshCw className={`h-3 w-3 ${coachLoading ? 'animate-spin' : ''}`} />
                 새로고침
@@ -548,7 +548,7 @@ const MySkin = () => {
                         <span className="text-base">{ins.icon}</span>
                         <div className="min-w-0">
                           <p className="text-xs font-bold text-foreground">{ins.title}</p>
-                          <p className="text-[11px] text-muted-foreground mt-0.5">{ins.body}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{ins.body}</p>
                         </div>
                       </div>
                     ))}
@@ -570,10 +570,10 @@ const MySkin = () => {
                 )}
 
                 {/* 응원 메시지 */}
-                <p className="text-[11px] text-muted-foreground text-center">{coachReport.encouragement}</p>
+                <p className="text-xs text-muted-foreground text-center">{coachReport.encouragement}</p>
 
                 {coachReport.dataQuality === 'insufficient' && (
-                  <p className="text-[10px] text-amber-600 text-center bg-amber-50 rounded-lg py-1.5">
+                  <p className="text-xs text-amber-600 text-center bg-amber-50 rounded-lg py-1.5">
                     💡 일기를 더 기록하면 더 정확한 분석이 가능해요
                   </p>
                 )}
@@ -626,11 +626,11 @@ const MySkin = () => {
                 <div className="space-y-1">
                   {morningItems.slice(0, 5).map((item, i) => (
                     <div key={item.id} className="flex items-center gap-1.5">
-                      <span className="w-3 text-[10px] font-bold text-yellow-400 shrink-0">{i + 1}</span>
-                      <span className="text-[11px] text-yellow-800 truncate">{item.product_name}</span>
+                      <span className="w-3 text-xs font-bold text-yellow-400 shrink-0">{i + 1}</span>
+                      <span className="text-xs text-yellow-800 truncate">{item.product_name}</span>
                     </div>
                   ))}
-                  {morningItems.length > 5 && <p className="text-[10px] text-yellow-400">+{morningItems.length - 5}개 더</p>}
+                  {morningItems.length > 5 && <p className="text-xs text-yellow-400">+{morningItems.length - 5}개 더</p>}
                 </div>
               </div>
               {/* 저녁 */}
@@ -645,11 +645,11 @@ const MySkin = () => {
                 <div className="space-y-1">
                   {eveningItems.slice(0, 5).map((item, i) => (
                     <div key={item.id} className="flex items-center gap-1.5">
-                      <span className="w-3 text-[10px] font-bold text-indigo-400 shrink-0">{i + 1}</span>
-                      <span className="text-[11px] text-indigo-800 truncate">{item.product_name}</span>
+                      <span className="w-3 text-xs font-bold text-indigo-400 shrink-0">{i + 1}</span>
+                      <span className="text-xs text-indigo-800 truncate">{item.product_name}</span>
                     </div>
                   ))}
-                  {eveningItems.length > 5 && <p className="text-[10px] text-indigo-400">+{eveningItems.length - 5}개 더</p>}
+                  {eveningItems.length > 5 && <p className="text-xs text-indigo-400">+{eveningItems.length - 5}개 더</p>}
                 </div>
               </div>
             </div>
@@ -675,7 +675,7 @@ const MySkin = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-foreground">트러블 솔루션</p>
-              <p className="text-[11px] text-muted-foreground">피부 트러블 유형별 케어 & 약품 추천</p>
+              <p className="text-xs text-muted-foreground">피부 트러블 유형별 케어 & 약품 추천</p>
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
           </button>
@@ -715,11 +715,11 @@ const MySkin = () => {
                 </div>
                 {morningItems.slice(0, 4).map((item, i) => (
                   <div key={item.id} className="flex items-center gap-1.5 mb-1">
-                    <span className="w-3 text-[10px] font-bold text-yellow-400 shrink-0">{i + 1}</span>
-                    <span className="text-[11px] text-yellow-800 truncate">{item.product_name}</span>
+                    <span className="w-3 text-xs font-bold text-yellow-400 shrink-0">{i + 1}</span>
+                    <span className="text-xs text-yellow-800 truncate">{item.product_name}</span>
                   </div>
                 ))}
-                {morningItems.length > 4 && <p className="text-[10px] text-yellow-400">+{morningItems.length - 4}개</p>}
+                {morningItems.length > 4 && <p className="text-xs text-yellow-400">+{morningItems.length - 4}개</p>}
               </div>
               <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-3">
                 <div className="flex items-center justify-between mb-2">
@@ -731,11 +731,11 @@ const MySkin = () => {
                 </div>
                 {eveningItems.slice(0, 4).map((item, i) => (
                   <div key={item.id} className="flex items-center gap-1.5 mb-1">
-                    <span className="w-3 text-[10px] font-bold text-indigo-400 shrink-0">{i + 1}</span>
-                    <span className="text-[11px] text-indigo-800 truncate">{item.product_name}</span>
+                    <span className="w-3 text-xs font-bold text-indigo-400 shrink-0">{i + 1}</span>
+                    <span className="text-xs text-indigo-800 truncate">{item.product_name}</span>
                   </div>
                 ))}
-                {eveningItems.length > 4 && <p className="text-[10px] text-indigo-400">+{eveningItems.length - 4}개</p>}
+                {eveningItems.length > 4 && <p className="text-xs text-indigo-400">+{eveningItems.length - 4}개</p>}
               </div>
             </div>
           ) : !cabinetLoading ? (
@@ -764,7 +764,7 @@ const MySkin = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-foreground">성분 블랙리스트</p>
-              <p className="text-[11px] text-muted-foreground">내 피부에 맞지 않는 성분 자동 경보</p>
+              <p className="text-xs text-muted-foreground">내 피부에 맞지 않는 성분 자동 경보</p>
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
           </button>

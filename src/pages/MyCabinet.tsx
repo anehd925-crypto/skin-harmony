@@ -352,12 +352,12 @@ const MyCabinet = () => {
               <div className="space-y-1">
                 {morningItems.slice(0, 5).map((item, i) => (
                   <div key={item.id} className="flex items-center gap-1.5">
-                    <span className="w-3 shrink-0 text-[10px] font-bold text-yellow-400">{i + 1}</span>
-                    <span className="text-[11px] text-yellow-800 truncate">{item.product_name}</span>
+                    <span className="w-3 shrink-0 text-xs font-bold text-yellow-400">{i + 1}</span>
+                    <span className="text-xs text-yellow-800 truncate">{item.product_name}</span>
                   </div>
                 ))}
                 {morningItems.length > 5 && (
-                  <p className="text-[10px] text-yellow-400">+{morningItems.length - 5}개 더</p>
+                  <p className="text-xs text-yellow-400">+{morningItems.length - 5}개 더</p>
                 )}
               </div>
             </div>
@@ -374,12 +374,12 @@ const MyCabinet = () => {
               <div className="space-y-1">
                 {eveningItems.slice(0, 5).map((item, i) => (
                   <div key={item.id} className="flex items-center gap-1.5">
-                    <span className="w-3 shrink-0 text-[10px] font-bold text-indigo-400">{i + 1}</span>
-                    <span className="text-[11px] text-indigo-800 truncate">{item.product_name}</span>
+                    <span className="w-3 shrink-0 text-xs font-bold text-indigo-400">{i + 1}</span>
+                    <span className="text-xs text-indigo-800 truncate">{item.product_name}</span>
                   </div>
                 ))}
                 {eveningItems.length > 5 && (
-                  <p className="text-[10px] text-indigo-400">+{eveningItems.length - 5}개 더</p>
+                  <p className="text-xs text-indigo-400">+{eveningItems.length - 5}개 더</p>
                 )}
               </div>
             </div>
@@ -397,7 +397,7 @@ const MyCabinet = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-violet-800">루틴 성분 궁합 체크</p>
-              <p className="text-[11px] text-violet-600 mt-0.5">보관함 제품들의 성분 충돌·시너지를 확인해보세요</p>
+              <p className="text-xs text-violet-600 mt-0.5">보관함 제품들의 성분 충돌·시너지를 확인해보세요</p>
             </div>
             <ChevronDown className="h-4 w-4 text-violet-400 rotate-[-90deg] shrink-0" />
           </button>
@@ -426,15 +426,15 @@ const MyCabinet = () => {
                       <span className="text-base shrink-0">{catInfo.emoji}</span>
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-teal-800 truncate">{item.product_name}</p>
-                        <p className="text-[10px] text-teal-600">{guide.cycle}</p>
+                        <p className="text-xs text-teal-600">{guide.cycle}</p>
                       </div>
                     </div>
                     <Info className="h-3.5 w-3.5 text-teal-500 shrink-0" />
                   </button>
                   {isOpen && (
                     <div className="mt-2 rounded-xl bg-white/70 px-3 py-2.5 space-y-1.5">
-                      <p className="text-[11px] text-teal-700 leading-relaxed">💡 {guide.tip}</p>
-                      <p className="text-[11px] text-teal-600 font-medium">⚗️ {guide.ph}</p>
+                      <p className="text-xs text-teal-700 leading-relaxed">💡 {guide.tip}</p>
+                      <p className="text-xs text-teal-600 font-medium">⚗️ {guide.ph}</p>
                     </div>
                   )}
                 </div>
@@ -502,7 +502,7 @@ const MyCabinet = () => {
             </p>
             <button
               onClick={openAdd}
-              className="mt-2 rounded-full bg-primary px-5 py-2 text-xs font-bold text-primary-foreground"
+              className="mt-2 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground"
             >
               첫 번째 제품 추가
             </button>
@@ -530,7 +530,7 @@ const MyCabinet = () => {
                     {/* 텍스트 */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-0.5">
-                        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${catInfo.color}`}>
+                        <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${catInfo.color}`}>
                           {stepInfo?.label ?? catInfo.label}
                         </span>
                       </div>
@@ -600,19 +600,19 @@ const MyCabinet = () => {
           <div className="w-full max-h-[92vh] rounded-t-3xl bg-white overflow-y-auto">
 
             {/* 핸들 + 타이틀 */}
-            <div className="sticky top-0 z-10 bg-white border-b border-border px-5 py-4 flex items-center justify-between">
+            <div className="sticky top-0 z-10 bg-white border-b border-border px-4 py-4 flex items-center justify-between">
               <h3 className="text-base font-bold">{editId ? '제품 수정' : '제품 추가'}</h3>
               <button onClick={() => setShowModal(false)} className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100">
                 <X className="h-4 w-4 text-muted-foreground" />
               </button>
             </div>
 
-            <div className="px-5 py-5 space-y-6 pb-12">
+            <div className="px-4 py-5 space-y-6 pb-12">
 
               {/* ① 제품 검색 */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-foreground">제품 검색</label>
-                <p className="text-[11px] text-muted-foreground">제품명이나 브랜드로 검색하면 자동으로 채워져요</p>
+                <p className="text-xs text-muted-foreground">제품명이나 브랜드로 검색하면 자동으로 채워져요</p>
                 <div className="relative">
                   <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                   <input
@@ -636,7 +636,7 @@ const MyCabinet = () => {
                   <div className="rounded-xl border border-border overflow-hidden">
                     {searchLoading ? (
                       <div className="flex items-center gap-2 px-4 py-3 text-xs text-muted-foreground">
-                        <div className="h-3 w-3 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                        <div className="h-3 w-3 rounded-full border border-primary border-t-transparent animate-spin" />
                         AI가 제품을 찾고 있어요...
                       </div>
                     ) : suggestions.length > 0 ? (
@@ -653,13 +653,13 @@ const MyCabinet = () => {
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold truncate text-foreground">{s.name}</p>
                             <p className="text-xs text-muted-foreground">{s.brand} · {s.step}</p>
-                            {s.note && <p className="text-[10px] text-primary/70 mt-0.5">{s.note}</p>}
+                            {s.note && <p className="text-xs text-primary/70 mt-0.5">{s.note}</p>}
                           </div>
                           <div className="flex flex-col items-end gap-1 shrink-0">
-                            <span className="text-[10px] text-primary font-semibold">선택</span>
+                            <span className="text-xs text-primary font-semibold">선택</span>
                             <div className="flex gap-1">
-                              {s.is_morning && <span className="text-[9px] text-yellow-600 bg-yellow-50 px-1.5 rounded-full">아침</span>}
-                              {s.is_evening && <span className="text-[9px] text-indigo-600 bg-indigo-50 px-1.5 rounded-full">저녁</span>}
+                              {s.is_morning && <span className="text-xs text-yellow-600 bg-yellow-50 px-1.5 rounded-full">아침</span>}
+                              {s.is_evening && <span className="text-xs text-indigo-600 bg-indigo-50 px-1.5 rounded-full">저녁</span>}
                             </div>
                           </div>
                         </button>
@@ -674,7 +674,7 @@ const MyCabinet = () => {
 
                 <div className="flex items-center gap-2 pt-1">
                   <div className="flex-1 h-px bg-border" />
-                  <span className="text-[10px] text-muted-foreground px-1">또는 직접 입력</span>
+                  <span className="text-xs text-muted-foreground px-1">또는 직접 입력</span>
                   <div className="flex-1 h-px bg-border" />
                 </div>
               </div>
@@ -706,7 +706,7 @@ const MyCabinet = () => {
                 <label className="text-xs font-bold text-foreground">카테고리</label>
                 {(['cleansing', 'skincare', 'other'] as const).map(group => (
                   <div key={group} className="space-y-1.5">
-                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                       {group === 'cleansing' ? '클렌징' : group === 'skincare' ? '스킨케어' : '기타'}
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -741,7 +741,7 @@ const MyCabinet = () => {
                       key={t.key}
                       type="button"
                       onClick={() => setForm(f => ({ ...f, [t.key]: !f[t.key] }))}
-                      className={`flex items-center justify-center gap-2 rounded-xl border-2 py-3 text-sm font-semibold transition-all ${
+                      className={`flex items-center justify-center gap-2 rounded-xl border py-3 text-sm font-semibold transition-all ${
                         form[t.key] ? t.active : 'border-border text-muted-foreground bg-white'
                       }`}
                     >
@@ -763,14 +763,14 @@ const MyCabinet = () => {
                       onClick={() => setForm(f => ({ ...f, step_order: step.order }))}
                       className={`flex flex-col items-center rounded-xl py-2.5 px-2 text-center transition-all ${
                         form.step_order === step.order
-                          ? 'bg-primary border-2 border-primary text-primary-foreground'
+                          ? 'bg-primary border border-primary text-primary-foreground'
                           : 'border border-border bg-neutral-50 text-muted-foreground'
                       }`}
                     >
                       <span className={`text-xs font-bold ${form.step_order === step.order ? 'text-primary-foreground' : 'text-foreground'}`}>
                         {step.label}
                       </span>
-                      <span className={`text-[9px] mt-0.5 ${form.step_order === step.order ? 'text-white/70' : 'text-muted-foreground'}`}>
+                      <span className={`text-xs mt-0.5 ${form.step_order === step.order ? 'text-white/70' : 'text-muted-foreground'}`}>
                         {step.desc}
                       </span>
                     </button>

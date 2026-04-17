@@ -66,7 +66,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
       {/* 로고 */}
       <div className="mb-8 flex flex-col items-center gap-2">
         <div className="flex items-center gap-2">
@@ -113,7 +113,7 @@ const Auth = () => {
             <button
               onClick={handleGoogleLogin}
               disabled={googleLoading}
-              className="w-full flex items-center justify-center gap-3 rounded-2xl border border-border bg-card py-3.5 px-5 shadow-sm text-sm font-semibold text-foreground hover:bg-accent transition-colors disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-3 rounded-2xl border border-border bg-card py-3.5 px-4 shadow-sm text-sm font-semibold text-foreground hover:bg-accent transition-colors disabled:opacity-60"
             >
               {googleLoading ? (
                 <svg className="h-5 w-5 animate-spin text-muted-foreground" viewBox="0 0 24 24" fill="none">
@@ -208,7 +208,7 @@ const Auth = () => {
           </>
         )}
 
-        <p className="text-center text-[10px] text-muted-foreground leading-relaxed px-2">
+        <p className="text-center text-xs text-muted-foreground leading-relaxed px-2">
           가입 시{' '}
           <a href="/terms" className="underline hover:text-primary">서비스 이용약관</a>
           {' '}및{' '}

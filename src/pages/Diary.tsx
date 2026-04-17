@@ -219,27 +219,24 @@ const Diary = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-neutral-50 pb-24">
-      {/* 브랜드 헤더 배너 */}
-      <div className="gradient-brand px-5 pb-6 pt-12">
-        <button onClick={() => navigate('/history')} className="mb-3 flex items-center gap-1 text-sm text-primary-foreground/80">
-          <ChevronLeft className="h-4 w-4" />기록
+      {/* 헤더 */}
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
+        <button onClick={() => navigate(-1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
+          <ChevronLeft className="h-5 w-5" />
         </button>
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-bold text-primary-foreground">피부 일기</h1>
-            <p className="text-sm text-primary-foreground/80 mt-0.5">매일 피부 상태를 기록하고 AI 인사이트를 받아보세요</p>
-          </div>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleGetInsight}
-            disabled={loadingInsight || entries.length < 3}
-            className="rounded-full text-xs bg-primary-foreground/20 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/30"
-          >
-            {loadingInsight ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 mr-1" />}
-            AI 인사이트
-          </Button>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-base font-bold text-foreground">피부 일기</h1>
         </div>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleGetInsight}
+          disabled={loadingInsight || entries.length < 3}
+          className="rounded-full text-xs"
+        >
+          {loadingInsight ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 mr-1" />}
+          AI 인사이트
+        </Button>
       </div>
 
       <div className="flex-1 px-4 py-4 space-y-4">
@@ -285,7 +282,7 @@ const Diary = () => {
                     isToday ? 'font-bold' : ''
                   }`}
                 >
-                  <span className={`text-[11px] mb-0.5 ${
+                  <span className={`text-xs mb-0.5 ${
                     isToday ? 'text-primary' :
                     dayOfWeek === 0 ? 'text-destructive' :
                     dayOfWeek === 6 ? 'text-primary/70' :
@@ -298,7 +295,7 @@ const Diary = () => {
                       {SCORE_CONFIG.find(c => c.score === entry.skin_score)?.emoji}
                     </span>
                   ) : (
-                    <span className="text-[10px] text-muted-foreground/40">+</span>
+                    <span className="text-xs text-muted-foreground/40">+</span>
                   )}
                   {isToday && (
                     <span className="absolute top-0.5 right-1 h-1 w-1 rounded-full bg-primary" />
@@ -350,7 +347,7 @@ const Diary = () => {
             className="w-full max-h-[90vh] rounded-t-2xl bg-background border-t border-border overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
-            <div className="sticky top-0 flex items-center justify-between border-b border-border px-5 py-3 bg-background">
+            <div className="sticky top-0 flex items-center justify-between border-b border-border px-4 py-3 bg-background">
               <div>
                 <p className="text-sm font-semibold">피부 일기</p>
                 <p className="text-xs text-muted-foreground">{selectedDate}</p>
@@ -372,12 +369,12 @@ const Diary = () => {
                     <button
                       key={cfg.score}
                       onClick={() => setSkinScore(cfg.score)}
-                      className={`flex-1 flex flex-col items-center gap-1 rounded-xl border-2 py-3 transition-all ${
+                      className={`flex-1 flex flex-col items-center gap-1 rounded-xl border py-3 transition-all ${
                         skinScore === cfg.score ? cfg.color : 'border-border bg-card text-muted-foreground'
                       }`}
                     >
                       <span className="text-xl">{cfg.emoji}</span>
-                      <span className="text-[10px] font-medium">{cfg.label}</span>
+                      <span className="text-xs font-medium">{cfg.label}</span>
                     </button>
                   ))}
                 </div>
@@ -393,7 +390,7 @@ const Diary = () => {
                       onClick={() => setTroubleSpots(prev =>
                         prev.includes(opt) ? prev.filter(x => x !== opt) : [...prev, opt]
                       )}
-                      className={`rounded-full border-2 px-3 py-1.5 text-xs font-medium transition-all ${
+                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
                         troubleSpots.includes(opt)
                           ? 'border-destructive bg-destructive/10 text-destructive'
                           : 'border-border bg-card text-muted-foreground hover:border-destructive/40'
@@ -409,7 +406,7 @@ const Diary = () => {
               <div>
                 <p className="text-sm font-semibold mb-2">메모 (선택)</p>
                 <textarea
-                  className="w-full rounded-xl border-2 border-border bg-card px-3 py-2.5 text-sm text-foreground resize-none focus:outline-none focus:border-primary leading-relaxed"
+                  className="w-full rounded-xl border border-border bg-card px-3 py-2.5 text-sm text-foreground resize-none focus:outline-none focus:border-primary leading-relaxed"
                   rows={3}
                   placeholder="오늘 피부 상태, 사용한 제품, 특이사항 등을 자유롭게 기록해요"
                   value={notes}
@@ -420,7 +417,7 @@ const Diary = () => {
               <Button
                 onClick={handleSave}
                 disabled={saving}
-                className="w-full rounded-xl gradient-brand text-primary-foreground shadow-primary"
+                className="w-full rounded-xl bg-primary text-primary-foreground shadow-primary"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : '저장하기'}
               </Button>
@@ -436,7 +433,7 @@ const Diary = () => {
             className="w-full max-h-[90vh] rounded-t-2xl bg-background border-t border-border overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
-            <div className="sticky top-0 flex items-center justify-between border-b border-border px-5 py-3 bg-background">
+            <div className="sticky top-0 flex items-center justify-between border-b border-border px-4 py-3 bg-background">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-primary" />
                 <p className="text-sm font-semibold">AI 피부 인사이트</p>
@@ -470,7 +467,7 @@ const Diary = () => {
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <p className="text-sm font-semibold text-foreground">{ins.title}</p>
-                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${confidenceBadge[ins.confidence]}`}>
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${confidenceBadge[ins.confidence]}`}>
                               {ins.confidence === 'high' ? '확실' : ins.confidence === 'medium' ? '가능성' : '추정'}
                             </span>
                           </div>

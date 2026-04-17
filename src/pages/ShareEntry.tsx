@@ -267,7 +267,7 @@ const ShareEntry = () => {
   return (
     <div className="min-h-screen bg-background pb-10">
       {/* 헤더 */}
-      <div className="gradient-primary px-5 pb-6 pt-12">
+      <div className="gradient-primary px-4 pb-6 pt-12">
         <button onClick={() => navigate('/')} className="mb-4 flex items-center gap-1 text-sm text-primary-foreground/80">
           <ChevronLeft className="h-4 w-4" />홈으로
         </button>
@@ -280,7 +280,7 @@ const ShareEntry = () => {
         )}
       </div>
 
-      <div className="px-5 -mt-4 space-y-4">
+      <div className="px-4 -mt-4 space-y-4">
 
         {/* 로딩: 스크래핑 중 */}
         {stage === 'loading' && (
@@ -374,7 +374,7 @@ const ShareEntry = () => {
                 <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-semibold text-warning">AI 추정 성분 기반 분석</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed">
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                     실제 전성분을 찾지 못해 유사 성분으로 추정했습니다. 정확한 분석은 전성분 직접 입력을 이용해 주세요.
                   </p>
                 </div>

@@ -109,22 +109,19 @@ const Compare = () => {
 
   if (ids.length < 2) {
     return (
-      <div className="min-h-screen bg-background pb-20">
-        <div className="gradient-primary px-5 pb-6 pt-12">
-          <button type="button" onClick={() => navigate(-1)} className="mb-4 flex items-center gap-1 text-sm text-primary-foreground/80">
-            <ChevronLeft className="h-4 w-4" />뒤로
+      <div className="min-h-screen bg-background pb-24">
+        <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
+          <button type="button" onClick={() => navigate(-1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
+            <ChevronLeft className="h-5 w-5" />
           </button>
-          <div className="flex items-center gap-2">
-            <GitCompare className="h-5 w-5 text-primary-foreground" />
-            <h1 className="text-lg font-bold text-primary-foreground">제품 비교</h1>
-          </div>
+          <h1 className="text-base font-bold text-foreground flex-1 min-w-0">제품 비교</h1>
         </div>
-        <div className="flex flex-col items-center justify-center py-20 px-5 text-center">
+        <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
           <GitCompare className="h-12 w-12 text-muted-foreground/30 mb-3" />
           <p className="text-sm font-medium text-foreground">비교할 제품 2개를 선택해주세요</p>
           <p className="mt-1 text-xs text-muted-foreground">제품 탐색 화면에서 "비교" 버튼을 눌러 담아보세요</p>
           <button type="button" onClick={() => navigate('/explore')}
-            className="mt-5 rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground">
+            className="mt-5 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground">
             제품 탐색하기
           </button>
         </div>
@@ -134,22 +131,16 @@ const Compare = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <div className="gradient-primary px-5 pb-6 pt-12">
-        <button type="button" onClick={() => navigate(-1)} className="mb-4 flex items-center gap-1 text-sm text-primary-foreground/80">
-          <ChevronLeft className="h-4 w-4" />뒤로
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
+        <button type="button" onClick={() => navigate(-1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
+          <ChevronLeft className="h-5 w-5" />
         </button>
-        <div className="flex items-center gap-2">
-          <GitCompare className="h-5 w-5 text-primary-foreground" />
-          <h1 className="text-lg font-bold text-primary-foreground">제품 비교</h1>
-        </div>
-        <p className="mt-1 text-sm text-primary-foreground/80">
-          두 제품의 성분·평점·특성을 나란히 비교해보세요
-        </p>
+        <h1 className="text-base font-bold text-foreground flex-1 min-w-0">제품 비교</h1>
       </div>
 
-      <div className="px-4 space-y-4 -mt-3">
+      <div className="px-4 space-y-4 pt-3">
         {isLoading && (
           <div className="flex justify-center py-16">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
@@ -169,20 +160,20 @@ const Compare = () => {
                     </div>
                     <div className="min-w-0">
                       <p className="truncate text-xs font-bold text-foreground leading-tight">{p.name}</p>
-                      <p className="text-[10px] text-muted-foreground">{p.brand}</p>
+                      <p className="text-xs text-muted-foreground">{p.brand}</p>
                     </div>
                   </div>
                   {/* 가격 */}
                   {(p.current_price ?? 0) > 0 && (
                     <div className="flex items-center gap-1.5 mb-1">
                       {p.is_on_sale && (p.original_price ?? 0) > 0 && (
-                        <span className="text-[10px] text-muted-foreground line-through">{p.original_price!.toLocaleString()}원</span>
+                        <span className="text-xs text-muted-foreground line-through">{p.original_price!.toLocaleString()}원</span>
                       )}
                       <span className={`text-xs font-bold ${p.is_on_sale ? 'text-danger' : 'text-foreground'}`}>
                         {p.current_price!.toLocaleString()}원
                       </span>
                       {p.is_on_sale && (
-                        <span className="rounded-full bg-danger/10 px-1.5 py-0.5 text-[9px] font-bold text-danger">
+                        <span className="rounded-full bg-danger/10 px-1.5 py-0.5 text-xs font-bold text-danger">
                           {Math.round(p.discount_rate ?? 0)}%↓
                         </span>
                       )}
@@ -202,12 +193,12 @@ const Compare = () => {
                       : '-'}
                   </p>
                   {(products[0].rating_count ?? 0) > 0 && (
-                    <p className="text-[10px] text-muted-foreground">{products[0].rating_count}명</p>
+                    <p className="text-xs text-muted-foreground">{products[0].rating_count}명</p>
                   )}
                 </div>
                 <div className="px-3 py-2 text-center bg-muted/30">
                   <Star className="h-3.5 w-3.5 text-warning mx-auto mb-0.5 fill-current" />
-                  <p className="text-[10px] text-muted-foreground">평점</p>
+                  <p className="text-xs text-muted-foreground">평점</p>
                 </div>
                 <div className="p-3 text-center">
                   <p className="text-sm font-bold text-foreground">
@@ -216,7 +207,7 @@ const Compare = () => {
                       : '-'}
                   </p>
                   {(products[1].rating_count ?? 0) > 0 && (
-                    <p className="text-[10px] text-muted-foreground">{products[1].rating_count}명</p>
+                    <p className="text-xs text-muted-foreground">{products[1].rating_count}명</p>
                   )}
                 </div>
               </div>
@@ -225,7 +216,7 @@ const Compare = () => {
                   <p className="text-sm font-bold text-foreground">{ingByProduct(products[0].id).length}</p>
                 </div>
                 <div className="px-3 py-2 text-center bg-muted/30">
-                  <p className="text-[10px] text-muted-foreground whitespace-nowrap">성분 수</p>
+                  <p className="text-xs text-muted-foreground whitespace-nowrap">성분 수</p>
                 </div>
                 <div className="p-3 text-center">
                   <p className="text-sm font-bold text-foreground">{ingByProduct(products[1].id).length}</p>
@@ -241,7 +232,7 @@ const Compare = () => {
                 </div>
                 <div className="px-3 py-2 text-center bg-muted/30">
                   <ShieldCheck className="h-3.5 w-3.5 text-success mx-auto mb-0.5" />
-                  <p className="text-[10px] text-muted-foreground">성분 안전도</p>
+                  <p className="text-xs text-muted-foreground">성분 안전도</p>
                 </div>
                 <div className="p-3 text-center space-y-0.5">
                   <p className="text-xs font-semibold text-success">{safetyCount(products[1].id, 'safe')} 안전</p>
@@ -256,7 +247,7 @@ const Compare = () => {
                 </div>
                 <div className="px-3 py-2 text-center bg-muted/30">
                   <Heart className="h-3.5 w-3.5 text-red-400 mx-auto mb-0.5 fill-current" />
-                  <p className="text-[10px] text-muted-foreground">찜</p>
+                  <p className="text-xs text-muted-foreground">찜</p>
                 </div>
                 <div className="p-3 text-center">
                   <p className="text-sm font-bold text-foreground">{products[1].wish_count ?? 0}</p>
@@ -271,10 +262,10 @@ const Compare = () => {
                 <div className="grid grid-cols-2 gap-3">
                   {products.map(p => (
                     <div key={p.id}>
-                      <p className="text-[10px] text-muted-foreground mb-1.5 truncate">{p.name}</p>
+                      <p className="text-xs text-muted-foreground mb-1.5 truncate">{p.name}</p>
                       <div className="flex flex-wrap gap-1">
                         {(p.skin_types ?? []).map(t => (
-                          <span key={t} className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] text-primary">{t}</span>
+                          <span key={t} className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{t}</span>
                         ))}
                         {(p.skin_types ?? []).length === 0 && (
                           <span className="text-xs text-muted-foreground">정보 없음</span>
@@ -320,7 +311,7 @@ const Compare = () => {
                 <div className="grid grid-cols-2 gap-3">
                   {([onlyInA, onlyInB] as Ingredient[][]).map((uniq, idx) => (
                     <div key={idx}>
-                      <p className="text-[10px] font-medium text-muted-foreground mb-1.5 truncate">
+                      <p className="text-xs font-medium text-muted-foreground mb-1.5 truncate">
                         {products[idx]?.name}
                       </p>
                       {uniq.length === 0 ? (
@@ -331,7 +322,7 @@ const Compare = () => {
                         <div className="flex flex-wrap gap-1">
                           {uniq.slice(0, 15).map(i => (
                             <span key={i.id}
-                              className={`rounded-full px-2 py-0.5 text-[10px] font-medium border ${
+                              className={`rounded-full px-2 py-0.5 text-xs font-medium border ${
                                 i.safety === 'danger' ? 'border-danger/30 bg-danger/5 text-danger' :
                                 i.safety === 'caution' ? 'border-warning/20 bg-warning/5 text-warning' :
                                 'border-border bg-muted text-foreground'
@@ -340,7 +331,7 @@ const Compare = () => {
                             </span>
                           ))}
                           {uniq.length > 15 && (
-                            <span className="text-[10px] text-muted-foreground self-center">+{uniq.length - 15}</span>
+                            <span className="text-xs text-muted-foreground self-center">+{uniq.length - 15}</span>
                           )}
                         </div>
                       )}

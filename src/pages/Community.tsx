@@ -208,9 +208,9 @@ const Community = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-24">
       {/* 헤더 */}
-      <div className="gradient-primary px-5 pb-5 pt-12">
+      <div className="gradient-primary px-4 pb-5 pt-12">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-primary-foreground" />
@@ -400,7 +400,7 @@ const Community = () => {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5">
                               <NicknameDisplay nickname={c.profiles?.nickname} userId={c.user_id} />
-                              <span className="text-[10px] text-muted-foreground">{timeAgo(c.created_at)}</span>
+                              <span className="text-xs text-muted-foreground">{timeAgo(c.created_at)}</span>
                             </div>
                             <p className="text-sm text-muted-foreground mt-0.5">{c.comment}</p>
                           </div>

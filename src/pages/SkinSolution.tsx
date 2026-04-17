@@ -91,11 +91,11 @@ const MedicineCard = ({ med }: { med: MedicineType }) => {
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="rounded-xl bg-muted/60 px-3 py-2">
-              <p className="text-[10px] font-semibold text-muted-foreground mb-0.5">사용 방법</p>
+              <p className="text-xs font-semibold text-muted-foreground mb-0.5">사용 방법</p>
               <p className="text-xs text-foreground">{med.howToUse}</p>
             </div>
             <div className="rounded-xl bg-muted/60 px-3 py-2">
-              <p className="text-[10px] font-semibold text-muted-foreground mb-0.5">횟수 / 기간</p>
+              <p className="text-xs font-semibold text-muted-foreground mb-0.5">횟수 / 기간</p>
               <p className="text-xs text-foreground">{med.frequency}<br />{med.duration}</p>
             </div>
           </div>
@@ -103,7 +103,7 @@ const MedicineCard = ({ med }: { med: MedicineType }) => {
             <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-600 mt-0.5" />
             <p className="text-xs text-amber-800 leading-relaxed">{med.caution}</p>
           </div>
-          <p className="text-[10px] text-muted-foreground">구매처: {med.purchaseLocation}</p>
+          <p className="text-xs text-muted-foreground">구매처: {med.purchaseLocation}</p>
         </div>
       )}
     </div>
@@ -163,20 +163,16 @@ const SkinSolution = () => {
   return (
     <div className="min-h-screen bg-neutral-50 pb-24">
       {/* 헤더 */}
-      <div className="gradient-brand px-5 pb-8 pt-12">
-        <button onClick={() => navigate(-1)} className="mb-3 flex items-center gap-1 text-primary-foreground/80 text-sm">
-          <ChevronLeft className="h-4 w-4" />뒤로
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
+        <button onClick={() => navigate(-1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
+          <ChevronLeft className="h-5 w-5" />
         </button>
-        <div className="flex items-center gap-2 mb-1">
-          <Stethoscope className="h-5 w-5 text-primary-foreground" />
-          <h1 className="text-xl font-bold text-primary-foreground">트러블 솔루션</h1>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-base font-bold text-foreground">트러블 솔루션</h1>
         </div>
-        <p className="text-sm text-primary-foreground/80">
-          트러블 종류를 선택하면 AI가 약국 의약품과 스킨케어 루틴을 추천해드려요
-        </p>
       </div>
 
-      <div className="px-4 -mt-3 space-y-4">
+      <div className="px-4 mt-4 space-y-4">
         {!result ? (
           <>
             {/* 트러블 선택 */}
@@ -187,7 +183,7 @@ const SkinSolution = () => {
                   <button
                     key={t.id}
                     onClick={() => toggleTrouble(t.id)}
-                    className={`flex items-center gap-2.5 rounded-xl border-2 px-3 py-2.5 text-left transition-all ${
+                    className={`flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-all ${
                       selected.includes(t.id)
                         ? 'border-primary bg-primary/10'
                         : 'border-border bg-background'
@@ -196,7 +192,7 @@ const SkinSolution = () => {
                     <span className="text-lg">{t.emoji}</span>
                     <div>
                       <p className={`text-xs font-semibold ${selected.includes(t.id) ? 'text-primary' : 'text-foreground'}`}>{t.label}</p>
-                      <p className="text-[10px] text-muted-foreground">{t.desc}</p>
+                      <p className="text-xs text-muted-foreground">{t.desc}</p>
                     </div>
                   </button>
                 ))}
@@ -251,7 +247,7 @@ const SkinSolution = () => {
             <button
               onClick={handleAnalyze}
               disabled={loading || selected.length === 0}
-              className="w-full rounded-2xl gradient-brand py-4 text-base font-bold text-primary-foreground shadow-primary disabled:opacity-50"
+              className="w-full rounded-2xl bg-primary py-4 text-base font-bold text-primary-foreground shadow-primary disabled:opacity-50"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -316,7 +312,7 @@ const SkinSolution = () => {
                     {result.recommendedIngredients.slice(0, 4).map((ing, i) => (
                       <div key={i}>
                         <p className="text-xs font-semibold text-green-800">{ing.name}</p>
-                        <p className="text-[10px] text-green-700 leading-tight">{ing.reason}</p>
+                        <p className="text-xs text-green-700 leading-tight">{ing.reason}</p>
                       </div>
                     ))}
                   </div>
@@ -329,7 +325,7 @@ const SkinSolution = () => {
                     {result.avoidIngredients.slice(0, 4).map((ing, i) => (
                       <div key={i}>
                         <p className="text-xs font-semibold text-red-800">{ing.name}</p>
-                        <p className="text-[10px] text-red-700 leading-tight">{ing.reason}</p>
+                        <p className="text-xs text-red-700 leading-tight">{ing.reason}</p>
                       </div>
                     ))}
                   </div>
@@ -361,7 +357,7 @@ const SkinSolution = () => {
                           <p className="text-xs font-semibold text-foreground">{step.category}</p>
                           <p className="text-xs text-muted-foreground leading-relaxed">{step.instruction}</p>
                           {step.keyIngredient && (
-                            <span className="mt-1 inline-block rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] text-amber-700">
+                            <span className="mt-1 inline-block rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-xs text-amber-700">
                               {step.keyIngredient}
                             </span>
                           )}
@@ -397,7 +393,7 @@ const SkinSolution = () => {
                           <p className="text-xs font-semibold text-foreground">{step.category}</p>
                           <p className="text-xs text-muted-foreground leading-relaxed">{step.instruction}</p>
                           {step.keyIngredient && (
-                            <span className="mt-1 inline-block rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] text-indigo-700">
+                            <span className="mt-1 inline-block rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-xs text-indigo-700">
                               {step.keyIngredient}
                             </span>
                           )}

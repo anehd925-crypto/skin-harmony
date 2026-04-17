@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import BottomNav from '@/components/BottomNav';
 import {
   FlaskConical, Trash2, ShieldCheck, AlertTriangle,
-  ChevronDown, ChevronUp, GitCompare, X,
+  ChevronLeft, ChevronDown, ChevronUp, GitCompare, X,
   Heart, Tag, RefreshCw, BookOpen, TrendingDown
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
@@ -245,25 +245,25 @@ const History = () => {
   }, [history]);
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-20">
+    <div className="min-h-screen bg-neutral-50 pb-24">
       {/* 헤더 */}
-      <div className="gradient-brand px-5 pb-4 pt-12">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-primary-foreground" />
-            <h1 className="text-lg font-bold text-primary-foreground">기록</h1>
-          </div>
-          {tab === 'analysis' && history.length >= 2 && (
-            <button
-              onClick={() => { setShowCompare(!showCompare); if (showCompare) setCompareIds([]); }}
-              className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium ${
-                showCompare ? 'bg-primary-foreground text-primary' : 'bg-primary-foreground/20 text-primary-foreground'
-              }`}
-            >
-              <GitCompare className="h-3.5 w-3.5" />{showCompare ? '취소' : '비교'}
-            </button>
-          )}
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
+        <button onClick={() => navigate(-1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-base font-bold text-foreground">분석 기록</h1>
         </div>
+        {tab === 'analysis' && history.length >= 2 && (
+          <button
+            onClick={() => { setShowCompare(!showCompare); if (showCompare) setCompareIds([]); }}
+            className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium ${
+              showCompare ? 'bg-primary text-primary-foreground' : 'border border-border bg-neutral-50 text-muted-foreground'
+            }`}
+          >
+            <GitCompare className="h-3.5 w-3.5" />{showCompare ? '취소' : '비교'}
+          </button>
+        )}
       </div>
 
       {/* 탭 */}
@@ -310,8 +310,8 @@ const History = () => {
 
       {/* 비교 모달 */}
       {!showCompare && compareIds.length === 2 && compareItems.length === 2 && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-background overflow-y-auto pb-20">
-          <div className="gradient-brand px-5 pb-4 pt-12 sticky top-0 z-10">
+        <div className="fixed inset-0 z-50 flex flex-col bg-background overflow-y-auto pb-24">
+          <div className="bg-primary px-4 pb-4 pt-12 sticky top-0 z-10">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-primary-foreground">성분 비교</h2>
               <button onClick={() => setCompareIds([])} className="rounded-full bg-primary-foreground/20 p-1.5">
@@ -383,7 +383,7 @@ const History = () => {
               <div className="flex flex-col items-center justify-center py-16 text-center">
                 <FlaskConical className="h-12 w-12 text-muted-foreground/30 mb-3" />
                 <p className="text-sm text-muted-foreground">아직 분석한 제품이 없어요</p>
-                <button onClick={() => navigate('/scan')} className="mt-4 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
+                <button onClick={() => navigate('/scan')} className="mt-4 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
                   첫 번째 제품 분석하기
                 </button>
               </div>
@@ -401,7 +401,7 @@ const History = () => {
                     <div className="flex items-start gap-2">
                       {showCompare && (
                         <button onClick={() => toggleCompare(item.id)}
-                          className={`shrink-0 mt-0.5 h-5 w-5 rounded border-2 flex items-center justify-center ${isSelected ? 'border-primary bg-primary' : 'border-border'}`}>
+                          className={`shrink-0 mt-0.5 h-5 w-5 rounded border flex items-center justify-center ${isSelected ? 'border-primary bg-primary' : 'border-border'}`}>
                           {isSelected && <span className="text-primary-foreground text-xs font-bold">✓</span>}
                         </button>
                       )}
@@ -465,7 +465,7 @@ const History = () => {
                 <Heart className="h-12 w-12 text-muted-foreground/30 mb-3" />
                 <p className="text-sm text-muted-foreground">찜한 제품이 없어요</p>
                 <p className="mt-1 text-xs text-muted-foreground">제품 상세 페이지에서 "써보고싶다"를 눌러보세요</p>
-                <button onClick={() => navigate('/explore')} className="mt-4 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
+                <button onClick={() => navigate('/explore')} className="mt-4 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
                   제품 탐색하기
                 </button>
               </div>
@@ -521,7 +521,7 @@ const History = () => {
                 <Tag className="h-12 w-12 text-muted-foreground/30 mb-3" />
                 <p className="text-sm text-muted-foreground">할인 알림 대상 상품이 없어요</p>
                 <p className="mt-1 text-xs text-muted-foreground">제품을 찜하면 자동으로 할인 알림이 등록돼요</p>
-                <button onClick={() => navigate('/explore')} className="mt-4 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
+                <button onClick={() => navigate('/explore')} className="mt-4 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
                   제품 탐색하기
                 </button>
               </div>
@@ -603,7 +603,7 @@ const History = () => {
             )}
 
             {discountAlerts.length > 0 && (
-              <p className="mt-3 text-center text-[10px] text-muted-foreground">
+              <p className="mt-3 text-center text-xs text-muted-foreground">
                 {discountAlerts[0]?.last_checked_at
                   ? `마지막 확인: ${new Date(discountAlerts[0].last_checked_at).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`
                   : '"지금 확인" 버튼으로 최신 할인 정보를 가져오세요'}
@@ -622,7 +622,7 @@ const History = () => {
                 <FlaskConical className="h-12 w-12 text-muted-foreground/30 mb-3" />
                 <p className="text-sm text-muted-foreground">분석 기록이 없어요</p>
                 <p className="mt-1 text-xs text-muted-foreground">제품을 분석하면 리포트가 자동으로 생성됩니다</p>
-                <button onClick={() => navigate('/scan')} className="mt-4 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
+                <button onClick={() => navigate('/scan')} className="mt-4 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
                   지금 분석하기
                 </button>
               </div>
@@ -636,15 +636,15 @@ const History = () => {
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="rounded-xl bg-success/8 py-3">
                       <p className="text-xl font-bold text-success">{reportStats.gradeCounts.good}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">안전 제품</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">안전 제품</p>
                     </div>
                     <div className="rounded-xl bg-warning/8 py-3">
                       <p className="text-xl font-bold text-warning">{reportStats.gradeCounts.moderate}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">보통 제품</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">보통 제품</p>
                     </div>
                     <div className="rounded-xl bg-danger/8 py-3">
                       <p className="text-xl font-bold text-danger">{reportStats.gradeCounts.bad}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">주의 제품</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">주의 제품</p>
                     </div>
                   </div>
                   <div className="mt-3 rounded-xl bg-muted/40 p-2.5">
@@ -718,7 +718,7 @@ const History = () => {
                   </div>
                 </div>
 
-                <p className="text-center text-[10px] text-muted-foreground">
+                <p className="text-center text-xs text-muted-foreground">
                   총 {reportStats.total}개 제품 분석 기준
                 </p>
               </div>

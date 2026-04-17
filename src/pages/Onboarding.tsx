@@ -56,7 +56,7 @@ const Onboarding = () => {
       <div className="grid grid-cols-3 gap-2">
         {AGE_GROUPS.map(({ value, label }) => (
           <button key={value} onClick={() => setAgeGroup(value)}
-            className={`rounded-xl border-2 py-3 text-sm font-semibold transition-all ${
+            className={`rounded-xl border py-3 text-sm font-semibold transition-all ${
               profile.ageGroup === value ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card text-foreground hover:border-primary/40'
             }`}>
             {label}
@@ -75,7 +75,7 @@ const Onboarding = () => {
       <div className="grid grid-cols-2 gap-3">
         {SKIN_TYPES.map(type => (
           <button key={type} onClick={() => setSkinType(type)}
-            className={`rounded-xl border-2 px-4 py-4 text-sm font-semibold transition-all ${
+            className={`rounded-xl border px-4 py-4 text-sm font-semibold transition-all ${
               profile.skinType === type ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card text-foreground hover:border-primary/40'
             }`}>
             {type}
@@ -88,7 +88,7 @@ const Onboarding = () => {
         <div className="space-y-2">
           {SKIN_CONDITIONS.map(({ value, label, desc }) => (
             <button key={value} onClick={() => setSkinCondition(value)}
-              className={`w-full rounded-xl border-2 p-3 text-left transition-all ${
+              className={`w-full rounded-xl border p-3 text-left transition-all ${
                 profile.skinCondition === value ? 'border-primary bg-primary/10' : 'border-border bg-card hover:border-primary/40'
               }`}>
               <p className={`text-sm font-semibold ${profile.skinCondition === value ? 'text-primary' : 'text-foreground'}`}>{label}</p>
@@ -109,7 +109,7 @@ const Onboarding = () => {
       <div className="space-y-2">
         {SKIN_SENSITIVITIES.map(({ value, label, desc }) => (
           <button key={value} onClick={() => setSkinSensitivity(value)}
-            className={`w-full rounded-xl border-2 p-4 text-left transition-all ${
+            className={`w-full rounded-xl border p-4 text-left transition-all ${
               profile.skinSensitivity === value ? 'border-primary bg-primary/10' : 'border-border bg-card hover:border-primary/40'
             }`}>
             <p className={`text-sm font-semibold ${profile.skinSensitivity === value ? 'text-primary' : 'text-foreground'}`}>{label}</p>
@@ -131,12 +131,12 @@ const Onboarding = () => {
           const priority = profile.concernPriority.indexOf(concern) + 1;
           return (
             <button key={concern} onClick={() => handleToggleConcern(concern)}
-              className={`relative rounded-full border-2 px-4 py-2 text-sm font-medium transition-all ${
+              className={`relative rounded-full border px-4 py-2 text-sm font-medium transition-all ${
                 profile.skinConcerns.includes(concern) ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card text-foreground hover:border-primary/40'
               }`}>
               {concern}
               {priority > 0 && (
-                <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                   {priority}
                 </span>
               )}
@@ -164,7 +164,7 @@ const Onboarding = () => {
         <div className="flex flex-wrap gap-2">
           {SKIN_GOALS.map(g => (
             <button key={g} onClick={() => toggleGoal(g)}
-              className={`rounded-full border-2 px-3 py-1.5 text-xs font-medium transition-all ${
+              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
                 profile.skinGoals.includes(g) ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card text-foreground hover:border-primary/40'
               }`}>{g}</button>
           ))}
@@ -175,7 +175,7 @@ const Onboarding = () => {
         <div className="flex flex-wrap gap-2">
           {AVOID_INGREDIENTS.map(a => (
             <button key={a} onClick={() => toggleAvoid(a)}
-              className={`rounded-full border-2 px-3 py-1.5 text-xs font-medium transition-all ${
+              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
                 profile.avoidIngredients.includes(a) ? 'border-danger/70 bg-danger/10 text-danger' : 'border-border bg-card text-foreground hover:border-danger/40'
               }`}>{a}</button>
           ))}
@@ -193,7 +193,7 @@ const Onboarding = () => {
       <div className="space-y-2">
         {SPECIAL_CONDITIONS.map(({ value, label, desc }) => (
           <button key={value} onClick={() => setSpecialCondition(value)}
-            className={`w-full rounded-xl border-2 p-4 text-left transition-all ${
+            className={`w-full rounded-xl border p-4 text-left transition-all ${
               profile.specialCondition === value ? 'border-primary bg-primary/10' : 'border-border bg-card hover:border-primary/40'
             }`}>
             <p className={`text-sm font-semibold ${profile.specialCondition === value ? 'text-primary' : 'text-foreground'}`}>{label}</p>
@@ -215,7 +215,7 @@ const Onboarding = () => {
         <div className="grid grid-cols-3 gap-2">
           {PERSONAL_COLORS.map(color => (
             <button key={color} onClick={() => setPersonalColor(color)}
-              className={`rounded-xl border-2 px-3 py-2.5 text-sm font-semibold transition-all ${
+              className={`rounded-xl border px-3 py-2.5 text-sm font-semibold transition-all ${
                 profile.personalColor === color ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card text-foreground hover:border-primary/40'
               }`}>{color}</button>
           ))}
@@ -228,7 +228,7 @@ const Onboarding = () => {
           placeholder="예: 프로폴리스, 티트리오일"
           value={allergyInput}
           onChange={e => setAllergyInput(e.target.value)}
-          className="rounded-xl border-2 border-border"
+          className="rounded-xl border border-border"
         />
       </div>
     </div>,
@@ -244,7 +244,7 @@ const Onboarding = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <div className="flex flex-1 flex-col items-center justify-start px-6 py-10 overflow-y-auto">
+      <div className="flex flex-1 flex-col items-center justify-start px-4 py-10 overflow-y-auto">
         <div className="mb-6 flex items-center gap-2">
           <Sparkles className="h-6 w-6 text-primary" />
           <span className="text-lg font-bold text-primary">BeautyLens</span>

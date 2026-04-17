@@ -13,7 +13,7 @@ const Privacy = () => {
         <h1 className="text-base font-semibold">개인정보 처리방침</h1>
       </div>
 
-      <div className="mx-auto max-w-2xl px-5 py-6 space-y-6 text-sm leading-relaxed text-foreground">
+      <div className="mx-auto max-w-2xl px-4 py-6 space-y-6 text-sm leading-relaxed text-foreground">
         <p className="text-xs text-muted-foreground">최종 개정일: 2026년 4월 10일</p>
 
         <section className="space-y-2">

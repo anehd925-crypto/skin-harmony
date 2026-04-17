@@ -136,7 +136,7 @@ const BlacklistPage = () => {
             </div>
             <button
               onClick={() => navigate('/scan')}
-              className="mt-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
+              className="mt-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
             >
               지금 성분 분석하기
             </button>
@@ -159,21 +159,21 @@ const BlacklistPage = () => {
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-sm font-bold text-foreground">{item.ingredient_name}</p>
                       {item.is_confirmed && (
-                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">직접 등록</span>
+                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">직접 등록</span>
                       )}
                     </div>
                     {item.ingredient_name_en && (
                       <p className="text-xs text-muted-foreground mt-0.5">{item.ingredient_name_en}</p>
                     )}
                     <div className="mt-1.5 flex items-center gap-2">
-                      <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${risk.color}`}>
+                      <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${risk.color}`}>
                         위험도 {risk.label}
                       </span>
-                      <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
                         <TrendingUp className="h-3 w-3" />
                         {item.danger_count}회 위험 · {item.caution_count}회 주의
                       </span>
-                      <span className="text-[10px] text-muted-foreground">마지막 {dateStr}</span>
+                      <span className="text-xs text-muted-foreground">마지막 {dateStr}</span>
                     </div>
                   </div>
                   <button
@@ -192,7 +192,7 @@ const BlacklistPage = () => {
       {/* 직접 추가 모달 */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40">
-          <div className="w-full max-w-md rounded-t-3xl bg-white px-5 py-6 space-y-4">
+          <div className="w-full max-w-md rounded-t-3xl bg-white px-4 py-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-bold text-foreground">성분 직접 추가</h3>
               <button onClick={() => setShowAddModal(false)}>

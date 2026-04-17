@@ -163,7 +163,7 @@ const FeedbackModal = ({ open, onClose, defaultType = 'app_review' }: FeedbackMo
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="w-full rounded-2xl gradient-brand py-3.5 text-sm font-semibold text-primary-foreground shadow-primary disabled:opacity-60"
+              className="w-full rounded-2xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground shadow-primary disabled:opacity-60"
             >
               {submitting ? '전송 중...' : '의견 보내기'}
             </button>

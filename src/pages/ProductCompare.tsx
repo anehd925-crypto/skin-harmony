@@ -125,7 +125,7 @@ const ProductCompare = () => {
             {/* 제품 A */}
             <div className="rounded-2xl border border-border bg-white p-4 space-y-3">
               <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">A</span>
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">A</span>
                 <p className="text-sm font-bold text-foreground">첫 번째 제품</p>
               </div>
               <input
@@ -152,7 +152,7 @@ const ProductCompare = () => {
             {/* 제품 B */}
             <div className="rounded-2xl border border-border bg-white p-4 space-y-3">
               <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-[11px] font-bold text-white">B</span>
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-xs font-bold text-white">B</span>
                 <p className="text-sm font-bold text-foreground">두 번째 제품</p>
               </div>
               <input
@@ -196,7 +196,7 @@ const ProductCompare = () => {
           <div ref={resultRef} className="space-y-4">
 
             {/* 추천 제품 배너 */}
-            <div className="rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10 p-5">
+            <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10 p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Trophy className="h-5 w-5 text-primary" />
                 <p className="text-sm font-bold text-foreground">
@@ -223,13 +223,13 @@ const ProductCompare = () => {
                         <Trophy className="h-3 w-3 text-primary-foreground" />
                       </div>
                     )}
-                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${side === 'A' ? 'bg-primary/10 text-primary' : 'bg-neutral-200 text-neutral-700'}`}>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${side === 'A' ? 'bg-primary/10 text-primary' : 'bg-neutral-200 text-neutral-700'}`}>
                       {side}
                     </span>
                     <p className="mt-2 text-sm font-bold text-foreground line-clamp-1">{p.name}</p>
                     <p className="text-xs text-muted-foreground">{p.brand}</p>
                     <p className={`mt-2 text-2xl font-black ${SCORE_COLOR(p.score)}`}>{p.score}<span className="text-sm font-normal">/100</span></p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">AI 적합도 점수</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">AI 적합도 점수</p>
                   </div>
                 );
               })}
@@ -246,7 +246,7 @@ const ProductCompare = () => {
                   <div key={i} className="px-4 py-3">
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-xs font-bold text-foreground">{cp.aspect}</p>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
                         cp.winner === 'tie'
                           ? 'bg-neutral-100 text-neutral-600'
                           : cp.winner === 'A'
@@ -271,7 +271,7 @@ const ProductCompare = () => {
               return (
                 <div key={side} className="rounded-2xl border border-border bg-white p-4 space-y-3">
                   <div className="flex items-center gap-2">
-                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${side === 'A' ? 'bg-primary/10 text-primary' : 'bg-neutral-200 text-neutral-700'}`}>{side}</span>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${side === 'A' ? 'bg-primary/10 text-primary' : 'bg-neutral-200 text-neutral-700'}`}>{side}</span>
                     <div>
                       <p className="text-sm font-bold text-foreground">{p.name}</p>
                       {p.brand && <p className="text-xs text-muted-foreground">{p.brand}</p>}
@@ -280,10 +280,10 @@ const ProductCompare = () => {
 
                   {p.mainIngredients?.length > 0 && (
                     <div>
-                      <p className="text-[10px] font-bold text-muted-foreground mb-1.5">주요 성분</p>
+                      <p className="text-xs font-bold text-muted-foreground mb-1.5">주요 성분</p>
                       <div className="flex flex-wrap gap-1.5">
                         {p.mainIngredients.map((ing, i) => (
-                          <span key={i} className="text-[10px] px-2 py-0.5 bg-neutral-100 text-neutral-700 rounded-full">{ing}</span>
+                          <span key={i} className="text-xs px-2 py-0.5 bg-neutral-100 text-neutral-700 rounded-full">{ing}</span>
                         ))}
                       </div>
                     </div>
@@ -291,13 +291,13 @@ const ProductCompare = () => {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <p className="text-[10px] font-bold text-green-600 mb-1.5">✓ 장점</p>
+                      <p className="text-xs font-bold text-green-600 mb-1.5">✓ 장점</p>
                       <ul className="space-y-1">
                         {p.pros?.map((pro, i) => <li key={i} className="text-xs text-muted-foreground">• {pro}</li>)}
                       </ul>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-red-500 mb-1.5">✗ 단점</p>
+                      <p className="text-xs font-bold text-red-500 mb-1.5">✗ 단점</p>
                       <ul className="space-y-1">
                         {p.cons?.map((con, i) => <li key={i} className="text-xs text-muted-foreground">• {con}</li>)}
                       </ul>

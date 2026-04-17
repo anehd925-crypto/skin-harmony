@@ -28,7 +28,7 @@ const BlacklistAlert = ({ hits }: Props) => {
           {hits.slice(0, 3).join(', ')}
           {hits.length > 3 ? ` 외 ${hits.length - 3}개` : ''}
         </p>
-        <p className="mt-1 text-[10px] text-red-500">과거 분석에서 위험·주의 등급 받은 성분이에요</p>
+        <p className="mt-1 text-xs text-red-500">과거 분석에서 위험·주의 등급 받은 성분이에요</p>
       </div>
       <ChevronRight className="h-4 w-4 shrink-0 text-red-400 mt-1" />
     </button>

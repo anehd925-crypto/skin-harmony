@@ -302,7 +302,7 @@ const SkinTimeline = () => {
                   return (
                     <div key={point.date} className="relative">
                       {/* 타임라인 마커 */}
-                      <div className={`absolute -left-[26px] flex h-5 w-5 items-center justify-center rounded-full border-2 border-white ${
+                      <div className={`absolute -left-[26px] flex h-5 w-5 items-center justify-center rounded-full border border-white ${
                         hasDiary ? 'bg-primary' : 'bg-orange-400'
                       }`}>
                         {hasDiary
@@ -337,7 +337,7 @@ const SkinTimeline = () => {
                           <div className="space-y-1">
                             {point.routineChanges.map((rc, j) => (
                               <div key={j} className="flex items-center gap-1.5">
-                                <span className="shrink-0 rounded-full bg-orange-100 px-1.5 py-0.5 text-[10px] font-semibold text-orange-600">
+                                <span className="shrink-0 rounded-full bg-orange-100 px-1.5 py-0.5 text-xs font-semibold text-orange-600">
                                   루틴 {rc.type === 'added' ? '추가' : '제거'}
                                 </span>
                                 <span className="text-xs text-foreground truncate">{rc.product_name}</span>

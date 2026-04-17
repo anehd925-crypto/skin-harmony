@@ -114,7 +114,7 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
           </div>
           <div>
             <p className="text-xs font-bold text-foreground">루틴 안전도</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">루틴 등록 후 확인</p>
+            <p className="text-xs text-muted-foreground mt-0.5">루틴 등록 후 확인</p>
           </div>
         </button>
       );
@@ -141,7 +141,7 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
           <ChevronRight className={`h-3.5 w-3.5 ${c.icon}`} />
         </div>
         <div>
-          <p className={`text-[10px] font-semibold ${c.text}`}>루틴 안전도</p>
+          <p className={`text-xs font-semibold ${c.text}`}>루틴 안전도</p>
           <p className={`text-lg font-black ${c.text}`}>{data.score}<span className="text-xs font-normal ml-0.5">점</span></p>
           <div className="mt-1 h-1 rounded-full bg-white/60">
             <div className={`h-full rounded-full ${c.bar}`} style={{ width: `${data.score}%` }} />
@@ -167,12 +167,12 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
         <div className="flex items-center gap-2">
           <p className={`text-xs font-bold ${c.text}`}>오늘 루틴 안전도</p>
           {data.conflictCount > 0 && (
-            <span className="rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-600">
+            <span className="rounded-full bg-red-100 px-1.5 py-0.5 text-xs font-bold text-red-600">
               충돌 {data.conflictCount}
             </span>
           )}
           {data.synergyCount > 0 && (
-            <span className="rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-600">
+            <span className="rounded-full bg-blue-100 px-1.5 py-0.5 text-xs font-bold text-blue-600">
               <Zap className="inline h-2.5 w-2.5" /> 시너지 {data.synergyCount}
             </span>
           )}
@@ -187,7 +187,7 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
           <span className={`text-sm font-bold ${c.text}`}>{data.score}점</span>
         </div>
         {data.topConflict && (
-          <p className={`mt-0.5 text-[10px] ${c.text} opacity-80 truncate`}>⚠ {data.topConflict}</p>
+          <p className={`mt-0.5 text-xs ${c.text} opacity-80 truncate`}>⚠ {data.topConflict}</p>
         )}
       </div>
       <ChevronRight className={`h-4 w-4 shrink-0 ${c.icon}`} />

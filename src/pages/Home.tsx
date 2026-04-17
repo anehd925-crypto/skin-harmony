@@ -8,7 +8,7 @@ import BottomNav from '@/components/BottomNav';
 import WeatherRoutineCard from '@/components/WeatherRoutineCard';
 import RoutineSafetyCard from '@/components/RoutineSafetyCard';
 import {
-  Camera, ChevronRight, FlaskConical, Sparkles,
+  Camera, ChevronRight, FlaskConical,
   Layers, BookMarked, ShieldAlert, Package, TrendingUp,
   Grid3X3, X, Pill, type LucideIcon,
 } from 'lucide-react';
@@ -23,7 +23,7 @@ interface MoreItem {
 }
 
 const MORE_ITEMS: MoreItem[] = [
-  { Icon: Layers,      label: '루틴 체커',      sub: '성분 궁합 분析',     path: '/routine',       color: 'text-violet-600 bg-violet-50' },
+  { Icon: Layers,      label: '루틴 체커',      sub: '성분 궁합 분석',     path: '/routine',       color: 'text-violet-600 bg-violet-50' },
   { Icon: BookMarked,  label: '피부 일기',      sub: 'AI 인사이트 기록',   path: '/myskin',        color: 'text-emerald-600 bg-emerald-50' },
   { Icon: Package,     label: '내 보관함',      sub: '날씨 맞춤 루틴',     path: '/cabinet',       color: 'text-amber-600 bg-amber-50' },
   { Icon: ShieldAlert, label: '성분 블랙리스트', sub: '위험 성분 자동 경보', path: '/blacklist',     color: 'text-red-500 bg-red-50' },
@@ -87,28 +87,17 @@ const Home = () => {
     <div className="min-h-screen bg-neutral-50 pb-24">
 
       {/* ── 헤더 ── */}
-      <div className="gradient-brand px-5 pb-6 pt-14 safe-top">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-white/50" />
-            <span className="text-[11px] font-semibold text-white/50 tracking-widest uppercase">BeautyLens</span>
+          <div>
+            <h1 className="text-lg font-bold text-foreground">BeautyLens</h1>
           </div>
           <button
             onClick={() => navigate('/profile')}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white/80 text-xs font-bold ring-1 ring-white/15"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 text-foreground text-xs font-bold ring-1 ring-border"
           >
             {displayName.slice(0, 1).toUpperCase() || 'B'}
           </button>
-        </div>
-
-        <div className="mt-5">
-          <p className="text-sm text-white/40 font-medium">{greetingPeriod}</p>
-          <h1 className="mt-1 text-[26px] font-black text-white leading-[1.15] tracking-tight">
-            {profile.skinType
-              ? <>{profile.skinType} 피부를 위한<br /><span className="text-white/70">오늘의 루틴이에요</span></>
-              : <>내 피부에 맞는<br /><span className="text-white/70">성분을 분석해요</span></>
-            }
-          </h1>
         </div>
       </div>
 
@@ -120,7 +109,7 @@ const Home = () => {
         {/* ── Primary CTA: 성분 스캔 ── */}
         <button
           onClick={() => navigate('/scan')}
-          className="flex w-full items-center gap-4 rounded-2xl gradient-primary px-5 py-4 text-left shadow-primary press"
+          className="flex w-full items-center gap-4 rounded-2xl gradient-primary px-4 py-4 text-left shadow-primary press"
         >
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15">
             <Camera className="h-5 w-5 text-white" />
@@ -151,13 +140,13 @@ const Home = () => {
             <div>
               {todayDiary ? (
                 <>
-                  <p className="text-[10px] text-muted-foreground font-medium">오늘 피부</p>
+                  <p className="text-xs text-muted-foreground font-medium">오늘 피부</p>
                   <p className="text-xl font-black text-foreground">{todayDiary.skin_score}<span className="text-xs font-medium text-muted-foreground ml-0.5">점</span></p>
                 </>
               ) : (
                 <>
                   <p className="text-xs font-bold text-foreground">피부 일기</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">오늘 기록하기</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">오늘 기록하기</p>
                 </>
               )}
             </div>
@@ -216,10 +205,10 @@ const Home = () => {
                         <p className="text-xs text-muted-foreground">{a.product_brand}</p>
                       </div>
                       <div className="shrink-0 flex flex-col items-end gap-0.5">
-                        <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${gradeColor[grade] ?? gradeColor.moderate}`}>
+                        <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${gradeColor[grade] ?? gradeColor.moderate}`}>
                           {gradeLabel[grade] ?? '보통'}
                         </span>
-                        <span className="text-[10px] text-muted-foreground">{dateStr}</span>
+                        <span className="text-xs text-muted-foreground">{dateStr}</span>
                       </div>
                     </button>
                   );
@@ -229,19 +218,19 @@ const Home = () => {
           </section>
         )}
 
-        {/* 분析 기록이 없을 때 온보딩 안내 */}
+        {/* 분석 기록이 없을 때 온보딩 안내 */}
         {user && !analysisLoading && recentAnalysis.length === 0 && (
-          <div className="rounded-2xl border border-primary/15 bg-primary/5 px-5 py-6 text-center">
+          <div className="rounded-2xl border border-primary/15 bg-primary/5 px-4 py-6 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl gradient-primary shadow-primary mx-auto mb-3">
               <Camera className="h-6 w-6 text-white" />
             </div>
-            <p className="text-sm font-bold text-foreground mb-1">아직 분析 기록이 없어요</p>
+            <p className="text-sm font-bold text-foreground mb-1">아직 분석 기록이 없어요</p>
             <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
               화장품 성분을 스캔하면<br />내 피부에 맞는지 바로 확인할 수 있어요
             </p>
             <button
               onClick={() => navigate('/scan')}
-              className="rounded-xl gradient-primary px-5 py-2.5 text-xs font-bold text-white shadow-primary press"
+              className="rounded-xl gradient-primary px-4 py-2.5 text-xs font-bold text-white shadow-primary press"
             >
               첫 번째 성분 분析하기
             </button>
@@ -259,7 +248,7 @@ const Home = () => {
             onClick={() => setShowMore(false)}
           />
           {/* 시트 */}
-          <div className="relative w-full rounded-t-3xl bg-white px-5 pt-5 pb-10 safe-bottom animate-in slide-in-from-bottom duration-300">
+          <div className="relative w-full rounded-t-3xl bg-white px-4 pt-5 pb-10 safe-bottom animate-in slide-in-from-bottom duration-300">
             <div className="flex items-center justify-between mb-5">
               <h3 className="text-base font-black text-foreground">모든 기능</h3>
               <button
@@ -280,8 +269,8 @@ const Home = () => {
                     <item.Icon className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-[12px] font-bold text-foreground leading-tight">{item.label}</p>
-                    <p className="text-[9px] text-muted-foreground leading-tight mt-0.5">{item.sub}</p>
+                    <p className="text-xs font-bold text-foreground leading-tight">{item.label}</p>
+                    <p className="text-xs text-muted-foreground leading-tight mt-0.5">{item.sub}</p>
                   </div>
                 </button>
               ))}

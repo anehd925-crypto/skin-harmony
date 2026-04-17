@@ -105,7 +105,7 @@ const OliveyoungInventory = ({ productName }: { productName: string }) => {
           {/* 로딩 */}
           {isLoading && (
             <div className="flex items-center justify-center py-6 gap-2">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-green-600 border-t-transparent" />
+              <div className="h-4 w-4 animate-spin rounded-full border border-green-600 border-t-transparent" />
               <span className="text-sm text-muted-foreground">{searchedLocation} 근처 재고 조회 중...</span>
             </div>
           )}
@@ -157,7 +157,7 @@ const OliveyoungInventory = ({ productName }: { productName: string }) => {
                       </span>
                     </div>
                   ))}
-                  <p className="text-[10px] text-muted-foreground text-right">
+                  <p className="text-xs text-muted-foreground text-right">
                     실시간 재고는 방문 전 올리브영 앱에서 재확인을 권장합니다
                   </p>
                 </div>
@@ -466,66 +466,69 @@ const ProductDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-20">
+    <div className="min-h-screen bg-neutral-50 pb-24">
       {/* 헤더 */}
-      <div className="gradient-brand px-5 pb-6 pt-12">
-        <button onClick={() => navigate(-1)} className="mb-4 flex items-center gap-1 text-sm text-primary-foreground/80">
-          <ChevronLeft className="h-4 w-4" />뒤로
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
+        <button onClick={() => navigate(-1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
+          <ChevronLeft className="h-5 w-5" />
         </button>
+        <h1 className="text-base font-bold text-foreground flex-1 min-w-0">제품 상세</h1>
+      </div>
+
+      {/* 제품 정보 */}
+      <div className="px-4 pt-4 pb-2">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 flex-1 min-w-0">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-primary-foreground/20 text-3xl">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-secondary text-3xl">
               {product.category === 'makeup' ? '💄' : product.category === 'suncare' ? '☀️' : '🧴'}
             </div>
             <div className="min-w-0">
-              <h1 className="text-base font-bold text-primary-foreground leading-tight">{product.name}</h1>
-              <p className="text-sm text-primary-foreground/70">{product.brand}</p>
+              <h2 className="text-base font-bold text-foreground leading-tight">{product.name}</h2>
+              <p className="text-sm text-muted-foreground">{product.brand}</p>
               <div className="mt-1 flex items-center gap-2">
-                <span className="flex items-center gap-0.5 text-sm text-primary-foreground">
+                <span className="flex items-center gap-0.5 text-sm text-foreground">
                   <Star className="h-3.5 w-3.5 fill-current" />
                   {ratingStats?.avg ?? 0 > 0 ? ratingStats?.avg.toFixed(1) : '-'}
                 </span>
                 {ratingStats?.count ? (
-                  <span className="text-xs text-primary-foreground/60">({ratingStats.count}명)</span>
+                  <span className="text-xs text-muted-foreground">({ratingStats.count}명)</span>
                 ) : null}
               </div>
-              {/* 할인 가격 표시 */}
               {(product as { is_on_sale?: boolean }).is_on_sale && (
                 <div className="mt-1.5 flex items-center gap-2">
                   {(product as { original_price?: number }).original_price! > 0 && (
-                    <span className="text-xs text-primary-foreground/50 line-through">
+                    <span className="text-xs text-muted-foreground line-through">
                       {(product as { original_price?: number }).original_price!.toLocaleString()}원
                     </span>
                   )}
-                  <span className="text-sm font-bold text-yellow-300">
+                  <span className="text-sm font-bold text-primary">
                     {(product as { current_price?: number }).current_price!.toLocaleString()}원
                   </span>
-                  <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-xs font-bold text-white">
                     {Math.round((product as { discount_rate?: number }).discount_rate ?? 0)}% 할인
                   </span>
                 </div>
               )}
               {!(product as { is_on_sale?: boolean }).is_on_sale && (product as { current_price?: number }).current_price! > 0 && (
-                <p className="mt-1 text-xs text-primary-foreground/60">
+                <p className="mt-1 text-xs text-muted-foreground">
                   {(product as { current_price?: number }).current_price!.toLocaleString()}원
                 </p>
               )}
             </div>
           </div>
-          {/* 찜 버튼 + 할인알림 표시 */}
           <div className="shrink-0 flex flex-col items-center gap-1.5">
             <button
               type="button"
               onClick={() => wishMutation.mutate()}
               className={`flex flex-col items-center gap-0.5 rounded-xl px-3 py-2 transition-colors ${
-                isWished ? 'bg-primary-foreground/20' : 'bg-primary-foreground/10'
+                isWished ? 'bg-primary/10' : 'bg-secondary'
               }`}
             >
-              <Heart className={`h-5 w-5 ${isWished ? 'fill-red-400 text-red-400' : 'text-primary-foreground/70'}`} />
-              <span className="text-[10px] text-primary-foreground/70">{isWished ? '찜됨' : '써보고싶다'}</span>
+              <Heart className={`h-5 w-5 ${isWished ? 'fill-red-400 text-red-400' : 'text-muted-foreground'}`} />
+              <span className="text-xs text-muted-foreground">{isWished ? '찜됨' : '써보고싶다'}</span>
             </button>
             {isWished && discountAlert?.is_active && (
-              <span className="rounded-full bg-yellow-400/20 px-2 py-0.5 text-[10px] font-medium text-yellow-200">
+              <span className="rounded-full bg-yellow-400/20 px-2 py-0.5 text-xs font-medium text-yellow-600">
                 할인알림 ON
               </span>
             )}
@@ -533,17 +536,17 @@ const ProductDetail = () => {
               type="button"
               onClick={toggleCompare}
               className={`flex flex-col items-center gap-0.5 rounded-xl px-3 py-2 transition-colors ${
-                inCompare ? 'bg-primary-foreground/20' : 'bg-primary-foreground/10'
+                inCompare ? 'bg-primary/10' : 'bg-secondary'
               }`}
             >
-              <GitCompare className={`h-5 w-5 ${inCompare ? 'text-yellow-300' : 'text-primary-foreground/70'}`} />
-              <span className="text-[10px] text-primary-foreground/70">{inCompare ? '비교중' : '비교'}</span>
+              <GitCompare className={`h-5 w-5 ${inCompare ? 'text-primary' : 'text-muted-foreground'}`} />
+              <span className="text-xs text-muted-foreground">{inCompare ? '비교중' : '비교'}</span>
             </button>
           </div>
         </div>
       </div>
 
-      <div className="px-5 space-y-4">
+      <div className="px-4 space-y-4">
         {/* 내 평점 */}
         <div className="-mt-4 rounded-xl border border-border bg-card p-4 shadow-card">
           <p className="mb-2 text-sm font-bold text-foreground">내 평점</p>

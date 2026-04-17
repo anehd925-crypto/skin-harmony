@@ -26,6 +26,53 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json();
 
+    // ── 성분 사전 모드: 성분 상세 정보 조회 ──────────────────────────────────────
+    if (body.ingredientLookup) {
+      const { query } = body;
+      const ingredientPrompt = `당신은 화장품 성분 전문가입니다.
+
+"${query}" 성분에 대해 다음 JSON을 정확히 반환하세요:
+{
+  "name": "한글 성분명",
+  "nameEn": "영문 성분명 (INCI name)",
+  "category": "보습제 | 유화제 | 계면활성제 | 방부제 | 항산화제 | 자외선차단제 | 미백제 | 각질제거제 | 향료 | 색소 | 기타",
+  "description": "성분 설명 2-3문장 (쉬운 한국어)",
+  "benefits": ["효능1", "효능2", "효능3"],
+  "risks": ["주의사항1", "주의사항2"],
+  "ewgGrade": "1~10 사이 숫자 (EWG 등급 추정)",
+  "suitableFor": "추천 피부 타입 한 줄",
+  "avoidFor": "주의 피부 타입 한 줄 (없으면 빈 문자열)"
+}
+JSON만 반환하세요.`;
+
+      const response = await fetch(GROQ_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
+        body: JSON.stringify({
+          model: TEXT_MODEL,
+          messages: [
+            { role: 'system', content: '화장품 성분 전문가입니다. JSON만 반환합니다.' },
+            { role: 'user', content: ingredientPrompt },
+          ],
+          temperature: 0.2,
+          max_tokens: 600,
+          response_format: { type: 'json_object' },
+        }),
+      });
+
+      if (!response.ok) throw new Error(`Groq error: ${response.status}`);
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content ?? '{}';
+      let ingredient = {};
+      try { ingredient = JSON.parse(content); } catch { /* fallback */ }
+
+      return new Response(
+        JSON.stringify({ ingredient }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
     // ── Vision 모드: 이미지로 제품 인식 ──────────────────────────────────────
     if (body.imageBase64) {
       const { imageBase64 } = body;

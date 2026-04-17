@@ -117,7 +117,7 @@ const ScoreGauge = ({ score, label }: { score: number; label: keyof typeof SCORE
         </svg>
         <div className="absolute flex flex-col items-center">
           <span className={`text-2xl font-black ${cfg.text}`}>{score}</span>
-          <span className="text-[10px] text-muted-foreground font-medium">/ 100</span>
+          <span className="text-xs text-muted-foreground font-medium">/ 100</span>
         </div>
       </div>
       <div className={`rounded-full border px-3 py-1 text-xs font-bold ${cfg.bg} ${cfg.text}`}>
@@ -347,13 +347,12 @@ const Routine = () => {
   return (
     <div className="flex min-h-screen flex-col bg-neutral-50 pb-24">
       {/* 헤더 */}
-      <div className="sticky top-0 z-10 bg-white border-b border-border px-4 py-3 flex items-center gap-3">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
         <button onClick={() => navigate(-1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
           <ChevronLeft className="h-5 w-5" />
         </button>
         <div className="flex-1 min-w-0">
           <h1 className="text-base font-bold text-foreground">루틴 체커</h1>
-          <p className="text-xs text-muted-foreground">성분 궁합을 AI로 분석해요</p>
         </div>
         <button
           onClick={() => navigate('/cabinet')}
@@ -377,7 +376,7 @@ const Routine = () => {
               >
                 {t.icon}{t.label}
                 {routines[t.key]?.products?.length ? (
-                  <span className={`ml-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${
+                  <span className={`ml-0.5 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold ${
                     activeTab === t.key ? 'bg-primary text-primary-foreground' : 'bg-muted-foreground/20 text-muted-foreground'
                   }`}>
                     {routines[t.key]!.products.length}
@@ -399,7 +398,7 @@ const Routine = () => {
             <div className="flex items-center gap-2">
               <Cloud className="h-3.5 w-3.5" />
               <span className="font-semibold">낮 루틴 {afternoonEnabled ? '사용 중' : '사용 안 함'}</span>
-              <span className="text-[10px] text-muted-foreground">화장품 잘 안 쓰면 끄세요</span>
+              <span className="text-xs text-muted-foreground">화장품 잘 안 쓰면 끄세요</span>
             </div>
             <div className={`h-5 w-9 rounded-full transition-all ${afternoonEnabled ? 'bg-primary' : 'bg-muted'} relative`}>
               <div className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${afternoonEnabled ? 'left-4' : 'left-0.5'}`} />
@@ -413,7 +412,7 @@ const Routine = () => {
         ) : (
           <div className="space-y-2">
             {!currentRoutine || currentRoutine.products.length === 0 ? (
-              <div className="rounded-xl border-2 border-dashed border-border bg-card/50 p-8 text-center">
+              <div className="rounded-xl border border-dashed border-border bg-card/50 p-8 text-center">
                 <p className="text-sm font-medium text-muted-foreground">아직 추가된 제품이 없어요</p>
                 <p className="mt-1 text-xs text-muted-foreground">분석 기록에서 제품을 추가해보세요</p>
               </div>
@@ -441,7 +440,7 @@ const Routine = () => {
 
             <button
               onClick={() => { loadHistory(); setShowAddModal(true); }}
-              className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 py-3 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
+              className="w-full flex items-center justify-center gap-2 rounded-xl border border-dashed border-primary/30 bg-primary/5 py-3 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
             >
               <Plus className="h-4 w-4" />분석 기록에서 추가
             </button>
@@ -453,7 +452,7 @@ const Routine = () => {
           <Button
             onClick={handleCheckConflicts}
             disabled={checkingConflicts}
-            className="w-full rounded-xl gradient-brand text-primary-foreground h-12 shadow-primary"
+            className="w-full rounded-xl bg-primary text-primary-foreground h-12 shadow-primary"
           >
             {checkingConflicts ? (
               <><Loader2 className="h-4 w-4 mr-2 animate-spin" />AI 분석 중...</>
@@ -504,7 +503,7 @@ const Routine = () => {
                   <div className="absolute left-2 top-0 bottom-0 w-0.5 bg-border" />
                   {conflictResult.applicationOrder.map((step, i) => (
                     <div key={i} className="relative flex items-start gap-2 pb-3 last:pb-0">
-                      <div className="absolute -left-4 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                      <div className="absolute -left-4 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                         {i + 1}
                       </div>
                       <p className="text-xs text-muted-foreground pl-2">{step}</p>
@@ -537,7 +536,7 @@ const Routine = () => {
                         {conflictResult.conflicts.map((c, i) => (
                           <div key={i} className="border-t border-destructive/10 pt-3 first:border-0 first:pt-0">
                             <div className="flex items-center gap-2 mb-1 flex-wrap">
-                              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${severityBadge[c.severity || 'medium']}`}>
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${severityBadge[c.severity || 'medium']}`}>
                                 {c.severity === 'high' ? '높음' : c.severity === 'medium' ? '중간' : '낮음'}
                               </span>
                               <p className="text-xs font-semibold text-foreground">{c.ingredient_a} + {c.ingredient_b}</p>
@@ -610,13 +609,13 @@ const Routine = () => {
                     {conflictResult.productRecommendations.map((rec, i) => (
                       <div key={i} className="rounded-xl border border-border bg-card p-4 space-y-2.5">
                         <div className="flex items-start gap-2">
-                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground mt-0.5">
+                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground mt-0.5">
                             {i + 1}
                           </span>
                           <div className="flex-1">
                             <p className="text-sm font-bold text-foreground">{rec.productType}</p>
                             {rec.targetConflict && (
-                              <p className="text-[10px] text-muted-foreground mt-0.5">→ {rec.targetConflict} 해결</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">→ {rec.targetConflict} 해결</p>
                             )}
                           </div>
                         </div>
@@ -624,10 +623,10 @@ const Routine = () => {
 
                         {rec.suggestedIngredients?.length > 0 && (
                           <div className="pl-7">
-                            <p className="text-[10px] font-semibold text-success mb-1">추천 성분</p>
+                            <p className="text-xs font-semibold text-success mb-1">추천 성분</p>
                             <div className="flex flex-wrap gap-1">
                               {rec.suggestedIngredients.map(ing => (
-                                <span key={ing} className="text-[10px] rounded-full bg-success/10 text-success px-2 py-0.5 border border-success/20">
+                                <span key={ing} className="text-xs rounded-full bg-success/10 text-success px-2 py-0.5 border border-success/20">
                                   {ing}
                                 </span>
                               ))}
@@ -637,10 +636,10 @@ const Routine = () => {
 
                         {rec.avoidIngredients?.length > 0 && (
                           <div className="pl-7">
-                            <p className="text-[10px] font-semibold text-destructive mb-1">피해야 할 성분</p>
+                            <p className="text-xs font-semibold text-destructive mb-1">피해야 할 성분</p>
                             <div className="flex flex-wrap gap-1">
                               {rec.avoidIngredients.map(ing => (
-                                <span key={ing} className="text-[10px] rounded-full bg-destructive/10 text-destructive px-2 py-0.5 border border-destructive/20">
+                                <span key={ing} className="text-xs rounded-full bg-destructive/10 text-destructive px-2 py-0.5 border border-destructive/20">
                                   {ing}
                                 </span>
                               ))}
@@ -671,7 +670,7 @@ const Routine = () => {
             className="w-full max-h-[80vh] rounded-t-2xl bg-background border-t border-border overflow-hidden flex flex-col"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-border px-5 py-3 shrink-0">
+            <div className="flex items-center justify-between border-b border-border px-4 py-3 shrink-0">
               <p className="text-sm font-semibold">
                 {TABS.find(t => t.key === activeTab)?.label} 루틴에 제품 추가
               </p>
@@ -712,7 +711,7 @@ const Routine = () => {
                         </p>
                       </div>
                       {alreadyAdded && (
-                        <span className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full shrink-0">추가됨</span>
+                        <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full shrink-0">추가됨</span>
                       )}
                     </button>
                   );

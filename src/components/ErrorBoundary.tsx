@@ -41,7 +41,7 @@ class ErrorBoundary extends Component<Props, State> {
           </p>
           <button
             onClick={this.handleReset}
-            className="rounded-2xl gradient-brand px-6 py-3 text-sm font-semibold text-primary-foreground shadow-primary"
+            className="rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-primary"
           >
             홈으로 돌아가기
           </button>
