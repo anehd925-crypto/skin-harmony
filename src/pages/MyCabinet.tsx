@@ -470,11 +470,11 @@ const MyCabinet = () => {
 
   // ─── 렌더링 ──────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-neutral-50 pb-24">
+    <div className="min-h-screen bg-background pb-24">
 
       {/* ── 헤더 ── */}
       <div className="sticky top-0 z-10 bg-white border-b border-border px-4 py-3 flex items-center gap-3">
-        <button onClick={goBack} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
+        <button onClick={goBack} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-muted">
           <ChevronLeft className="h-5 w-5" />
         </button>
         <div className="flex-1 min-w-0">
@@ -849,7 +849,7 @@ const MyCabinet = () => {
 
                   {/* ── 펼침 영역 ── */}
                   {isExpanded && (
-                    <div className="border-t border-border bg-neutral-50 px-4 py-3 space-y-3">
+                    <div className="border-t border-border bg-background px-4 py-3 space-y-3">
                       {item.notes && (
                         <p className="text-xs text-muted-foreground leading-relaxed">{item.notes}</p>
                       )}
@@ -870,7 +870,7 @@ const MyCabinet = () => {
                             onChange={e => setTempReview(e.target.value)}
                             placeholder="한줄평을 남겨보세요 (선택)"
                             maxLength={80}
-                            className="w-full rounded-lg border border-border bg-neutral-50 px-3 py-2 text-sm outline-none focus:border-primary"
+                            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
                           />
                           <div className="flex gap-2">
                             <button onClick={() => setRatingEditId(null)} className="flex-1 rounded-lg border border-border py-2 text-xs font-semibold text-muted-foreground">취소</button>
@@ -944,7 +944,7 @@ const MyCabinet = () => {
             {/* 핸들 + 타이틀 */}
             <div className="sticky top-0 z-10 bg-white border-b border-border px-4 py-4 flex items-center justify-between">
               <h3 className="text-base font-bold">{editId ? '제품 수정' : '제품 추가'}</h3>
-              <button onClick={() => setShowModal(false)} className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100">
+              <button onClick={() => setShowModal(false)} className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
                 <X className="h-4 w-4 text-muted-foreground" />
               </button>
             </div>
@@ -962,7 +962,7 @@ const MyCabinet = () => {
                     value={form.product_url}
                     onChange={e => setForm(f => ({ ...f, product_url: e.target.value }))}
                     placeholder="https://..."
-                    className="flex-1 rounded-xl border border-border bg-neutral-50 px-3 py-2.5 text-xs outline-none focus:border-primary"
+                    className="flex-1 rounded-xl border border-border bg-background px-3 py-2.5 text-xs outline-none focus:border-primary"
                   />
                   <button
                     type="button"
@@ -975,7 +975,7 @@ const MyCabinet = () => {
                   </button>
                 </div>
                 {form.image_url && (
-                  <div className="flex items-center gap-3 rounded-xl border border-border bg-neutral-50 p-2.5">
+                  <div className="flex items-center gap-3 rounded-xl border border-border bg-background p-2.5">
                     <img
                       src={form.image_url}
                       alt=""
@@ -1008,7 +1008,7 @@ const MyCabinet = () => {
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                     placeholder="예: 라네즈, 설화수, 토리든..."
-                    className="w-full rounded-xl border border-border bg-neutral-50 pl-10 pr-10 py-3 text-sm outline-none focus:border-primary"
+                    className="w-full rounded-xl border border-border bg-background pl-10 pr-10 py-3 text-sm outline-none focus:border-primary"
                   />
                   {searchQuery && (
                     <button
@@ -1075,7 +1075,7 @@ const MyCabinet = () => {
                   value={form.product_name}
                   onChange={e => setForm(f => ({ ...f, product_name: e.target.value }))}
                   placeholder="예: 설화수 윤조에센스"
-                  className="w-full rounded-xl border border-border bg-neutral-50 px-4 py-3 text-sm outline-none focus:border-primary"
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary"
                 />
               </div>
 
@@ -1086,7 +1086,7 @@ const MyCabinet = () => {
                   value={form.product_brand}
                   onChange={e => setForm(f => ({ ...f, product_brand: e.target.value }))}
                   placeholder="예: 설화수"
-                  className="w-full rounded-xl border border-border bg-neutral-50 px-4 py-3 text-sm outline-none focus:border-primary"
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary"
                 />
               </div>
 
@@ -1153,7 +1153,7 @@ const MyCabinet = () => {
                       className={`flex flex-col items-center rounded-xl py-2.5 px-2 text-center transition-all ${
                         form.step_order === step.order
                           ? 'bg-primary border border-primary text-primary-foreground'
-                          : 'border border-border bg-neutral-50 text-muted-foreground'
+                          : 'border border-border bg-background text-muted-foreground'
                       }`}
                     >
                       <span className={`text-xs font-bold ${form.step_order === step.order ? 'text-primary-foreground' : 'text-foreground'}`}>
@@ -1175,7 +1175,7 @@ const MyCabinet = () => {
                   onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
                   rows={2}
                   placeholder="사용 방법, 특이사항 등"
-                  className="w-full rounded-xl border border-border bg-neutral-50 px-4 py-3 text-sm resize-none outline-none focus:border-primary"
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm resize-none outline-none focus:border-primary"
                 />
               </div>
 

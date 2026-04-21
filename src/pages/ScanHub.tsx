@@ -127,10 +127,10 @@ const ScanHub = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-24">
+    <div className="min-h-screen bg-background pb-24">
 
       {/* ── 헤더 ── */}
-      <div className="bg-white border-b border-border px-4 pt-4 pb-3 safe-top">
+      <div className="bg-card border-b border-border px-4 pt-4 pb-3 pt-safe">
         <div className="flex items-center gap-2 mb-3">
           <ScanLine className="h-5 w-5 text-primary shrink-0" />
           <h1 className="text-base font-bold text-foreground">성분 분석</h1>
@@ -147,7 +147,7 @@ const ScanHub = () => {
             onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
             onKeyDown={e => e.key === 'Enter' && handleSearchSubmit()}
             placeholder="제품명 또는 브랜드로 검색..."
-            className="w-full rounded-2xl border border-border bg-neutral-50 pl-10 pr-10 py-3 text-sm outline-none focus:border-primary focus:bg-white transition-colors"
+            className="w-full rounded-2xl border border-border bg-background pl-10 pr-10 py-3 text-sm outline-none focus:border-primary focus:bg-background transition-colors"
           />
           {searchQuery && (
             <button
@@ -160,7 +160,7 @@ const ScanHub = () => {
 
           {/* 드롭다운 */}
           {searchQuery && searchFocused && (
-            <div className="absolute left-0 right-0 top-full mt-1.5 z-20 rounded-2xl border border-border bg-white shadow-card overflow-hidden">
+            <div className="absolute left-0 right-0 top-full mt-1.5 z-20 rounded-2xl border border-border bg-card shadow-card overflow-hidden">
               {searchLoading ? (
                 <div className="flex items-center gap-2 px-4 py-3.5 text-xs text-muted-foreground">
                   <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
@@ -175,7 +175,7 @@ const ScanHub = () => {
                     return (
                       <div
                         key={i}
-                        className="flex w-full items-center gap-2 border-b border-border last:border-b-0 px-3 py-2.5 hover:bg-neutral-50 transition-colors"
+                        className="flex w-full items-center gap-2 border-b border-border last:border-b-0 px-3 py-2.5 hover:bg-muted transition-colors"
                       >
                         <button
                           type="button"
@@ -226,7 +226,7 @@ const ScanHub = () => {
               ) : (
                 <button
                   onClick={handleSearchSubmit}
-                  className="flex w-full items-center gap-3 px-4 py-3.5 text-left hover:bg-neutral-50 transition-colors"
+                  className="flex w-full items-center gap-3 px-4 py-3.5 text-left hover:bg-muted transition-colors"
                 >
                   <Search className="h-4 w-4 text-primary shrink-0" />
                   <div>
@@ -265,7 +265,7 @@ const ScanHub = () => {
             {/* 제품 촬영 → 보관함 */}
             <button
               onClick={() => navigate('/scan-ocr', { state: { scanMode: 'product' } })}
-              className="flex w-full items-center gap-4 rounded-2xl border border-border bg-white px-4 py-3.5 text-left transition-all active:scale-[0.99]"
+              className="flex w-full items-center gap-4 rounded-2xl border border-border bg-card px-4 py-3.5 text-left transition-all active:scale-[0.99]"
             >
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
                 <Package className="h-5 w-5" />
@@ -280,7 +280,7 @@ const ScanHub = () => {
             {/* AI 제품 비교 */}
             <button
               onClick={() => navigate('/compare-ai')}
-              className="flex w-full items-center gap-4 rounded-2xl border border-border bg-white px-4 py-3.5 text-left transition-all active:scale-[0.99]"
+              className="flex w-full items-center gap-4 rounded-2xl border border-border bg-card px-4 py-3.5 text-left transition-all active:scale-[0.99]"
             >
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600">
                 <GitCompare className="h-5 w-5" />
@@ -295,7 +295,7 @@ const ScanHub = () => {
             {/* URL */}
             <button
               onClick={() => navigate('/analyze', { state: { initialMode: 'url' } })}
-              className="flex w-full items-center gap-4 rounded-2xl border border-border bg-white px-4 py-3.5 text-left transition-all active:scale-[0.99]"
+              className="flex w-full items-center gap-4 rounded-2xl border border-border bg-card px-4 py-3.5 text-left transition-all active:scale-[0.99]"
             >
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
                 <Link2 className="h-5 w-5" />
@@ -310,7 +310,7 @@ const ScanHub = () => {
             {/* 직접 입력 */}
             <button
               onClick={() => navigate('/analyze', { state: { initialMode: 'text' } })}
-              className="flex w-full items-center gap-4 rounded-2xl border border-border bg-white px-4 py-3.5 text-left transition-all active:scale-[0.99]"
+              className="flex w-full items-center gap-4 rounded-2xl border border-border bg-card px-4 py-3.5 text-left transition-all active:scale-[0.99]"
             >
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-600">
                 <PenLine className="h-5 w-5" />
@@ -345,7 +345,7 @@ const ScanHub = () => {
                 {[1, 2].map(i => <div key={i} className="h-14 rounded-xl bg-neutral-200 animate-pulse" />)}
               </div>
             ) : recentHistory.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-border bg-white py-5 text-center">
+              <div className="rounded-xl border border-dashed border-border bg-card py-5 text-center">
                 <p className="text-xs text-muted-foreground">아직 분석 기록이 없어요</p>
                 <p className="text-xs text-muted-foreground mt-0.5">위에서 제품을 검색하거나 촬영해보세요</p>
               </div>
@@ -358,7 +358,7 @@ const ScanHub = () => {
                     <button
                       key={h.id}
                       onClick={() => navigate('/history')}
-                      className="flex w-full items-center gap-3 rounded-xl border border-border bg-white px-4 py-3 text-left"
+                      className="flex w-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left"
                     >
                       <FlaskConical className="h-4 w-4 shrink-0 text-muted-foreground" />
                       <div className="flex-1 min-w-0">

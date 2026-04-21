@@ -202,11 +202,11 @@ const ScanAnalysis = () => {
   const confidenceColor = { high: 'text-green-600 bg-green-50', medium: 'text-yellow-600 bg-yellow-50', low: 'text-red-600 bg-red-50' };
 
   return (
-    <div className="flex min-h-screen flex-col bg-neutral-50 pb-24">
+    <div className="flex min-h-screen flex-col bg-background pb-24">
 
       {/* 헤더 */}
       <div className="sticky top-0 z-10 bg-white border-b border-border px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate('/scan')} className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-neutral-100">
+        <button onClick={() => navigate('/scan')} className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted">
           <ChevronLeft className="h-5 w-5" />
         </button>
         <h1 className="text-base font-bold flex-1">카메라 스캔</h1>
@@ -374,11 +374,11 @@ const ScanAnalysis = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="rounded-xl bg-neutral-50 px-3 py-2">
+                <div className="rounded-xl bg-background px-3 py-2">
                   <p className="text-muted-foreground text-xs mb-0.5">카테고리</p>
                   <p className="font-semibold text-foreground">{recognizedProduct.category}</p>
                 </div>
-                <div className="rounded-xl bg-neutral-50 px-3 py-2">
+                <div className="rounded-xl bg-background px-3 py-2">
                   <p className="text-muted-foreground text-xs mb-0.5">사용 단계</p>
                   <p className="font-semibold text-foreground">{recognizedProduct.step}</p>
                 </div>

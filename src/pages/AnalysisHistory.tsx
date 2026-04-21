@@ -66,9 +66,9 @@ interface DiscountAlert {
 }
 
 const gradeColor = {
-  good: 'border-success/30 bg-success/5 text-success',
-  moderate: 'border-warning/30 bg-warning/5 text-warning',
-  bad: 'border-danger/30 bg-danger/5 text-danger',
+  good: 'border-beneficial/30 bg-beneficial/5 text-beneficial',
+  moderate: 'border-caution/30 bg-caution/5 text-caution',
+  bad: 'border-harmful/30 bg-harmful/5 text-harmful',
 };
 const gradeLabel = { good: '안전', moderate: '보통', bad: '주의' };
 const gradeIcon = (g: string) => g === 'good'
@@ -269,10 +269,10 @@ const History = () => {
   }, [history]);
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-24">
+    <div className="min-h-screen bg-background pb-24">
       {/* 헤더 */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
-        <button onClick={goBack} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border pt-safe px-4 py-3 flex items-center gap-3">
+        <button onClick={goBack} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-muted">
           <ChevronLeft className="h-5 w-5" />
         </button>
         <div className="flex-1 min-w-0">
@@ -282,7 +282,7 @@ const History = () => {
           <button
             onClick={() => { setShowCompare(!showCompare); if (showCompare) setCompareIds([]); }}
             className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium ${
-              showCompare ? 'bg-primary text-primary-foreground' : 'border border-border bg-neutral-50 text-muted-foreground'
+              showCompare ? 'bg-primary text-primary-foreground' : 'border border-border bg-background text-muted-foreground'
             }`}
           >
             <GitCompare className="h-3.5 w-3.5" />{showCompare ? '취소' : '비교'}

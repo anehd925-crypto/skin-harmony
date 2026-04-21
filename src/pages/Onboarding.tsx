@@ -1,182 +1,173 @@
-/**
- * Onboarding (단일 통합 진단 페이지)
- *
- * 이 페이지는 두 가지 모드를 자동 분기로 모두 처리한다.
- *  1) 신규 사용자(`profile.onboardingComplete === false`)
- *     → 풀 6단계 온보딩 (연령대 → AI 진단 → 고민 → 목표 → 특수조건 → 색·알레르기)
- *  2) 재진단(`profile.onboardingComplete === true`)
- *     → AI 진단 단계만 표시 + "프로필에 반영" + 보관함 연결 카드
- *
- * 종전의 별도 `/skin-test` 페이지를 흡수해 진단 진입점을 단 1개로 일원화.
- */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import {
-  useUser,
-  SKIN_CONCERNS, PERSONAL_COLORS,
-  SKIN_CONDITIONS, AGE_GROUPS, SKIN_GOALS, AVOID_INGREDIENTS,
-  SPECIAL_CONDITIONS,
-  type SkinConcern,
-} from '@/contexts/UserContext';
+import { useUser } from '@/contexts/UserContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Sparkles, ChevronRight, ChevronLeft, RotateCcw,
-  Package, Plus, Home as HomeIcon,
-} from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
+import { Textarea } from '@/components/ui/textarea';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import SkinTypeDecider, { type DiagnosisResult } from '@/components/SkinTypeDecider';
-import {
-  saveSkinTest, loadSkinTestAnswers, loadSkinTestResult,
-} from '@/utils/skinTestStorage';
-import BottomNav from '@/components/BottomNav';
+import { cn } from '@/lib/utils';
 
-const TOTAL_STEPS = 6;
+/* ─── Step 1: 피부 타입 ─── */
+const SKIN_TYPE_OPTIONS = [
+  { value: 'dry',         label: '건성',  desc: '자주 당기고 건조해요',        emoji: '💧' },
+  { value: 'oily',        label: '지성',  desc: '번들거리고 모공이 넓어요',     emoji: '✨' },
+  { value: 'combination', label: '복합성', desc: '부위마다 달라요',              emoji: '🌿' },
+  { value: 'sensitive',   label: '민감성', desc: '쉽게 붉어지고 자극에 예민해요', emoji: '🌸' },
+  { value: 'normal',      label: '보통',   desc: '딱히 문제없는 편이에요',       emoji: '😊' },
+] as const;
 
-const sensitivityLabel = (v: string | null | undefined): string => {
-  switch (v) {
-    case 'very_sensitive': return '매우 민감';
-    case 'sensitive': return '민감한 편';
-    case 'normal': return '보통';
-    case 'resilient': return '강한 편';
-    default: return '-';
-  }
+/* ─── Step 2: 피부 고민 ─── */
+const CONCERN_OPTIONS = [
+  { value: 'hydration',   label: '수분부족' },
+  { value: 'sebum',       label: '피지·번들' },
+  { value: 'wrinkles',    label: '주름·탄력' },
+  { value: 'sensitive',   label: '민감·홍조' },
+  { value: 'pigmentation', label: '색소침착' },
+  { value: 'pores',       label: '모공' },
+  { value: 'clean_beauty', label: '클린뷰티' },
+] as const;
+
+const SENSITIVITY_LABELS: Record<number, string> = {
+  1: '강한 편',
+  2: '보통',
+  3: '약간 민감',
+  4: '민감한 편',
+  5: '매우 민감',
 };
 
-const conditionLabel = (v: DiagnosisResult['skinCondition']) =>
-  ({ very_dry: '매우 건조', dry: '건조한 편', normal: '보통', oily: '약간 번들', very_oily: '많이 번들' }[v]);
+const ALLERGEN_OPTIONS = [
+  '알코올', '향료', '파라벤', '설페이트', '실리콘',
+  '미네랄오일', '인공색소', '레티놀', '살리실산',
+];
+
+/* ─── Step 3: 연령대 + 루틴 ─── */
+const AGE_RANGE_OPTIONS = [
+  { value: 'teens',    label: '10대' },
+  { value: '20s_early', label: '20대 초반' },
+  { value: '20s_late',  label: '20대 후반' },
+  { value: '30s',      label: '30대' },
+  { value: '40s',      label: '40대' },
+  { value: '50s_plus', label: '50대 이상' },
+] as const;
+
+const ROUTINE_OPTIONS = [
+  { value: 'minimalist',  label: '미니멀',       desc: '3단계 이내' },
+  { value: 'layering',    label: '레이어링',      desc: '상태에 맞게 쌓아요' },
+  { value: 'kbeauty_10',  label: 'K뷰티 10단계', desc: '꼼꼼한 다단계 케어' },
+  { value: 'clean_beauty', label: '클린뷰티',     desc: '성분 안전성 우선' },
+  { value: 'anti_aging',  label: '안티에이징',   desc: '노화 방지 집중' },
+] as const;
+
+/* ─── Helper ─── */
+const sensitivityToString = (level: number): string => {
+  if (level >= 5) return 'very_sensitive';
+  if (level >= 4) return 'sensitive';
+  if (level <= 1) return 'resilient';
+  return 'normal';
+};
+
+const ageRangeToGroup = (range: string): string => {
+  const map: Record<string, string> = {
+    'teens': '10s', '20s_early': '20s', '20s_late': '20s',
+    '30s': '30s', '40s': '40s', '50s_plus': '50s_plus',
+  };
+  return map[range] ?? '';
+};
+
+const MAX_CONCERNS = 3;
+const TOTAL_STEPS = 3;
 
 const Onboarding = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { profile, completeOnboarding } = useUser();
   const { toast } = useToast();
-  const {
-    profile,
-    setSkinType, toggleConcern, setConcernPriority,
-    setPersonalColor, setAllergies,
-    setSkinSensitivity, setSkinCondition, setAgeGroup,
-    toggleGoal, toggleAvoid,
-    setSpecialCondition,
-    completeOnboarding, saveProfile,
-  } = useUser();
 
-  // 재진단 모드: 이미 온보딩을 마친 사용자가 진입한 경우
   const isReDiagnose = profile.onboardingComplete;
 
-  // ── 공통 상태 ───────────────────────────────────────────────
-  const [aiDiagnosis, setAiDiagnosis] = useState<DiagnosisResult | null>(null);
-  const [restartKey, setRestartKey] = useState(0);
+  /* ── 단계 ── */
+  const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
-  // ── 신규 온보딩 전용 상태 ───────────────────────────────────
-  const [step, setStep] = useState(0);
-  const [allergyInput, setAllergyInput] = useState('');
+  /* ── Step 1 ── */
+  const [skinType, setSkinTypeVal] = useState('');
 
-  // ── 재진단 전용 상태 ────────────────────────────────────────
-  const [initialAnswers, setInitialAnswers] = useState<Record<string, string> | null>(null);
-  const [initialResult, setInitialResult] = useState<DiagnosisResult | null>(null);
-  const [latestAnswers, setLatestAnswers] = useState<Record<string, string> | null>(null);
-  const [redResult, setRedResult] = useState<DiagnosisResult | null>(null);
-  const [applied, setApplied] = useState(false);
+  /* ── Step 2 ── */
+  const [concerns, setConcerns] = useState<string[]>([]);
+  const [sensitivityLevel, setSensitivityLevel] = useState(3);
+  const [allergens, setAllergens] = useState<string[]>([]);
+  const [isPregnant, setIsPregnant] = useState(false);
 
-  // 재진단 진입 시 직전 답변·결과를 SkinTypeDecider props로만 prefill.
-  // 부모 redResult는 채우지 않는다 — SkinTypeDecider가 결과 화면을 띄우면
-  // 그 컴포넌트의 onResolved 흐름과 어긋나지 않도록 "사용자가 직접 결과를 확정한 시점"에만
-  // 부모 CTA(프로필 반영 버튼)가 노출되어야 한다.
-  // (이렇게 하지 않으면 답변 도중에도 부모 CTA가 떠서 UX가 어긋남)
+  /* ── Step 3 ── */
+  const [ageRange, setAgeRange] = useState('');
+  const [preferredRoutines, setPreferredRoutines] = useState<string[]>([]);
+  const [skinHistory, setSkinHistory] = useState('');
+
+  /* 기존 프로필로 pre-fill */
   useEffect(() => {
-    if (!isReDiagnose || !user) return;
-    const prevAnswers = loadSkinTestAnswers(user.id);
-    const prevResult = loadSkinTestResult(user.id);
-    if (prevAnswers) setInitialAnswers(prevAnswers);
-    if (prevResult) setInitialResult(prevResult);
-  }, [isReDiagnose, user]);
-
-  // 재진단 모드의 "다음 단계" 안내용: 보관함 제품 개수
-  const { data: cabinetCount = 0 } = useQuery({
-    queryKey: ['cabinet_count_onboarding', user?.id],
-    queryFn: async () => {
-      if (!user) return 0;
-      const { count } = await supabase
-        .from('my_cabinet' as never)
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', user.id);
-      return count ?? 0;
-    },
-    enabled: !!user && isReDiagnose,
-  });
-
-  // ── 진단 결과 핸들러 (모드별 분기) ────────────────────────────
-  const handleAiResolved = (r: DiagnosisResult, ans: Record<string, string>) => {
-    if (isReDiagnose) {
-      setRedResult(r);
-      setLatestAnswers(ans);
-      setApplied(false);
-      // 캐시는 즉시 갱신 (DB 반영은 사용자가 명시적으로 버튼을 눌러야 함)
-      if (user) saveSkinTest(user.id, ans, r);
-      return;
+    if (!profile.onboardingComplete) return;
+    if (profile.skinType) setSkinTypeVal(String(profile.skinType));
+    if (profile.skinConcerns?.length) setConcerns(profile.skinConcerns as string[]);
+    if (profile.allergies?.length) setAllergens(profile.allergies);
+    if (profile.specialCondition === 'pregnant') setIsPregnant(true);
+    if (profile.ageGroup) {
+      const map: Record<string, string> = {
+        '10s': 'teens', '20s': '20s_early', '30s': '30s', '40s': '40s', '50s_plus': '50s_plus',
+      };
+      setAgeRange(map[profile.ageGroup] ?? '');
     }
-    // 신규 온보딩: 진단 결과를 프로필 3개 필드에 즉시 반영
-    setAiDiagnosis(r);
-    setSkinType(r.skinType);
-    setSkinCondition(r.skinCondition);
-    setSkinSensitivity(r.skinSensitivity);
-    if (user) saveSkinTest(user.id, ans, r);
+    if (profile.skinGoals?.length) setPreferredRoutines(profile.skinGoals as string[]);
+  }, [profile.onboardingComplete]);
+
+  /* ── 고민 토글 (최대 3개) ── */
+  const toggleConcern = (value: string) => {
+    setConcerns(prev => {
+      if (prev.includes(value)) return prev.filter(c => c !== value);
+      if (prev.length >= MAX_CONCERNS) return [...prev.slice(1), value];
+      return [...prev, value];
+    });
   };
 
-  const handleResetDiagnosis = () => {
-    if (isReDiagnose) {
-      setRedResult(null);
-      setInitialResult(null);
-      setApplied(false);
-    } else {
-      setAiDiagnosis(null);
-      setSkinType('');
-    }
-    setRestartKey(k => k + 1);
+  /* ── 알레르기 토글 ── */
+  const toggleAllergen = (value: string) => {
+    setAllergens(prev =>
+      prev.includes(value) ? prev.filter(a => a !== value) : [...prev, value],
+    );
   };
 
-  // ── 재진단: 프로필에 반영 ──────────────────────────────────
-  const applyReDiagnoseToProfile = async () => {
-    if (!redResult || !user) return;
-    setSkinType(redResult.skinType);
-    setSkinCondition(redResult.skinCondition);
-    setSkinSensitivity(redResult.skinSensitivity);
-    try {
-      await saveProfile({
-        skinType: redResult.skinType,
-        skinCondition: redResult.skinCondition,
-        skinSensitivity: redResult.skinSensitivity,
-      });
-      saveSkinTest(user.id, latestAnswers ?? initialAnswers ?? {}, redResult);
-      setApplied(true);
-      toast({
-        title: '프로필에 반영했어요',
-        description: `${redResult.skinType} · ${conditionLabel(redResult.skinCondition)} · ${sensitivityLabel(redResult.skinSensitivity)}`,
-      });
-    } catch {
-      toast({ title: '반영 실패', variant: 'destructive' });
-    }
+  /* ── 루틴 토글 ── */
+  const toggleRoutine = (value: string) => {
+    setPreferredRoutines(prev =>
+      prev.includes(value) ? prev.filter(r => r !== value) : [...prev, value],
+    );
   };
 
-  // ── 신규 온보딩: 완료 ──────────────────────────────────────
+  /* ── 완료 저장 ── */
   const handleComplete = async () => {
-    if (submitting) return;
+    if (submitting || !user) return;
     setSubmitting(true);
-    const finalAllergies = allergyInput.trim()
-      ? allergyInput.split(',').map(s => s.trim()).filter(Boolean)
-      : profile.allergies;
-    setAllergies(finalAllergies);
-
     try {
-      await completeOnboarding({ allergies: finalAllergies });
-      navigate('/');
+      await completeOnboarding({
+        skinType: skinType as never,
+        skinConcerns: concerns as never,
+        allergies: allergens,
+        skinSensitivity: sensitivityToString(sensitivityLevel) as never,
+        ageGroup: ageRangeToGroup(ageRange) as never,
+        skinGoals: preferredRoutines as never,
+        specialCondition: isPregnant ? 'pregnant' : 'none',
+      });
+      if (isReDiagnose) {
+        toast({ title: '피부 프로필을 업데이트했어요' });
+        navigate(-1);
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       toast({
-        title: '프로필 저장 실패',
+        title: '저장에 실패했어요',
         description: err instanceof Error ? err.message : '잠시 후 다시 시도해주세요.',
         variant: 'destructive',
       });
@@ -185,388 +176,332 @@ const Onboarding = () => {
     }
   };
 
-  const handleToggleConcern = (c: SkinConcern) => {
-    toggleConcern(c);
-    if (!profile.skinConcerns.includes(c)) {
-      setConcernPriority([...profile.concernPriority.filter(x => x !== c), c]);
-    } else {
-      setConcernPriority(profile.concernPriority.filter(x => x !== c));
+  /* ── 건너뛰기 (Step2, Step3에서만) ── */
+  const handleSkip = async () => {
+    if (step < TOTAL_STEPS - 1) {
+      setStep(s => s + 1);
+      return;
     }
+    // 마지막 단계에서 건너뛰기 = 지금까지 입력값으로 완료
+    await handleComplete();
   };
 
-  // ════════════════════════════════════════════════════════════
-  // 재진단 모드 화면 — SkinTest의 후속 UX 흡수
-  // ════════════════════════════════════════════════════════════
-  if (isReDiagnose) {
-    return (
-      <div className="min-h-screen bg-neutral-50 pb-24">
-        <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
-          <button
-            onClick={() => navigate('/')}
-            className="flex h-9 shrink-0 items-center gap-1 rounded-full px-3 hover:bg-neutral-100"
-            aria-label="홈으로"
-          >
-            <HomeIcon className="h-4 w-4 text-muted-foreground" />
-            <span className="text-xs font-semibold text-muted-foreground">홈</span>
-          </button>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-base font-bold text-foreground">피부 타입 진단</h1>
-            <p className="text-[11px] text-muted-foreground">
-              6문항으로 피부 타입·유수분·민감도가 한 번에 결정돼요
-            </p>
-          </div>
-          {redResult && (
-            <button
-              onClick={handleResetDiagnosis}
-              className="flex items-center gap-1 rounded-full border border-border bg-white px-3 py-1.5 text-xs font-semibold text-muted-foreground"
-            >
-              <RotateCcw className="h-3 w-3" /> 다시
-            </button>
-          )}
-        </div>
-
-        <div className="px-4 pt-6 pb-8">
-          <SkinTypeDecider
-            key={restartKey}
-            variant="full"
-            initialAnswers={initialAnswers}
-            initialResult={initialResult}
-            onResolved={handleAiResolved}
-            onRestart={handleResetDiagnosis}
-          />
-
-          {redResult && (
-            <div className="mt-4 space-y-3">
-              {!applied ? (
-                <button
-                  onClick={applyReDiagnoseToProfile}
-                  className="w-full rounded-xl bg-primary py-4 text-sm font-bold text-primary-foreground"
-                >
-                  이 결과를 내 프로필에 반영하기
-                </button>
-              ) : (
-                <button disabled className="w-full rounded-xl bg-green-500 py-4 text-sm font-bold text-white">
-                  반영 완료
-                </button>
-              )}
-
-              {applied && (
-                <div className="rounded-2xl border border-violet-200 bg-violet-50 p-4 space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Package className="h-4 w-4 text-violet-600 shrink-0" />
-                    <p className="text-sm font-bold text-violet-900">
-                      {cabinetCount > 0
-                        ? '내 화장품이 이 피부에 맞는지 확인해보세요'
-                        : '쓰는 화장품을 등록하면 적합도를 바로 확인할 수 있어요'}
-                    </p>
-                  </div>
-                  <p className="text-[11px] text-violet-700 leading-relaxed">
-                    {cabinetCount > 0
-                      ? `보관함에 ${cabinetCount}개 제품이 있어요. 진단 결과 기준으로 성분·적합도를 다시 점검해보세요.`
-                      : '보관함에 제품을 추가하면 진단 결과(피부 타입·민감도 등)를 기준으로 자동 적합도 분석이 적용됩니다.'}
-                  </p>
-
-                  <div className="grid grid-cols-1 gap-2">
-                    {cabinetCount > 0 ? (
-                      <>
-                        <button
-                          onClick={() => navigate('/cabinet')}
-                          className="flex items-center justify-between rounded-xl bg-violet-600 px-4 py-3 text-sm font-bold text-white"
-                        >
-                          <span className="inline-flex items-center gap-1.5">
-                            <Package className="h-4 w-4" /> 내 보관함 적합도 확인하기
-                          </span>
-                          <ChevronRight className="h-4 w-4 opacity-80" />
-                        </button>
-                        <button
-                          onClick={() => navigate('/cabinet', { state: { openAdd: true } })}
-                          className="flex items-center justify-center gap-1.5 rounded-xl border border-violet-300 bg-white py-2.5 text-xs font-semibold text-violet-700"
-                        >
-                          <Plus className="h-3.5 w-3.5" /> 새 제품 추가하기
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        onClick={() => navigate('/cabinet', { state: { openAdd: true } })}
-                        className="flex items-center justify-between rounded-xl bg-violet-600 px-4 py-3 text-sm font-bold text-white"
-                      >
-                        <span className="inline-flex items-center gap-1.5">
-                          <Plus className="h-4 w-4" /> 내 화장품 등록하러 가기
-                        </span>
-                        <ChevronRight className="h-4 w-4 opacity-80" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {!applied && (
-                <p className="text-[11px] text-center text-muted-foreground leading-relaxed">
-                  프로필에 반영하면 보관함 제품 적합도와 루틴 추천에<br />이 진단 결과가 자동으로 적용됩니다
-                </p>
-              )}
-
-              {/* 결과 화면에서는 항상 "홈으로 가기" CTA를 노출 — 반영 전후 모두 종료 가능 */}
-              <button
-                onClick={() => navigate('/')}
-                className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-xl border border-border bg-white py-3 text-sm font-semibold text-foreground hover:bg-neutral-50"
-              >
-                <HomeIcon className="h-4 w-4" /> 홈으로 가기
-              </button>
-            </div>
-          )}
-        </div>
-
-        <BottomNav />
-      </div>
-    );
-  }
-
-  // ════════════════════════════════════════════════════════════
-  // 신규 사용자 — 6단계 풀 온보딩
-  // ════════════════════════════════════════════════════════════
-  const steps = useMemo(() => [
-    // Step 0: 연령대
-    <div key="age" className="space-y-5">
-      <div className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">Step 1</p>
-        <h2 className="mt-1 text-xl font-bold text-foreground">연령대를 알려주세요</h2>
-        <p className="mt-1 text-sm text-muted-foreground">연령별 피부 특성을 반영한 추천을 드려요</p>
-      </div>
-      <div className="grid grid-cols-3 gap-2">
-        {AGE_GROUPS.map(({ value, label }) => (
-          <button key={value} onClick={() => setAgeGroup(value)}
-            className={`rounded-xl border py-3 text-sm font-semibold transition-all ${
-              profile.ageGroup === value ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card text-foreground hover:border-primary/40'
-            }`}>
-            {label}
-          </button>
-        ))}
-      </div>
-    </div>,
-
-    // Step 1: 피부 진단
-    <div key="skin" className="space-y-5">
-      <div className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">Step 2</p>
-        <h2 className="mt-1 text-xl font-bold text-foreground">피부 타입 진단</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          6문항으로 피부 타입·유수분·민감도가 한 번에 결정됩니다
-        </p>
-      </div>
-
-      {!aiDiagnosis ? (
-        <div className="rounded-2xl border border-border bg-card p-4">
-          <SkinTypeDecider key={restartKey} variant="compact" onResolved={handleAiResolved} />
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <p className="text-sm font-bold text-foreground">진단 결과</p>
-            </div>
-            <p className="text-lg font-bold text-primary">{profile.skinType}</p>
-            <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{aiDiagnosis.summary}</p>
-
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <div className="rounded-lg bg-white/70 border border-primary/10 px-3 py-2">
-                <p className="text-[11px] font-semibold text-muted-foreground">유수분</p>
-                <p className="text-xs font-bold text-foreground">
-                  {SKIN_CONDITIONS.find(c => c.value === profile.skinCondition)?.label ?? '-'}
-                </p>
-              </div>
-              <div className="rounded-lg bg-white/70 border border-primary/10 px-3 py-2">
-                <p className="text-[11px] font-semibold text-muted-foreground">민감도</p>
-                <p className="text-xs font-bold text-foreground">
-                  {sensitivityLabel(profile.skinSensitivity)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleResetDiagnosis}
-            className="flex w-full items-center justify-center gap-1 rounded-xl border border-border py-2.5 text-xs font-semibold text-muted-foreground"
-          >
-            <RotateCcw className="h-3 w-3" /> 답변을 바꿔서 다시 진단하기
-          </button>
-        </div>
-      )}
-    </div>,
-
-    // Step 2: 피부 고민
-    <div key="concerns" className="space-y-5">
-      <div className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">Step 3</p>
-        <h2 className="mt-1 text-xl font-bold text-foreground">피부 고민을 선택해주세요</h2>
-        <p className="mt-1 text-sm text-muted-foreground">먼저 선택한 순서가 우선순위가 돼요</p>
-      </div>
-      <div className="flex flex-wrap justify-center gap-2">
-        {SKIN_CONCERNS.map(concern => {
-          const priority = profile.concernPriority.indexOf(concern) + 1;
-          return (
-            <button key={concern} onClick={() => handleToggleConcern(concern)}
-              className={`relative rounded-full border px-4 py-2 text-sm font-medium transition-all ${
-                profile.skinConcerns.includes(concern) ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card text-foreground hover:border-primary/40'
-              }`}>
-              {concern}
-              {priority > 0 && (
-                <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                  {priority}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-      {profile.skinConcerns.length > 0 && (
-        <div className="rounded-xl bg-primary/5 border border-primary/20 p-3">
-          <p className="text-xs font-semibold text-primary mb-1">우선순위 순서</p>
-          <p className="text-xs text-muted-foreground">{profile.concernPriority.join(' → ')}</p>
-        </div>
-      )}
-    </div>,
-
-    // Step 3: 목표 + 기피 성분
-    <div key="goals" className="space-y-5">
-      <div className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">Step 4</p>
-        <h2 className="mt-1 text-xl font-bold text-foreground">스킨케어 목표와 기피 성분</h2>
-        <p className="mt-1 text-sm text-muted-foreground">원하는 효과와 피하고 싶은 성분을 선택해요</p>
-      </div>
-      <div>
-        <p className="mb-2 text-sm font-semibold text-foreground">목표 (복수 선택)</p>
-        <div className="flex flex-wrap gap-2">
-          {SKIN_GOALS.map(g => (
-            <button key={g} onClick={() => toggleGoal(g)}
-              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
-                profile.skinGoals.includes(g) ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card text-foreground hover:border-primary/40'
-              }`}>{g}</button>
-          ))}
-        </div>
-      </div>
-      <div>
-        <p className="mb-2 text-sm font-semibold text-foreground">기피 성분 (복수 선택)</p>
-        <div className="flex flex-wrap gap-2">
-          {AVOID_INGREDIENTS.map(a => (
-            <button key={a} onClick={() => toggleAvoid(a)}
-              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
-                profile.avoidIngredients.includes(a) ? 'border-danger/70 bg-danger/10 text-danger' : 'border-border bg-card text-foreground hover:border-danger/40'
-              }`}>{a}</button>
-          ))}
-        </div>
-      </div>
-    </div>,
-
-    // Step 4: 특수 피부 조건
-    <div key="special" className="space-y-5">
-      <div className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">Step 5</p>
-        <h2 className="mt-1 text-xl font-bold text-foreground">특별한 피부 조건이 있으신가요?</h2>
-        <p className="mt-1 text-sm text-muted-foreground">해당 조건에 맞는 성분 경고를 강화해 드려요</p>
-      </div>
-      <div className="space-y-2">
-        {SPECIAL_CONDITIONS.map(({ value, label, desc }) => (
-          <button key={value} onClick={() => setSpecialCondition(value)}
-            className={`w-full rounded-xl border p-4 text-left transition-all ${
-              profile.specialCondition === value ? 'border-primary bg-primary/10' : 'border-border bg-card hover:border-primary/40'
-            }`}>
-            <p className={`text-sm font-semibold ${profile.specialCondition === value ? 'text-primary' : 'text-foreground'}`}>{label}</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">{desc}</p>
-          </button>
-        ))}
-      </div>
-    </div>,
-
-    // Step 5: 퍼스널컬러 + 알레르기
-    <div key="color" className="space-y-5">
-      <div className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">Step 6</p>
-        <h2 className="mt-1 text-xl font-bold text-foreground">마지막 단계예요</h2>
-        <p className="mt-1 text-sm text-muted-foreground">색조 추천과 알레르기 정보를 입력해주세요</p>
-      </div>
-      <div>
-        <p className="mb-2 text-sm font-semibold text-foreground">퍼스널컬러</p>
-        <div className="grid grid-cols-3 gap-2">
-          {PERSONAL_COLORS.map(color => (
-            <button key={color} onClick={() => setPersonalColor(color)}
-              className={`rounded-xl border px-3 py-2.5 text-sm font-semibold transition-all ${
-                profile.personalColor === color ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-card text-foreground hover:border-primary/40'
-              }`}>{color}</button>
-          ))}
-        </div>
-      </div>
-      <div>
-        <p className="mb-2 text-sm font-semibold text-foreground">알레르기 성분 (직접 입력)</p>
-        <p className="mb-2 text-xs text-muted-foreground">기피 성분에 없는 특정 성분이 있다면 입력해주세요</p>
-        <Input
-          placeholder="예: 프로폴리스, 티트리오일"
-          value={allergyInput}
-          onChange={e => setAllergyInput(e.target.value)}
-          className="rounded-xl border border-border"
-        />
-      </div>
-    </div>,
-  ], [
-    profile, aiDiagnosis, restartKey, allergyInput,
-    setAgeGroup, setPersonalColor, setSpecialCondition, toggleGoal, toggleAvoid,
-  ]);
-
-  const canProceed = () => {
-    if (step === 0) return !!profile.ageGroup;
-    if (step === 1) return !!aiDiagnosis && !!profile.skinType && !!profile.skinCondition && !!profile.skinSensitivity;
-    if (step === 2) return profile.skinConcerns.length > 0;
-    return true;
-  };
+  const canProceed = step === 0 ? !!skinType : true;
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <div className="flex flex-1 flex-col items-center justify-start px-4 py-10 overflow-y-auto">
-        <div className="mb-6 flex items-center gap-2">
-          <Sparkles className="h-6 w-6 text-primary" />
-          <span className="text-lg font-bold text-primary">BeautyLens</span>
-        </div>
-        {/* 진행 바 */}
-        <div className="mb-6 w-full max-w-sm">
-          <div className="flex gap-1">
+
+      {/* ── 상단 고정: 헤더 + 프로그레스 바 ── */}
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border pt-safe">
+        <div className="mx-auto max-w-md px-4 pt-4 pb-3">
+          {/* 브랜드 + 뒤로가기 */}
+          <div className="flex items-center mb-3">
+            <span className="font-display text-base font-semibold text-brand-700">BeautyLens</span>
+            {(isReDiagnose || step > 0) && (
+              <button
+                onClick={() => step > 0 ? setStep(s => s - 1) : navigate(-1 as never)}
+                className="ml-auto flex items-center gap-1 text-xs text-muted-foreground"
+                aria-label="이전"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" /> 이전
+              </button>
+            )}
+          </div>
+
+          {/* 프로그레스 바 3단 */}
+          <div className="flex gap-1.5">
             {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-              <div key={i} className={`h-1.5 flex-1 rounded-full transition-colors ${i <= step ? 'bg-primary' : 'bg-border'}`} />
+              <div
+                key={i}
+                className={cn(
+                  'h-1 flex-1 rounded-full transition-all duration-base ease-brand',
+                  i < step ? 'bg-brand-700' : i === step ? 'bg-brand-400' : 'bg-border',
+                )}
+              />
             ))}
           </div>
-          <div className="mt-1.5 flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">{step + 1} / {TOTAL_STEPS}</p>
-            <button
-              onClick={handleComplete}
-              disabled={submitting}
-              className="text-xs text-muted-foreground underline underline-offset-2 hover:text-primary disabled:opacity-40"
-            >
-              {submitting ? '저장 중...' : '건너뛰기'}
-            </button>
-          </div>
+          <p className="mt-1.5 text-xs text-muted-foreground">
+            {step + 1} / {TOTAL_STEPS}
+          </p>
         </div>
+      </div>
 
-        <div className="w-full max-w-sm">{steps[step]}</div>
+      {/* ── 콘텐츠 ── */}
+      <div className="mx-auto w-full max-w-md flex-1 overflow-y-auto px-4 py-6 space-y-6">
 
-        <div className="mt-8 flex w-full max-w-sm gap-3 sticky bottom-6">
+        {/* Step 1: 피부 타입 */}
+        {step === 0 && (
+          <>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-brand-600 mb-1">Step 1</p>
+              <h2 className="text-xl font-bold text-foreground">피부 타입을 선택해주세요</h2>
+              <p className="mt-1 text-sm text-muted-foreground">하나만 선택해요. 나중에 바꿀 수 있어요.</p>
+            </div>
+
+            <div className="space-y-2.5">
+              {SKIN_TYPE_OPTIONS.map(({ value, label, desc, emoji }) => (
+                <button
+                  key={value}
+                  onClick={() => setSkinTypeVal(value)}
+                  className={cn(
+                    'flex w-full items-center gap-4 rounded-xl border p-4 text-left transition-all duration-base ease-brand',
+                    skinType === value
+                      ? 'border-brand-700 bg-brand-50 ring-1 ring-brand-700'
+                      : 'border-border bg-card hover:border-brand-300',
+                  )}
+                >
+                  <span className="text-2xl">{emoji}</span>
+                  <div className="flex-1">
+                    <p className={cn(
+                      'text-sm font-semibold',
+                      skinType === value ? 'text-brand-700' : 'text-foreground',
+                    )}>
+                      {label}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
+                  </div>
+                  {skinType === value && (
+                    <div className="h-5 w-5 shrink-0 rounded-full bg-brand-700 flex items-center justify-center">
+                      <svg viewBox="0 0 12 12" className="h-3 w-3 text-white" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M2 6l3 3 5-5" />
+                      </svg>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* Step 2: 고민 + 민감도 + 알러지 + 임신 */}
+        {step === 1 && (
+          <>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-brand-600 mb-1">Step 2</p>
+              <h2 className="text-xl font-bold text-foreground">피부 고민을 알려주세요</h2>
+              <p className="mt-1 text-sm text-muted-foreground">최대 3개까지 선택할 수 있어요.</p>
+            </div>
+
+            {/* 피부 고민 태그 */}
+            <div>
+              <div className="flex flex-wrap gap-2">
+                {CONCERN_OPTIONS.map(({ value, label }) => {
+                  const idx = concerns.indexOf(value);
+                  const selected = idx !== -1;
+                  return (
+                    <button
+                      key={value}
+                      onClick={() => toggleConcern(value)}
+                      className={cn(
+                        'relative rounded-full border px-4 py-2 text-sm font-medium transition-all duration-base ease-brand',
+                        selected
+                          ? 'border-brand-700 bg-brand-700 text-white'
+                          : 'border-border bg-card text-foreground hover:border-brand-300',
+                      )}
+                    >
+                      {label}
+                      {selected && (
+                        <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-500 text-[10px] font-bold text-white">
+                          {idx + 1}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              {concerns.length > 0 && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  선택 순서가 우선순위예요 · {concerns.length}/{MAX_CONCERNS}
+                </p>
+              )}
+            </div>
+
+            {/* 민감도 슬라이더 */}
+            <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold text-foreground">피부 민감도</p>
+                <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-700">
+                  {SENSITIVITY_LABELS[sensitivityLevel]}
+                </span>
+              </div>
+              <Slider
+                min={1}
+                max={5}
+                step={1}
+                value={[sensitivityLevel]}
+                onValueChange={([v]) => setSensitivityLevel(v)}
+                className="w-full"
+              />
+              <div className="flex justify-between text-[10px] text-muted-foreground">
+                <span>강한 편</span>
+                <span>매우 민감</span>
+              </div>
+            </div>
+
+            {/* 알러지 성분 태그 */}
+            <div>
+              <p className="mb-2 text-sm font-semibold text-foreground">피하고 싶은 성분</p>
+              <p className="mb-3 text-xs text-muted-foreground">복수 선택 가능해요.</p>
+              <div className="flex flex-wrap gap-2">
+                {ALLERGEN_OPTIONS.map(a => (
+                  <button
+                    key={a}
+                    onClick={() => toggleAllergen(a)}
+                    className={cn(
+                      'rounded-full border px-3 py-1.5 text-xs font-medium transition-all',
+                      allergens.includes(a)
+                        ? 'border-harmful bg-harmful text-white'
+                        : 'border-border bg-card text-foreground hover:border-harmful/40',
+                    )}
+                  >
+                    {a}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 임신/수유 토글 */}
+            <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
+              <div>
+                <p className="text-sm font-semibold text-foreground">임신·수유 중이에요</p>
+                <p className="text-xs text-muted-foreground mt-0.5">레티놀·살리실산 등을 강화 경고해요</p>
+              </div>
+              <Switch checked={isPregnant} onCheckedChange={setIsPregnant} />
+            </div>
+          </>
+        )}
+
+        {/* Step 3: 연령대 + 루틴 + 자유서술 */}
+        {step === 2 && (
+          <>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-brand-600 mb-1">Step 3</p>
+              <h2 className="text-xl font-bold text-foreground">마지막 단계예요</h2>
+              <p className="mt-1 text-sm text-muted-foreground">모두 선택 사항이에요. 건너뛸 수 있어요.</p>
+            </div>
+
+            {/* 연령대 */}
+            <div>
+              <p className="mb-2.5 text-sm font-semibold text-foreground">연령대</p>
+              <div className="grid grid-cols-3 gap-2">
+                {AGE_RANGE_OPTIONS.map(({ value, label }) => (
+                  <button
+                    key={value}
+                    onClick={() => setAgeRange(prev => prev === value ? '' : value)}
+                    className={cn(
+                      'rounded-xl border py-3 text-sm font-medium transition-all',
+                      ageRange === value
+                        ? 'border-brand-700 bg-brand-50 text-brand-700'
+                        : 'border-border bg-card text-foreground hover:border-brand-300',
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 루틴 선호 */}
+            <div>
+              <p className="mb-2.5 text-sm font-semibold text-foreground">선호하는 루틴</p>
+              <div className="space-y-2">
+                {ROUTINE_OPTIONS.map(({ value, label, desc }) => (
+                  <button
+                    key={value}
+                    onClick={() => toggleRoutine(value)}
+                    className={cn(
+                      'flex w-full items-center gap-3 rounded-xl border p-3.5 text-left transition-all',
+                      preferredRoutines.includes(value)
+                        ? 'border-brand-700 bg-brand-50'
+                        : 'border-border bg-card hover:border-brand-200',
+                    )}
+                  >
+                    <div className={cn(
+                      'h-4 w-4 shrink-0 rounded border transition-all',
+                      preferredRoutines.includes(value)
+                        ? 'border-brand-700 bg-brand-700'
+                        : 'border-border',
+                    )}>
+                      {preferredRoutines.includes(value) && (
+                        <svg viewBox="0 0 12 12" className="h-4 w-4 text-white" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path d="M2 6l3 3 5-5" />
+                        </svg>
+                      )}
+                    </div>
+                    <div>
+                      <p className={cn(
+                        'text-sm font-medium',
+                        preferredRoutines.includes(value) ? 'text-brand-700' : 'text-foreground',
+                      )}>
+                        {label}
+                      </p>
+                      <p className="text-xs text-muted-foreground">{desc}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 자유 서술 */}
+            <div>
+              <p className="mb-1.5 text-sm font-semibold text-foreground">
+                기타 피부 상태 메모
+                <span className="ml-1.5 text-xs font-normal text-muted-foreground">(선택)</span>
+              </p>
+              <Textarea
+                value={skinHistory}
+                onChange={e => setSkinHistory(e.target.value)}
+                placeholder="예: 환절기마다 건조해지고 눈가에 주름이 신경 쓰여요"
+                rows={3}
+                className="resize-none text-sm"
+              />
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* ── 하단 고정 CTA ── */}
+      <div className="sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t border-border pb-safe">
+        <div className="mx-auto max-w-md flex flex-col gap-2 px-4 pt-3 pb-5">
+          <div className="flex gap-3">
+            {step > 0 && (
+              <Button
+                variant="outline"
+                onClick={() => setStep(s => s - 1)}
+                className="flex-none gap-1"
+                aria-label="이전 단계"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            )}
+            {step < TOTAL_STEPS - 1 ? (
+              <Button
+                onClick={() => setStep(s => s + 1)}
+                disabled={!canProceed}
+                className="flex-1 gap-1"
+              >
+                다음 <ChevronRight className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button
+                onClick={handleComplete}
+                disabled={submitting}
+                className="flex-1"
+              >
+                {submitting ? '저장 중...' : isReDiagnose ? '프로필 업데이트' : '시작하기'}
+              </Button>
+            )}
+          </div>
+
+          {/* Step 2, 3에서 건너뛰기 */}
           {step > 0 && (
-            <Button variant="outline" onClick={() => setStep(s => s - 1)} className="flex-1 rounded-xl">
-              <ChevronLeft className="mr-1 h-4 w-4" />이전
-            </Button>
-          )}
-          {step < TOTAL_STEPS - 1 ? (
-            <Button onClick={() => setStep(s => s + 1)} disabled={!canProceed()} className="flex-1 rounded-xl gradient-primary text-primary-foreground">
-              다음<ChevronRight className="ml-1 h-4 w-4" />
-            </Button>
-          ) : (
-            <Button
-              onClick={handleComplete}
+            <button
+              onClick={handleSkip}
               disabled={submitting}
-              className="flex-1 rounded-xl gradient-primary text-primary-foreground"
+              className="text-center text-xs text-muted-foreground underline underline-offset-2 disabled:opacity-40"
             >
-              {submitting ? '저장 중...' : '시작하기 ✨'}
-            </Button>
+              {step === TOTAL_STEPS - 1 ? '지금까지 입력한 내용으로 완료' : '건너뛰기'}
+            </button>
           )}
         </div>
       </div>

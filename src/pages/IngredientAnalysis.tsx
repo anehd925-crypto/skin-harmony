@@ -150,15 +150,38 @@ const IngredientAnalysis = () => {
   const [copied, setCopied] = useState(false);
   const [blacklistHits, setBlacklistHits] = useState<string[]>([]);
 
-  // OCR 스캔에서 돌아올 때 성분 텍스트 자동 입력, ScanHub에서 초기 모드 지정
+  // Analyzing 페이지에서 사전 로딩된 결과 또는 OCR/ScanHub 진입 처리
   useEffect(() => {
-    const state = location.state as { prefilledIngredients?: string; fromScan?: boolean; initialMode?: 'url' | 'text' | 'product'; productName?: string; productBrand?: string } | null;
-    if (state?.prefilledIngredients) {
+    const state = location.state as {
+      preloadedResult?: AnalysisResult;
+      preloadError?: string;
+      sourceUrl?: string;
+      productName?: string;
+      productBrand?: string;
+      ingredientsText?: string;
+      prefilledIngredients?: string;
+      fromScan?: boolean;
+      initialMode?: 'url' | 'text' | 'product';
+    } | null;
+
+    if (state?.preloadedResult) {
+      // Analyzing 페이지에서 이미 분석 완료 → 결과 바로 표시
+      setResult(state.preloadedResult);
+      if (state.sourceUrl) setUrlInput(state.sourceUrl);
+      if (state.productName) setProductName(state.productName);
+      if (state.productBrand) setProductBrand(state.productBrand);
+      if (state.ingredientsText) setIngredientsText(state.ingredientsText);
+      window.history.replaceState({}, '');
+    } else if (state?.preloadError) {
+      // Analyzing 페이지에서 오류 발생 → 에러 메시지 + URL 모드로 폴백
+      setError(state.preloadError);
+      if (state.sourceUrl) setUrlInput(state.sourceUrl);
+      window.history.replaceState({}, '');
+    } else if (state?.prefilledIngredients) {
       setMode('text');
       setIngredientsText(state.prefilledIngredients);
       window.history.replaceState({}, '');
     } else if (state?.initialMode === 'product') {
-      // 제품명 검색으로 진입 → text 모드로 전환 후 제품명/브랜드 채우기
       setMode('text');
       if (state.productName) setProductName(state.productName);
       if (state.productBrand) setProductBrand(state.productBrand);
@@ -437,14 +460,14 @@ BeautyLens로 분석했습니다`;
 
   // 종합 등급 라벨/색
   const gradeMeta = (g?: 'good' | 'moderate' | 'bad') => {
-    if (g === 'good') return { label: '안전', color: 'text-success', bg: 'bg-success/10', border: 'border-success/30', Icon: ShieldCheck };
-    if (g === 'bad') return { label: '주의', color: 'text-danger', bg: 'bg-danger/10', border: 'border-danger/30', Icon: AlertTriangle };
-    return { label: '보통', color: 'text-warning', bg: 'bg-warning/10', border: 'border-warning/30', Icon: AlertTriangle };
+    if (g === 'good') return { label: '안전', color: 'text-beneficial', bg: 'bg-beneficial/10', border: 'border-beneficial/30', Icon: ShieldCheck };
+    if (g === 'bad') return { label: '주의', color: 'text-harmful', bg: 'bg-harmful/10', border: 'border-harmful/30', Icon: AlertTriangle };
+    return { label: '보통', color: 'text-caution', bg: 'bg-caution/10', border: 'border-caution/30', Icon: AlertTriangle };
   };
 
   // 매칭 점수 색상 톤
   const fitTone = (score?: number) => {
-    if (score === undefined) return { text: 'text-muted-foreground', bg: 'bg-neutral-100', bar: 'bg-neutral-300', chip: 'bg-neutral-100 text-neutral-600' };
+    if (score === undefined) return { text: 'text-muted-foreground', bg: 'bg-muted', bar: 'bg-muted-foreground/30', chip: 'bg-muted text-muted-foreground' };
     if (score >= 80) return { text: 'text-green-600', bg: 'bg-green-50', bar: 'bg-green-500', chip: 'bg-green-100 text-green-700' };
     if (score >= 60) return { text: 'text-primary', bg: 'bg-primary/10', bar: 'bg-primary', chip: 'bg-primary/15 text-primary' };
     if (score >= 40) return { text: 'text-amber-600', bg: 'bg-amber-50', bar: 'bg-amber-500', chip: 'bg-amber-100 text-amber-700' };
@@ -452,15 +475,15 @@ BeautyLens로 분석했습니다`;
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-24">
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
-        <button onClick={goBack} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
+    <div className="min-h-screen bg-background pb-24">
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border pt-safe px-4 py-3 flex items-center gap-3">
+        <button onClick={goBack} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-muted">
           <ChevronLeft className="h-5 w-5" />
         </button>
         <div className="flex-1 min-w-0">
           <h1 className="text-base font-bold text-foreground">성분 분석</h1>
         </div>
-        <button onClick={() => navigate('/history')} className="flex items-center gap-1 rounded-full border border-border bg-neutral-50 px-3 py-1.5 text-xs font-medium text-muted-foreground">
+        <button onClick={() => navigate('/history')} className="flex items-center gap-1 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground">
           <History className="h-3.5 w-3.5" />분석 기록
         </button>
       </div>
@@ -549,7 +572,7 @@ BeautyLens로 분석했습니다`;
             )}
 
             {error && (
-              <p className="text-sm text-danger text-center">{error}</p>
+              <p className="text-sm text-harmful text-center">{error}</p>
             )}
 
             {/* 직접 입력 모드일 때만 분석하기 버튼 표시 */}
@@ -591,8 +614,8 @@ BeautyLens로 분석했습니다`;
             {/* P0: 블랙리스트 경보 + 알레르기 (안전 관련 최우선) */}
             <BlacklistAlert hits={blacklistHits} />
             {allergyMatches.length > 0 && (
-              <div className="rounded-2xl border border-danger/30 bg-danger/5 p-3">
-                <p className="text-xs font-semibold text-danger flex items-center gap-1.5">
+              <div className="rounded-2xl border border-harmful/30 bg-harmful/5 p-3">
+                <p className="text-xs font-semibold text-harmful flex items-center gap-1.5">
                   <AlertTriangle className="h-3.5 w-3.5" /> 알레르기 성분 감지
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">{allergyMatches.map(i => i.name).join(', ')}</p>
@@ -600,7 +623,7 @@ BeautyLens로 분석했습니다`;
             )}
 
             {/* P1: 메인 카드 — 제품명/브랜드 + 매칭 점수 + 종합 등급을 한 장에 */}
-            <div className="rounded-2xl border border-border bg-white shadow-card overflow-hidden">
+            <div className="rounded-2xl border border-border bg-card shadow-card overflow-hidden">
               {/* 헤더: 제품 정보 + 알림 등록 */}
               <div className="flex items-start justify-between gap-2 px-4 pt-4 pb-3">
                 <div className="min-w-0 flex-1">
@@ -631,7 +654,7 @@ BeautyLens로 분석했습니다`;
               {/* 본문: 매칭 점수 + 등급 통합 */}
               <div className="px-4 pb-4 space-y-3">
                 {result.skinFit ? (
-                  <div className="rounded-2xl bg-neutral-50 border border-border/60 p-3">
+                  <div className="rounded-2xl bg-muted border border-border/60 p-3">
                     <div className="flex items-center gap-3">
                       <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${fit.bg}`}>
                         <span className={`text-xl font-black ${fit.text}`}>{result.skinFit.score}</span>
@@ -669,9 +692,9 @@ BeautyLens로 분석했습니다`;
                       <span className={`text-sm font-bold ${grade.color}`}>{grade.label}</span>
                     </div>
                     <div className="flex gap-2.5 text-[11px] shrink-0">
-                      <span className="text-success font-semibold">안전 {safeCount}</span>
-                      <span className="text-warning font-semibold">주의 {cautionCount}</span>
-                      <span className="text-danger font-semibold">위험 {dangerCount}</span>
+                      <span className="text-beneficial font-semibold">안전 {safeCount}</span>
+                      <span className="text-caution font-semibold">주의 {cautionCount}</span>
+                      <span className="text-harmful font-semibold">위험 {dangerCount}</span>
                     </div>
                   </div>
                   <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground line-clamp-2">{result.summary}</p>
@@ -693,7 +716,7 @@ BeautyLens로 분석했습니다`;
             {result.keyIngredients && result.keyIngredients.length > 0 && (
               <div className="rounded-2xl border border-border bg-card px-4 py-3">
                 <div className="flex items-center gap-1.5 mb-2">
-                  <Star className="h-3.5 w-3.5 text-warning fill-current" />
+                  <Star className="h-3.5 w-3.5 text-caution fill-current" />
                   <h3 className="text-xs font-bold text-foreground">핵심 성분</h3>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
@@ -711,7 +734,7 @@ BeautyLens로 분석했습니다`;
               {/* 전성분 상세 */}
               <Sheet>
                 <SheetTrigger asChild>
-                  <button className="flex items-center justify-between rounded-2xl border border-border bg-white px-3 py-3 text-left">
+                  <button className="flex items-center justify-between rounded-2xl border border-border bg-card px-3 py-3 text-left">
                     <div className="flex items-center gap-2 min-w-0">
                       <ListTree className="h-4 w-4 text-primary shrink-0" />
                       <div className="min-w-0">
@@ -741,12 +764,12 @@ BeautyLens로 분석했습니다`;
                             {(ingredient.irritancy !== undefined || ingredient.comedogenicity !== undefined) && (
                               <div className="flex gap-2 mt-1">
                                 {ingredient.irritancy !== undefined && (
-                                  <span className={`text-[11px] font-medium ${ingredient.irritancy >= 3 ? 'text-danger' : ingredient.irritancy >= 1 ? 'text-warning' : 'text-muted-foreground'}`}>
+                                  <span className={`text-[11px] font-medium ${ingredient.irritancy >= 3 ? 'text-harmful' : ingredient.irritancy >= 1 ? 'text-caution' : 'text-muted-foreground'}`}>
                                     자극 {ingredient.irritancy}/5
                                   </span>
                                 )}
                                 {ingredient.comedogenicity !== undefined && (
-                                  <span className={`text-[11px] font-medium ${ingredient.comedogenicity >= 3 ? 'text-danger' : ingredient.comedogenicity >= 1 ? 'text-warning' : 'text-muted-foreground'}`}>
+                                  <span className={`text-[11px] font-medium ${ingredient.comedogenicity >= 3 ? 'text-harmful' : ingredient.comedogenicity >= 1 ? 'text-caution' : 'text-muted-foreground'}`}>
                                     모공 {ingredient.comedogenicity}/5
                                   </span>
                                 )}
@@ -767,10 +790,10 @@ BeautyLens로 분석했습니다`;
                 <SheetTrigger asChild>
                   <button
                     disabled={interactionsCount === 0}
-                    className="flex items-center justify-between rounded-2xl border border-border bg-white px-3 py-3 text-left disabled:opacity-50"
+                    className="flex items-center justify-between rounded-2xl border border-border bg-card px-3 py-3 text-left disabled:opacity-50"
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <Zap className="h-4 w-4 text-warning shrink-0" />
+                      <Zap className="h-4 w-4 text-caution shrink-0" />
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-foreground">성분 상호작용</p>
                         <p className="text-[10px] text-muted-foreground">
@@ -790,11 +813,11 @@ BeautyLens로 분석했습니다`;
                       const isConflict = interaction.type === 'conflict';
                       const isSynergy = interaction.type === 'synergy';
                       const severityBg = isConflict
-                        ? interaction.severity === 'high' ? 'border-danger/30 bg-danger/5' : 'border-warning/30 bg-warning/5'
-                        : isSynergy ? 'border-success/30 bg-success/5' : 'border-warning/20 bg-warning/5';
+                        ? interaction.severity === 'high' ? 'border-harmful/30 bg-harmful/5' : 'border-caution/30 bg-caution/5'
+                        : isSynergy ? 'border-beneficial/30 bg-beneficial/5' : 'border-caution/20 bg-caution/5';
                       const icon = isConflict ? '⚡' : isSynergy ? '✨' : '⚠️';
                       const typeLabel = isConflict ? '충돌' : isSynergy ? '시너지' : '주의';
-                      const typeColor = isConflict ? 'text-danger' : isSynergy ? 'text-success' : 'text-warning';
+                      const typeColor = isConflict ? 'text-harmful' : isSynergy ? 'text-beneficial' : 'text-caution';
                       return (
                         <div key={idx} className={`rounded-xl border p-3 ${severityBg}`}>
                           <div className="flex items-center gap-1.5 mb-1 flex-wrap">
@@ -827,7 +850,7 @@ BeautyLens로 분석했습니다`;
             {/* 보조 액션 */}
             <div className="grid grid-cols-2 gap-2">
               <Button onClick={handleShare} variant="outline" className="rounded-xl h-11 gap-1.5 text-sm">
-                {copied ? <><Check className="h-4 w-4 text-success" />복사됨</> : <><Share2 className="h-4 w-4" />공유</>}
+                {copied ? <><Check className="h-4 w-4 text-beneficial" />복사됨</> : <><Share2 className="h-4 w-4" />공유</>}
               </Button>
               <Button
                 onClick={() => {
@@ -861,7 +884,7 @@ BeautyLens로 분석했습니다`;
             {/* P5: 보조 정보 (작게, 하단) */}
             <Sheet>
               <SheetTrigger asChild>
-                <button className="flex w-full items-center justify-between rounded-xl border border-border bg-white px-3 py-2.5 text-left">
+                <button className="flex w-full items-center justify-between rounded-xl border border-border bg-card px-3 py-2.5 text-left">
                   <div className="flex items-center gap-2 min-w-0">
                     <Info className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     <span className="text-[11px] text-muted-foreground">
@@ -884,10 +907,10 @@ BeautyLens로 분석했습니다`;
                         <span className={`rounded-full px-2 py-0.5 text-[11px] font-black ${
                           result.confidence >= 80 ? 'bg-emerald-100 text-emerald-700' :
                           result.confidence >= 60 ? 'bg-amber-100 text-amber-700' :
-                          'bg-neutral-100 text-neutral-600'
+                          'bg-muted text-muted-foreground'
                         }`}>{result.confidence}%</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-neutral-100 overflow-hidden">
+                      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                         <div className={`h-full rounded-full ${
                           result.confidence >= 80 ? 'bg-emerald-500' :
                           result.confidence >= 60 ? 'bg-amber-500' : 'bg-neutral-400'
@@ -901,10 +924,10 @@ BeautyLens로 분석했습니다`;
 
                   {/* AI 추정 안내 — 보조 정보로 이동 + 직접 입력 진입점은 이 안에만 1번 */}
                   {result.ingredientsFound === false && (
-                    <div className="rounded-xl border border-warning/30 bg-warning/5 p-3 flex gap-2 items-start">
-                      <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
+                    <div className="rounded-xl border border-caution/30 bg-caution/5 p-3 flex gap-2 items-start">
+                      <AlertTriangle className="h-4 w-4 text-caution shrink-0 mt-0.5" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-warning">AI 추정 성분 기반 분석</p>
+                        <p className="text-xs font-semibold text-caution">AI 추정 성분 기반 분석</p>
                         <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
                           실제 전성분을 찾지 못해 유사 제품 성분으로 추정했습니다. 정확한 분석이 필요하면 전성분을 직접 입력해주세요.
                         </p>
@@ -915,7 +938,7 @@ BeautyLens로 분석했습니다`;
                             setProductName(result.productName);
                             setProductBrand(result.productBrand);
                           }}
-                          className="mt-1.5 text-[11px] font-semibold text-warning underline underline-offset-2"
+                          className="mt-1.5 text-[11px] font-semibold text-caution underline underline-offset-2"
                         >
                           전성분 직접 입력하기 →
                         </button>
@@ -952,7 +975,7 @@ BeautyLens로 분석했습니다`;
 
             {/* AI 추정 안내가 있을 때만 결과 화면 본문에 작은 1줄 알림 (간결) */}
             {result.ingredientsFound === false && (
-              <p className="text-center text-[10px] text-warning">
+              <p className="text-center text-[10px] text-caution">
                 ⚠ 일부 성분은 AI 추정값입니다. 정확도가 필요하면 위 정보 시트에서 직접 입력으로 전환하세요.
               </p>
             )}

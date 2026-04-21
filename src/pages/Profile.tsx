@@ -11,7 +11,7 @@ import FeedbackModal from '@/components/FeedbackModal';
 import NotificationSettingsCard from '@/components/NotificationSettingsCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, LogOut, ChevronDown, ChevronUp, Users, MessageSquare, Star, Package } from 'lucide-react';
+import { Check, LogOut, ChevronDown, ChevronUp, Users, MessageSquare, Star, Package, Settings as SettingsIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -111,19 +111,28 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-24">
+    <div className="min-h-screen bg-background pb-24">
       {/* ── 헤더 ── */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3">
-        <div className="flex items-center justify-between">
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border pt-safe">
+        <div className="flex items-center justify-between px-4 py-3">
           <div>
-            <h1 className="text-lg font-bold text-foreground">프로필</h1>
+            <h1 className="text-lg font-semibold text-foreground">프로필</h1>
             {profile.skinType && (
               <p className="text-xs text-muted-foreground mt-0.5">{profile.skinType}</p>
             )}
           </div>
-          <button onClick={handleSignOut} className="flex items-center gap-1 rounded-full bg-neutral-100 px-3 py-1.5 text-xs text-foreground">
-            <LogOut className="h-3.5 w-3.5" />로그아웃
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate('/settings')}
+              className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted transition-colors"
+              aria-label="설정"
+            >
+              <SettingsIcon className="h-4.5 w-4.5 text-muted-foreground" />
+            </button>
+            <button onClick={handleSignOut} className="flex items-center gap-1 rounded-full bg-muted px-3 py-1.5 text-xs text-foreground hover:bg-muted/80 transition-colors">
+              <LogOut className="h-3.5 w-3.5" />로그아웃
+            </button>
+          </div>
         </div>
       </div>
 
@@ -311,7 +320,7 @@ const Profile = () => {
           <div className="flex flex-wrap gap-2">
             {AVOID_INGREDIENTS.map(a => (
               <button key={a} onClick={() => toggleAvoid(a)}
-                className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${profile.avoidIngredients.includes(a) ? 'border-danger/70 bg-danger/10 text-danger' : 'border-border text-foreground'}`}>
+                className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${profile.avoidIngredients.includes(a) ? 'border-harmful/70 bg-harmful/10 text-harmful' : 'border-border text-foreground'}`}>
                 {a}
               </button>
             ))}

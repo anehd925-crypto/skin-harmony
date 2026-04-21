@@ -2,13 +2,17 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BeautyLens</title>
-    <meta name="description" content="내 피부에 맞는 전성분 분석 앱" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>BeautyLens · 올리브영 전성분 AI 분석</title>
+    <meta
+      name="description"
+      content="올리브영 URL만 넣으면 내 피부에 맞는지 AI가 분석해드려요. 성분 분석, 매치율, 주의성분 체크까지 3초 만에."
+    />
     <meta name="author" content="BeautyLens" />
+    <meta name="keywords" content="성분 분석, 올리브영, 화장품 AI, 스킨케어, 전성분, 피부 매치율, 화해, 글로우픽" />
 
-    <!-- PWA -->
-    <meta name="theme-color" content="#E8619A" />
+    <!-- PWA (brand-700 #235B41) -->
+    <meta name="theme-color" content="#235B41" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="BeautyLens" />
@@ -16,18 +20,28 @@
     <link rel="manifest" href="/manifest.webmanifest" />
 
     <!-- OG -->
-    <meta property="og:title" content="BeautyLens — 내 피부 맞춤 성분 분석" />
-    <meta property="og:description" content="올리브영 URL만 넣으면 AI가 전성분을 분석해드려요. 내 피부 타입·고민에 맞는 제품을 찾아보세요." />
+    <meta property="og:title" content="내 피부가 이해하는 성분 · BeautyLens" />
+    <meta
+      property="og:description"
+      content="올리브영 URL만 넣으면 AI가 전성분을 분석해드려요. 내 피부 타입·고민에 맞는 제품을 3초 만에 확인하세요."
+    />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="/icon-512.png" />
+    <meta property="og:image" content="/og-image.png" />
     <meta property="og:url" content="https://beautylens.app" />
+    <meta property="og:site_name" content="BeautyLens" />
+    <meta property="og:locale" content="ko_KR" />
 
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="BeautyLens — 내 피부 맞춤 성분 분석" />
-    <meta name="twitter:description" content="올리브영 URL만 넣으면 AI가 전성분을 분석해드려요." />
-    <meta name="twitter:image" content="/icon-512.png" />
-  </head>
+    <meta name="twitter:title" content="내 피부가 이해하는 성분 · BeautyLens" />
+    <meta name="twitter:description" content="올리브영 URL 하나로 시작되는 AI 전성분 분석" />
+    <meta name="twitter:image" content="/og-image.png" />
 
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

@@ -112,7 +112,7 @@ const ShoppingAdviceCard = ({ cabinetItems }: { cabinetItems: CabinetItem[] }) =
       </button>
 
       {open && (
-        <div className="border-t border-emerald-200 bg-white px-4 py-3 space-y-3">
+        <div className="border-t border-emerald-200 bg-card px-4 py-3 space-y-3">
           {loading && <div className="flex justify-center py-4"><Loader2 className="h-6 w-6 animate-spin text-emerald-400" /></div>}
           {data && (
             <>
@@ -122,7 +122,7 @@ const ShoppingAdviceCard = ({ cabinetItems }: { cabinetItems: CabinetItem[] }) =
                 <div className="space-y-2">
                   <p className="text-xs font-bold text-foreground">부족한 단계</p>
                   {data.missingSteps!.map((s, i) => (
-                    <div key={i} className="rounded-xl border border-border bg-neutral-50 p-3">
+                    <div key={i} className="rounded-xl border border-border bg-background p-3">
                       <p className="text-xs font-bold text-primary">{s.step}</p>
                       <p className="text-xs text-muted-foreground mt-0.5">{s.reason}</p>
                       {s.recommendations.map((r, j) => (
@@ -172,7 +172,7 @@ const WeeklyStrip = ({ entryMap, onTapDay }: { entryMap: Record<string, DiaryEnt
             key={d.date}
             onClick={() => onTapDay(d.date)}
             className={`flex flex-col items-center gap-1 rounded-xl py-2 transition-all ${
-              d.isToday ? 'bg-primary/10 border border-primary/30' : 'bg-neutral-50 border border-transparent'
+              d.isToday ? 'bg-primary/10 border border-primary/30' : 'bg-background border border-transparent'
             }`}
           >
             <span className={`text-xs ${d.isToday ? 'font-bold text-primary' : 'text-muted-foreground'}`}>
@@ -210,7 +210,7 @@ const MiniMonthHeatmap = ({ entryMap }: { entryMap: Record<string, DiaryEntry> }
             key={d}
             title={`${mon + 1}/${d}${entry ? ` · ${entry.skin_score}점` : ''}`}
             className={`h-5 flex-1 rounded-sm ${
-              entry ? SCORE_BG[entry.skin_score] : 'bg-neutral-200'
+              entry ? SCORE_BG[entry.skin_score] : 'bg-muted'
             } ${isToday ? 'ring-1 ring-primary ring-offset-1' : ''}`}
           />
         );
@@ -417,10 +417,10 @@ const MySkin = () => {
 
   // ─── 렌더링 ──────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-neutral-50 pb-24">
+    <div className="min-h-screen bg-background pb-24">
 
       {/* ── 헤더 ── */}
-      <div className="sticky top-0 z-10 bg-white border-b border-border safe-top">
+      <div className="sticky top-0 z-10 bg-card border-b border-border pt-safe">
         <div className="px-4 pt-4 pb-3">
           <h1 className="text-base font-bold text-foreground">내 피부</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
@@ -432,7 +432,7 @@ const MySkin = () => {
       <div className="px-4 pt-4 space-y-4">
 
         {/* ─────────── ① 오늘 피부 기록 ─────────── */}
-        <section className="rounded-2xl border border-border bg-white shadow-card overflow-hidden">
+        <section className="rounded-2xl border border-border bg-card shadow-card overflow-hidden">
           <div className="flex items-center justify-between px-4 pt-4 pb-2">
             <p className="text-sm font-bold text-foreground">오늘 피부 상태</p>
             {todayEntry && diaryMode === 'view' && (
@@ -503,7 +503,7 @@ const MySkin = () => {
                     className={`rounded-full px-3 py-1 text-xs font-semibold transition-all ${
                       troubleSpots.includes(t)
                         ? 'bg-primary text-primary-foreground'
-                        : 'border border-border text-muted-foreground bg-white'
+                        : 'border border-border text-muted-foreground bg-card'
                     }`}
                   >
                     {t}
@@ -517,7 +517,7 @@ const MySkin = () => {
                   onChange={e => setNotes(e.target.value)}
                   rows={2}
                   placeholder="오늘 피부에 대해 메모해두세요 (선택)"
-                  className="w-full rounded-xl border border-border bg-neutral-50 px-3 py-2.5 pr-10 text-xs resize-none outline-none focus:border-primary"
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 pr-10 text-xs resize-none outline-none focus:border-primary"
                 />
                 <button
                   type="button"
@@ -526,7 +526,7 @@ const MySkin = () => {
                   className={`absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full transition-colors ${
                     isRecording
                       ? 'bg-red-500 text-white animate-pulse'
-                      : 'bg-neutral-200 text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                      : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
                   }`}
                 >
                   {isRecording ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
@@ -561,7 +561,7 @@ const MySkin = () => {
         </section>
 
         {/* ─────────── ② 최근 7일 스트립 + 미니 히트맵 ─────────── */}
-        <section className="rounded-2xl border border-border bg-white shadow-card overflow-hidden">
+        <section className="rounded-2xl border border-border bg-card shadow-card overflow-hidden">
           <div className="flex items-center justify-between px-4 pt-4 pb-2">
             <div className="flex items-center gap-1.5">
               <CalendarDays className="h-3.5 w-3.5 text-primary" />
@@ -659,7 +659,7 @@ const MySkin = () => {
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-border bg-white py-6 text-center">
+            <div className="rounded-2xl border border-dashed border-border bg-card py-6 text-center">
               <p className="text-sm text-muted-foreground">아직 루틴 제품이 없어요</p>
               <button
                 onClick={() => navigate('/cabinet', { state: { openAdd: true } })}
@@ -701,7 +701,7 @@ const MySkin = () => {
 
           {cabinetLoading ? (
             <div className="space-y-2">
-              {[1, 2, 3].map(i => <div key={i} className="h-14 rounded-2xl bg-neutral-200 animate-pulse" />)}
+              {[1, 2, 3].map(i => <div key={i} className="h-14 rounded-2xl bg-muted animate-pulse" />)}
             </div>
           ) : cabinetPreview.length > 0 ? (
             <div className="grid grid-cols-2 gap-2">
@@ -709,17 +709,17 @@ const MySkin = () => {
                 <button
                   key={item.id}
                   onClick={() => navigate('/cabinet')}
-                  className="flex items-center gap-2 rounded-xl border border-border bg-white p-2.5 text-left"
+                  className="flex items-center gap-2 rounded-xl border border-border bg-card p-2.5 text-left"
                 >
                   {item.image_url ? (
                     <img
                       src={item.image_url}
                       alt={item.product_name}
                       onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                      className="h-9 w-9 shrink-0 rounded-lg object-cover border border-border bg-white"
+                      className="h-9 w-9 shrink-0 rounded-lg object-cover border border-border bg-card"
                     />
                   ) : (
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-base">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-base">
                       {item.category === 'makeup' ? '💄' : item.category === 'suncare' ? '☀️' : '🧴'}
                     </div>
                   )}
@@ -733,7 +733,7 @@ const MySkin = () => {
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-border bg-white py-6 text-center">
+            <div className="rounded-2xl border border-dashed border-border bg-card py-6 text-center">
               <p className="text-sm text-muted-foreground">보관함이 비어있어요</p>
               <button
                 onClick={() => navigate('/cabinet')}
@@ -750,7 +750,7 @@ const MySkin = () => {
         </section>
 
         {/* ─────────── ⑤ AI 코치 주간 리포트 ─────────── */}
-        <section className="rounded-2xl border border-border bg-white overflow-hidden shadow-card">
+        <section className="rounded-2xl border border-border bg-card overflow-hidden shadow-card">
           <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-border">
             <div className="flex items-center gap-2">
               <Brain className="h-4 w-4 text-primary" />
@@ -786,7 +786,7 @@ const MySkin = () => {
               {coachReport.keyInsights?.length > 0 && (
                 <div className="space-y-2">
                   {coachReport.keyInsights.map((ins, i) => (
-                    <div key={i} className="flex items-start gap-3 rounded-xl bg-neutral-50 px-3 py-2.5">
+                    <div key={i} className="flex items-start gap-3 rounded-xl bg-background px-3 py-2.5">
                       <span className="text-base">{ins.icon}</span>
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-foreground">{ins.title}</p>
@@ -833,7 +833,7 @@ const MySkin = () => {
         {/* ─────────── ⑥ 타임라인 바로가기 ─────────── */}
         <button
           onClick={() => navigate('/timeline')}
-          className="flex w-full items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3.5 text-left"
+          className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3.5 text-left"
         >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-100">
             <TrendingUp className="h-4 w-4 text-indigo-500" />

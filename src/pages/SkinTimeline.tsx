@@ -143,10 +143,10 @@ const SkinTimeline = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-24">
+    <div className="min-h-screen bg-background pb-24">
       {/* 헤더 */}
       <div className="sticky top-0 z-10 bg-white border-b border-border px-4 py-3 flex items-center gap-3">
-        <button onClick={goBack} className="rounded-full p-1.5 hover:bg-neutral-100">
+        <button onClick={goBack} className="rounded-full p-1.5 hover:bg-muted">
           <ChevronLeft className="h-5 w-5 text-foreground" />
         </button>
         <div className="flex-1">
@@ -159,7 +159,7 @@ const SkinTimeline = () => {
               key={p}
               onClick={() => setPeriod(p)}
               className={`rounded-full px-2.5 py-1 text-xs font-semibold transition-all ${
-                period === p ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-neutral-100'
+                period === p ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'
               }`}
             >
               {p}일
@@ -328,7 +328,7 @@ const SkinTimeline = () => {
                         {hasDiary && point.score !== null && (
                           <div className="mb-2">
                             <div className="flex items-center gap-1.5">
-                              <div className="h-1.5 flex-1 rounded-full bg-neutral-100">
+                              <div className="h-1.5 flex-1 rounded-full bg-muted">
                                 <div
                                   className="h-full rounded-full bg-primary"
                                   style={{ width: `${(point.score / 5) * 100}%` }}

@@ -116,3 +116,23 @@ if (typeof window !== 'undefined') {
     flush();
   });
 }
+
+// ─── gtag 기반 이벤트 헬퍼 ────────────────────────────────────────────────────
+export const trackEvent = (name: string, props?: Record<string, string>) => {
+  try {
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', name, props);
+    }
+  } catch {
+    /* ignore */
+  }
+};
+
+// ─── 공통 이벤트 단축 함수 ───────────────────────────────────────────────────
+export const trackInstall = () => trackEvent('pwa_install');
+export const trackOnboardingComplete = (skinType: string) =>
+  trackEvent('onboarding_complete', { skin_type: skinType });
+export const trackFirstAnalysis = (source: 'url' | 'scan' | 'ocr') =>
+  trackEvent('first_analysis', { source });
+export const trackAnalysisComplete = (grade: string) =>
+  trackEvent('analysis_complete', { overall_grade: grade });

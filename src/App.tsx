@@ -35,6 +35,8 @@ import MyCabinet from "./pages/MyCabinet.tsx";
 import MySkin from "./pages/MySkin.tsx";
 import ProductCompare from "./pages/ProductCompare.tsx";
 import SkinChat from "./pages/SkinChat.tsx";
+import Analyzing from "./pages/Analyzing.tsx";
+import Settings from "./pages/Settings.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -71,11 +73,13 @@ const AnimatedRoutes = () => {
                 {/* 인증 필요 라우트 */}
                 <Route path="/" element={<ProtectedRoute><P><Index /></P></ProtectedRoute>} />
                 <Route path="/onboarding" element={<ProtectedRoute><P><Onboarding /></P></ProtectedRoute>} />
+                <Route path="/analyzing" element={<ProtectedRoute><P><Analyzing /></P></ProtectedRoute>} />
                 <Route path="/analyze" element={<ProtectedRoute><P><IngredientAnalysis /></P></ProtectedRoute>} />
                 <Route path="/scan" element={<ProtectedRoute><P><ScanHub /></P></ProtectedRoute>} />
                 <Route path="/scan-ocr" element={<ProtectedRoute><P><ScanAnalysis /></P></ProtectedRoute>} />
                 <Route path="/history" element={<ProtectedRoute><P><AnalysisHistory /></P></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><P><Profile /></P></ProtectedRoute>} />
+                <Route path="/settings" element={<ProtectedRoute><P><Settings /></P></ProtectedRoute>} />
                 {/* /routine 페이지는 옵션 B에 따라 보관함 안 시트로 흡수됨. 기존 링크는 보관함으로 리다이렉트 */}
                 <Route path="/routine" element={<Navigate to="/cabinet" replace />} />
                 <Route path="/diary" element={<Navigate to="/myskin" replace />} />

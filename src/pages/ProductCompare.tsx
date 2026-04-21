@@ -32,8 +32,8 @@ const SCORE_COLOR = (score: number) => {
 };
 
 const WINNER_BG = (winner: 'A' | 'B' | 'tie', mine: 'A' | 'B') => {
-  if (winner === 'tie') return 'border-border bg-neutral-50';
-  return winner === mine ? 'border-primary/40 bg-primary/5 ring-1 ring-primary/20' : 'border-border bg-neutral-50';
+  if (winner === 'tie') return 'border-border bg-background';
+  return winner === mine ? 'border-primary/40 bg-primary/5 ring-1 ring-primary/20' : 'border-border bg-background';
 };
 
 const ProductCompare = () => {
@@ -91,11 +91,11 @@ const ProductCompare = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-neutral-50 pb-24">
+    <div className="flex min-h-screen flex-col bg-background pb-24">
 
       {/* 헤더 */}
       <div className="sticky top-0 z-10 bg-white border-b border-border px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-neutral-100">
+        <button onClick={() => navigate(-1)} className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted">
           <ChevronLeft className="h-5 w-5" />
         </button>
         <div className="flex-1 min-w-0">
@@ -103,7 +103,7 @@ const ProductCompare = () => {
           <p className="text-xs text-muted-foreground">내 피부에 더 맞는 제품을 찾아드려요</p>
         </div>
         {result && (
-          <button onClick={handleReset} className="flex h-8 items-center gap-1 px-3 rounded-full border border-border text-xs text-muted-foreground hover:bg-neutral-100">
+          <button onClick={handleReset} className="flex h-8 items-center gap-1 px-3 rounded-full border border-border text-xs text-muted-foreground hover:bg-muted">
             <RotateCcw className="h-3 w-3" />새 비교
           </button>
         )}
@@ -132,13 +132,13 @@ const ProductCompare = () => {
                 value={productA.name}
                 onChange={e => setProductA(p => ({ ...p, name: e.target.value }))}
                 placeholder="제품명 입력 (예: 시카페어 크림)"
-                className="w-full rounded-xl border border-border bg-neutral-50 px-3 py-2.5 text-sm outline-none focus:border-primary focus:bg-white transition-colors"
+                className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary focus:bg-background transition-colors"
               />
               <input
                 value={productA.brand}
                 onChange={e => setProductA(p => ({ ...p, brand: e.target.value }))}
                 placeholder="브랜드명 (선택)"
-                className="w-full rounded-xl border border-border bg-neutral-50 px-3 py-2.5 text-sm outline-none focus:border-primary focus:bg-white transition-colors text-muted-foreground"
+                className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary focus:bg-background transition-colors text-muted-foreground"
               />
             </div>
 
@@ -159,13 +159,13 @@ const ProductCompare = () => {
                 value={productB.name}
                 onChange={e => setProductB(p => ({ ...p, name: e.target.value }))}
                 placeholder="제품명 입력 (예: 선스틱 워터풀)"
-                className="w-full rounded-xl border border-border bg-neutral-50 px-3 py-2.5 text-sm outline-none focus:border-primary focus:bg-white transition-colors"
+                className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary focus:bg-background transition-colors"
               />
               <input
                 value={productB.brand}
                 onChange={e => setProductB(p => ({ ...p, brand: e.target.value }))}
                 placeholder="브랜드명 (선택)"
-                className="w-full rounded-xl border border-border bg-neutral-50 px-3 py-2.5 text-sm outline-none focus:border-primary focus:bg-white transition-colors text-muted-foreground"
+                className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary focus:bg-background transition-colors text-muted-foreground"
               />
             </div>
 
@@ -223,7 +223,7 @@ const ProductCompare = () => {
                         <Trophy className="h-3 w-3 text-primary-foreground" />
                       </div>
                     )}
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${side === 'A' ? 'bg-primary/10 text-primary' : 'bg-neutral-200 text-neutral-700'}`}>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${side === 'A' ? 'bg-primary/10 text-primary' : 'bg-muted text-neutral-700'}`}>
                       {side}
                     </span>
                     <p className="mt-2 text-sm font-bold text-foreground line-clamp-1">{p.name}</p>
@@ -248,7 +248,7 @@ const ProductCompare = () => {
                       <p className="text-xs font-bold text-foreground">{cp.aspect}</p>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
                         cp.winner === 'tie'
-                          ? 'bg-neutral-100 text-neutral-600'
+                          ? 'bg-muted text-neutral-600'
                           : cp.winner === 'A'
                             ? 'bg-primary/10 text-primary'
                             : 'bg-neutral-700 text-white'
@@ -271,7 +271,7 @@ const ProductCompare = () => {
               return (
                 <div key={side} className="rounded-2xl border border-border bg-white p-4 space-y-3">
                   <div className="flex items-center gap-2">
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${side === 'A' ? 'bg-primary/10 text-primary' : 'bg-neutral-200 text-neutral-700'}`}>{side}</span>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${side === 'A' ? 'bg-primary/10 text-primary' : 'bg-muted text-neutral-700'}`}>{side}</span>
                     <div>
                       <p className="text-sm font-bold text-foreground">{p.name}</p>
                       {p.brand && <p className="text-xs text-muted-foreground">{p.brand}</p>}
@@ -283,7 +283,7 @@ const ProductCompare = () => {
                       <p className="text-xs font-bold text-muted-foreground mb-1.5">주요 성분</p>
                       <div className="flex flex-wrap gap-1.5">
                         {p.mainIngredients.map((ing, i) => (
-                          <span key={i} className="text-xs px-2 py-0.5 bg-neutral-100 text-neutral-700 rounded-full">{ing}</span>
+                          <span key={i} className="text-xs px-2 py-0.5 bg-muted text-neutral-700 rounded-full">{ing}</span>
                         ))}
                       </div>
                     </div>
@@ -305,7 +305,7 @@ const ProductCompare = () => {
                   </div>
 
                   {p.suitableFor && (
-                    <div className="rounded-xl bg-neutral-50 px-3 py-2 text-xs text-muted-foreground">
+                    <div className="rounded-xl bg-background px-3 py-2 text-xs text-muted-foreground">
                       💡 {p.suitableFor}
                     </div>
                   )}

@@ -1,58 +1,117 @@
-import { Home, ScanLine, User, HeartPulse } from 'lucide-react';
+import { Home, Compass, ScanLine, Clock, HeartPulse } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 import { track, EVENT } from '@/lib/analytics';
 
-const navItems = [
-  { icon: Home,       label: '홈',    path: '/' },
-  { icon: ScanLine,   label: '스캔',  path: '/scan' },
+type NavItem = {
+  icon: React.ElementType;
+  label: string;
+  path: string;
+  center?: boolean;
+};
+
+const NAV_ITEMS: NavItem[] = [
+  { icon: Home,      label: '홈',    path: '/' },
+  { icon: Compass,   label: '탐색',  path: '/explore' },
+  { icon: ScanLine,  label: '스캔',  path: '/scan', center: true },
+  { icon: Clock,     label: '기록',  path: '/history' },
   { icon: HeartPulse, label: '내피부', path: '/myskin' },
-  { icon: User,       label: '프로필', path: '/profile' },
 ];
+
+const isActivePath = (path: string, pathname: string): boolean => {
+  if (path === '/scan') {
+    return (
+      pathname.startsWith('/scan') ||
+      ['/analyze', '/scan-ocr', '/compare-ai'].includes(pathname) ||
+      pathname.startsWith('/product/')
+    );
+  }
+  if (path === '/myskin') {
+    return ['/myskin', '/diary', '/cabinet', '/timeline', '/blacklist', '/skin-solution', '/chat'].some(
+      p => pathname === p || pathname.startsWith(p + '/'),
+    );
+  }
+  if (path === '/history') {
+    return pathname === '/history';
+  }
+  return pathname === path;
+};
 
 const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const isActive = (path: string) => {
-    if (path === '/scan') {
-      return (
-        location.pathname.startsWith('/scan') ||
-        ['/analyze', '/scan-ocr', '/compare-ai', '/history', '/explore'].includes(location.pathname) ||
-        location.pathname.startsWith('/product/')
-      );
-    }
-    if (path === '/myskin') {
-      return ['/myskin', '/diary', '/cabinet', '/timeline', '/blacklist', '/skin-solution', '/chat'].some(p =>
-        location.pathname === p || location.pathname.startsWith(p + '/'),
-      );
-    }
-    return location.pathname === path;
+  const handleNav = (path: string, label: string) => {
+    track(EVENT.BOTTOM_NAV_CLICKED, { path, label });
+    navigate(path);
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 safe-bottom">
-      <div className="border-t border-border bg-white/95 backdrop-blur-md shadow-up">
-        <div className="mx-auto flex max-w-md items-stretch justify-around px-1 pb-safe">
-          {navItems.map(({ icon: Icon, label, path }) => {
-            const active = isActive(path);
+    <nav className="fixed bottom-0 left-0 right-0 z-50">
+      <div className="bg-background/95 backdrop-blur-md border-t border-border">
+        <div className="mx-auto flex max-w-md items-end justify-around px-1 pb-safe">
+          {NAV_ITEMS.map(({ icon: Icon, label, path, center }) => {
+            const active = isActivePath(path, location.pathname);
+
+            if (center) {
+              return (
+                <div key={path} className="relative flex flex-col items-center pb-2">
+                  <button
+                    onClick={() => handleNav(path, label)}
+                    aria-label={label}
+                    className={cn(
+                      '-mt-6 flex h-14 w-14 items-center justify-center rounded-full shadow-brand transition-all duration-base ease-brand active:scale-95',
+                      active
+                        ? 'bg-brand-600 text-white'
+                        : 'bg-brand-700 text-white hover:bg-brand-600',
+                    )}
+                  >
+                    <Icon className="h-6 w-6" />
+                  </button>
+                  <span
+                    className={cn(
+                      'mt-1 text-[10px] transition-colors',
+                      active ? 'font-bold text-brand-700' : 'font-medium text-muted-foreground',
+                    )}
+                  >
+                    {label}
+                  </span>
+                </div>
+              );
+            }
+
             return (
               <button
                 key={path}
-                onClick={() => { track(EVENT.BOTTOM_NAV_CLICKED, { path, label }); navigate(path); }}
-                className={`relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2.5 transition-all duration-150 press ${
-                  active ? 'text-primary' : 'text-muted-foreground'
-                }`}
+                onClick={() => handleNav(path, label)}
+                className={cn(
+                  'relative flex flex-1 flex-col items-center justify-end gap-0.5 py-2.5 transition-all duration-base ease-brand',
+                  active ? 'text-brand-700' : 'text-muted-foreground',
+                )}
               >
-                <div className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all duration-150 ${
-                  active ? 'bg-primary/10' : ''
-                }`}>
-                  <Icon className={`h-5 w-5 transition-all ${active ? 'stroke-[2.2px] text-primary' : 'stroke-[1.6px]'}`} />
+                <div
+                  className={cn(
+                    'flex h-8 w-8 items-center justify-center rounded-xl transition-all',
+                    active && 'bg-brand-50',
+                  )}
+                >
+                  <Icon
+                    className={cn(
+                      'h-5 w-5 transition-all',
+                      active ? 'stroke-[2.2px]' : 'stroke-[1.6px]',
+                    )}
+                  />
                 </div>
-                <span className={`text-xs transition-all ${active ? 'font-bold text-primary' : 'font-medium'}`}>
+                <span
+                  className={cn(
+                    'text-[10px] transition-all',
+                    active ? 'font-bold' : 'font-medium',
+                  )}
+                >
                   {label}
                 </span>
                 {active && (
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-5 rounded-full bg-primary" />
+                  <span className="absolute bottom-0 left-1/2 h-0.5 w-5 -translate-x-1/2 rounded-full bg-brand-700" />
                 )}
               </button>
             );

@@ -157,9 +157,9 @@ const Explore = () => {
   }, [scored, category, query, sort]);
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-24">
+    <div className="min-h-screen bg-background pb-24">
       {/* 헤더 */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border pt-safe px-4 py-3 flex items-center gap-3">
         <h1 className="text-base font-bold text-foreground flex-1 min-w-0">탐색</h1>
       </div>
       <div className="px-4 pt-3">
@@ -198,10 +198,10 @@ const Explore = () => {
                   <div className="flex gap-2">
                     {gradeDistribution.map((g: { grade: string; count: number; percentage: number }) => (
                       <div key={g.grade} className={`flex-1 rounded-xl p-3 text-center ${
-                        g.grade === 'good' ? 'bg-success/10' : g.grade === 'moderate' ? 'bg-yellow-50' : 'bg-destructive/10'
+                        g.grade === 'good' ? 'bg-beneficial/10' : g.grade === 'moderate' ? 'bg-yellow-50' : 'bg-destructive/10'
                       }`}>
                         <p className={`text-base font-bold ${
-                          g.grade === 'good' ? 'text-success' : g.grade === 'moderate' ? 'text-yellow-600' : 'text-destructive'
+                          g.grade === 'good' ? 'text-beneficial' : g.grade === 'moderate' ? 'text-yellow-600' : 'text-destructive'
                         }`}>{g.percentage}%</p>
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {g.grade === 'good' ? '안전' : g.grade === 'moderate' ? '보통' : '주의'}
@@ -231,7 +231,7 @@ const Explore = () => {
                             </div>
                             <div className="h-1.5 rounded-full bg-border overflow-hidden">
                               <div
-                                className={`h-full rounded-full ${dangerRatio > 0.3 ? 'bg-destructive' : safeRatio > 0.7 ? 'bg-success' : 'bg-yellow-400'}`}
+                                className={`h-full rounded-full ${dangerRatio > 0.3 ? 'bg-destructive' : safeRatio > 0.7 ? 'bg-beneficial' : 'bg-yellow-400'}`}
                                 style={{ width: `${Math.min(100, (ing.total_count / (trendIngredients[0] as { total_count: number }).total_count) * 100)}%` }}
                               />
                             </div>
@@ -391,7 +391,7 @@ const Explore = () => {
                           <p className="text-xs text-muted-foreground">{p.brand}</p>
                           {desc && <p className="mt-0.5 truncate text-xs text-muted-foreground">{desc}</p>}
                           <div className="mt-1 flex items-center gap-3">
-                            <span className="flex items-center gap-0.5 text-xs text-warning">
+                            <span className="flex items-center gap-0.5 text-xs text-caution">
                               <Star className="h-3 w-3 fill-current" />
                               {avgRating > 0 ? avgRating.toFixed(1) : '-'}
                             </span>

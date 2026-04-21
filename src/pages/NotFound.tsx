@@ -16,7 +16,7 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-6">
+    <div className="flex min-h-screen items-center justify-center bg-background px-6">
       <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 text-center shadow-sm">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
           <Compass className="h-6 w-6 text-primary" />
@@ -29,7 +29,7 @@ const NotFound = () => {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="flex-1 rounded-xl border border-border bg-white px-4 py-2.5 text-sm font-medium text-foreground hover:bg-neutral-50"
+            className="flex-1 rounded-xl border border-border bg-white px-4 py-2.5 text-sm font-medium text-foreground hover:bg-background"
           >
             이전으로
           </button>

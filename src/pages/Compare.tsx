@@ -35,9 +35,9 @@ interface Ingredient {
 }
 
 const GRADE_META = {
-  good: { label: '안전', color: 'text-success', bg: 'bg-success/10', icon: <ShieldCheck className="h-4 w-4 text-success" /> },
-  moderate: { label: '보통', color: 'text-warning', bg: 'bg-warning/10', icon: <AlertTriangle className="h-4 w-4 text-warning" /> },
-  bad: { label: '주의', color: 'text-danger', bg: 'bg-danger/10', icon: <AlertTriangle className="h-4 w-4 text-danger" /> },
+  good: { label: '안전', color: 'text-beneficial', bg: 'bg-beneficial/10', icon: <ShieldCheck className="h-4 w-4 text-beneficial" /> },
+  moderate: { label: '보통', color: 'text-caution', bg: 'bg-caution/10', icon: <AlertTriangle className="h-4 w-4 text-caution" /> },
+  bad: { label: '주의', color: 'text-harmful', bg: 'bg-harmful/10', icon: <AlertTriangle className="h-4 w-4 text-harmful" /> },
 };
 
 const CATEGORY_EMOJI: Record<string, string> = {
@@ -119,8 +119,8 @@ const Compare = () => {
   if (ids.length < 2) {
     return (
       <div className="min-h-screen bg-background pb-24">
-        <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
-          <button type="button" onClick={() => navigate(-1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
+        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border pt-safe px-4 py-3 flex items-center gap-3">
+          <button type="button" onClick={() => navigate(-1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-muted">
             <ChevronLeft className="h-5 w-5" />
           </button>
           <h1 className="text-base font-bold text-foreground flex-1 min-w-0">제품 비교</h1>
@@ -142,8 +142,8 @@ const Compare = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
-        <button type="button" onClick={() => navigate(-1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border pt-safe px-4 py-3 flex items-center gap-3">
+        <button type="button" onClick={() => navigate(-1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-muted">
           <ChevronLeft className="h-5 w-5" />
         </button>
         <h1 className="text-base font-bold text-foreground flex-1 min-w-0">제품 비교</h1>
@@ -193,11 +193,11 @@ const Compare = () => {
                       {p.is_on_sale && (p.original_price ?? 0) > 0 && (
                         <span className="text-xs text-muted-foreground line-through">{p.original_price!.toLocaleString()}원</span>
                       )}
-                      <span className={`text-xs font-bold ${p.is_on_sale ? 'text-danger' : 'text-foreground'}`}>
+                      <span className={`text-xs font-bold ${p.is_on_sale ? 'text-harmful' : 'text-foreground'}`}>
                         {p.current_price!.toLocaleString()}원
                       </span>
                       {p.is_on_sale && (
-                        <span className="rounded-full bg-danger/10 px-1.5 py-0.5 text-xs font-bold text-danger">
+                        <span className="rounded-full bg-harmful/10 px-1.5 py-0.5 text-xs font-bold text-harmful">
                           {Math.round(p.discount_rate ?? 0)}%↓
                         </span>
                       )}
@@ -221,7 +221,7 @@ const Compare = () => {
                   )}
                 </div>
                 <div className="px-3 py-2 text-center bg-muted/30">
-                  <Star className="h-3.5 w-3.5 text-warning mx-auto mb-0.5 fill-current" />
+                  <Star className="h-3.5 w-3.5 text-caution mx-auto mb-0.5 fill-current" />
                   <p className="text-xs text-muted-foreground">평점</p>
                 </div>
                 <div className="p-3 text-center">
@@ -250,18 +250,18 @@ const Compare = () => {
               {products.map((p, idx) => null) /* iterate below */}
               <div className="grid grid-cols-[1fr_auto_1fr] items-center border-b border-border">
                 <div className="p-3 text-center space-y-0.5">
-                  <p className="text-xs font-semibold text-success">{safetyCount(products[0].id, 'safe')} 안전</p>
-                  <p className="text-xs font-semibold text-warning">{safetyCount(products[0].id, 'caution')} 주의</p>
-                  <p className="text-xs font-semibold text-danger">{safetyCount(products[0].id, 'danger')} 위험</p>
+                  <p className="text-xs font-semibold text-beneficial">{safetyCount(products[0].id, 'safe')} 안전</p>
+                  <p className="text-xs font-semibold text-caution">{safetyCount(products[0].id, 'caution')} 주의</p>
+                  <p className="text-xs font-semibold text-harmful">{safetyCount(products[0].id, 'danger')} 위험</p>
                 </div>
                 <div className="px-3 py-2 text-center bg-muted/30">
-                  <ShieldCheck className="h-3.5 w-3.5 text-success mx-auto mb-0.5" />
+                  <ShieldCheck className="h-3.5 w-3.5 text-beneficial mx-auto mb-0.5" />
                   <p className="text-xs text-muted-foreground">성분 안전도</p>
                 </div>
                 <div className="p-3 text-center space-y-0.5">
-                  <p className="text-xs font-semibold text-success">{safetyCount(products[1].id, 'safe')} 안전</p>
-                  <p className="text-xs font-semibold text-warning">{safetyCount(products[1].id, 'caution')} 주의</p>
-                  <p className="text-xs font-semibold text-danger">{safetyCount(products[1].id, 'danger')} 위험</p>
+                  <p className="text-xs font-semibold text-beneficial">{safetyCount(products[1].id, 'safe')} 안전</p>
+                  <p className="text-xs font-semibold text-caution">{safetyCount(products[1].id, 'caution')} 주의</p>
+                  <p className="text-xs font-semibold text-harmful">{safetyCount(products[1].id, 'danger')} 위험</p>
                 </div>
               </div>
               {/* 찜 수 */}
@@ -314,8 +314,8 @@ const Compare = () => {
                   {commonIngredients.slice(0, 20).map(i => (
                     <span key={i.id}
                       className={`rounded-full px-2.5 py-1 text-xs font-medium border ${
-                        i.safety === 'danger' ? 'border-danger/30 bg-danger/5 text-danger' :
-                        i.safety === 'caution' ? 'border-warning/30 bg-warning/5 text-warning' :
+                        i.safety === 'danger' ? 'border-harmful/30 bg-harmful/5 text-harmful' :
+                        i.safety === 'caution' ? 'border-caution/30 bg-caution/5 text-caution' :
                         'border-border bg-secondary text-foreground'
                       }`}>
                       {i.name_kr}
@@ -347,8 +347,8 @@ const Compare = () => {
                           {uniq.slice(0, 15).map(i => (
                             <span key={i.id}
                               className={`rounded-full px-2 py-0.5 text-xs font-medium border ${
-                                i.safety === 'danger' ? 'border-danger/30 bg-danger/5 text-danger' :
-                                i.safety === 'caution' ? 'border-warning/20 bg-warning/5 text-warning' :
+                                i.safety === 'danger' ? 'border-harmful/30 bg-harmful/5 text-harmful' :
+                                i.safety === 'caution' ? 'border-caution/20 bg-caution/5 text-caution' :
                                 'border-border bg-muted text-foreground'
                               }`}>
                               {i.name_kr}
@@ -371,7 +371,7 @@ const Compare = () => {
               const caution = ingByProduct(p.id).filter(i => i.safety === 'caution');
               if (danger.length === 0 && caution.length === 0) return null;
               return (
-                <div key={p.id} className="rounded-xl border border-warning/20 bg-warning/5 p-4 shadow-sm">
+                <div key={p.id} className="rounded-xl border border-caution/20 bg-caution/5 p-4 shadow-sm">
                   <p className="mb-2 text-sm font-bold text-foreground">{p.name} — 주의 성분</p>
                   <div className="space-y-1.5">
                     {danger.map(i => (

@@ -80,10 +80,10 @@ const BlacklistPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-24">
+    <div className="min-h-screen bg-background pb-24">
       {/* 헤더 */}
       <div className="sticky top-0 z-10 bg-white border-b border-border px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="rounded-full p-1.5 hover:bg-neutral-100">
+        <button onClick={() => navigate(-1)} className="rounded-full p-1.5 hover:bg-muted">
           <ChevronLeft className="h-5 w-5 text-foreground" />
         </button>
         <div className="flex-1">
@@ -116,7 +116,7 @@ const BlacklistPage = () => {
       <div className="px-4 mt-5 space-y-3">
         {loading ? (
           Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-20 rounded-2xl bg-neutral-200 animate-pulse" />
+            <div key={i} className="h-20 rounded-2xl bg-muted animate-pulse" />
           ))
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
@@ -178,7 +178,7 @@ const BlacklistPage = () => {
                   </div>
                   <button
                     onClick={() => handleDelete(item.id, item.ingredient_name)}
-                    className="shrink-0 rounded-full p-2 text-muted-foreground hover:bg-neutral-100 hover:text-destructive"
+                    className="shrink-0 rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-destructive"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -206,7 +206,7 @@ const BlacklistPage = () => {
                 onChange={e => setNewIngredient(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleAddManual()}
                 placeholder="예: 페녹시에탄올, Phenoxyethanol"
-                className="w-full rounded-xl border border-border bg-neutral-50 px-4 py-3 text-sm outline-none focus:border-primary"
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary"
               />
             </div>
             <button

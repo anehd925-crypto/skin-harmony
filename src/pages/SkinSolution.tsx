@@ -163,10 +163,10 @@ const SkinSolution = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-24">
+    <div className="min-h-screen bg-background pb-24">
       {/* 헤더 */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
-        <button onClick={goBack} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">          <ChevronLeft className="h-5 w-5" />
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border pt-safe px-4 py-3 flex items-center gap-3">
+        <button onClick={goBack} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-muted">          <ChevronLeft className="h-5 w-5" />
         </button>
         <div className="flex-1 min-w-0">
           <h1 className="text-base font-bold text-foreground">트러블 솔루션</h1>
