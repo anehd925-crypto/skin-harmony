@@ -51,6 +51,7 @@ Deno.serve(async (req) => {
       userProfile = {},
       period = 'weekly',
       mode = 'coach',
+      category = 'cleansing',
     }: {
       diaryEntries: DiaryEntry[];
       analysisHistory: AnalysisEntry[];
@@ -58,6 +59,8 @@ Deno.serve(async (req) => {
       userProfile: UserProfile;
       period: string;
       mode: string;
+      /** mode='cleansing' 또는 'careGuide'에서만 사용. cleansing|skincare|suncare|specialcare */
+      category?: string;
     } = await req.json();
 
     // 데이터가 너무 적으면 짧은 답변 반환
@@ -107,27 +110,57 @@ Deno.serve(async (req) => {
       ? `보관함 제품 (${cabinetItems.length}개): ${cabinetItems.map(c => c.product_name).join(', ')}`
       : '보관함 비어있음';
 
-    // ── cleansing 모드: 피부 타입별 클렌징 방법/제품 추천 ──
-    if (mode === 'cleansing') {
-      const cleansingPrompt = `당신은 한국 피부과·뷰티 전문가 AI입니다.
-사용자 프로필을 기반으로 피부 타입에 맞는 "클렌징 방법"과 "추천 제품"을 제시하세요.
+    // ── 카테고리별 케어 가이드 모드: 피부 타입에 맞는 단계별 방법 + 추천 제품 ──
+    // 하위 호환: mode='cleansing'은 그대로 동작 (기존 클라이언트 코드 보호)
+    // 신규: mode='careGuide' + category='cleansing|skincare|suncare|specialcare'
+    if (mode === 'cleansing' || mode === 'careGuide') {
+      // category 정규화 (mode='cleansing'이면 무조건 cleansing 카테고리)
+      const cat = mode === 'cleansing' ? 'cleansing' : category;
+
+      const CATEGORY_DEF: Record<string, { label: string; focus: string; productCats: string }> = {
+        cleansing: {
+          label: '클렌징',
+          focus: '클렌징 방법(1차/2차 클렌징, 빈도, 물 온도, 마사지 등)과 클렌징 제품 추천',
+          productCats: 'cleansing_oil|cleansing_foam|cleansing_water|cleansing_balm|exfoliator',
+        },
+        skincare: {
+          label: '스킨케어',
+          focus: '기초 스킨케어 루틴(토너 → 세럼/앰플 → 크림) 단계와 사용 순서, 발림 방향, 흡수 시간 등',
+          productCats: 'toner|essence|serum|ampoule|cream|emulsion|lotion',
+        },
+        suncare: {
+          label: '썬케어',
+          focus: '자외선 차단(자외선 지수별 SPF/PA 선택, 발림량 손가락 길이 두 마디 정도, 재도포 주기, 실내 사용) 가이드',
+          productCats: 'sunscreen|sun_stick|sun_cushion|sun_essence',
+        },
+        specialcare: {
+          label: '스페셜케어',
+          focus: '주 1~3회 집중 케어(시트마스크, 클레이 마스크, 슬리핑팩, 부스터, 아이크림, 부분 트리트먼트)의 사용 빈도와 순서',
+          productCats: 'sheet_mask|clay_mask|sleeping_pack|booster|eye_cream|treatment',
+        },
+      };
+      const def = CATEGORY_DEF[cat] ?? CATEGORY_DEF.cleansing;
+
+      const guidePrompt = `당신은 한국 피부과·뷰티 전문가 AI입니다.
+사용자 프로필을 기반으로 피부 타입에 맞는 "${def.label} 가이드"를 제시하세요.
+포커스: ${def.focus}
 
 사용자 프로필:
 ${profileStr}
 
 다음 JSON을 정확히 반환하세요:
 {
-  "overview": "이 피부 타입에 맞는 클렌징 핵심 1~2문장",
+  "overview": "이 피부 타입에 맞는 ${def.label} 핵심 1~2문장",
   "steps": [
     {
-      "title": "단계명 (예: 1차 클렌징 — 오일/밤)",
+      "title": "단계명 (예: ${def.label}의 첫 단계)",
       "detail": "어떻게 할지 2문장 이내",
       "frequency": "빈도 (예: 저녁 매일 / 주 3회 등)"
     }
   ],
   "avoid": ["피해야 할 성분·습관 3개 이내"],
   "products": [
-    { "name": "제품명", "brand": "브랜드", "category": "cleansing_oil|cleansing_foam|cleansing_water|cleansing_balm|exfoliator", "reason": "추천 이유 1문장" }
+    { "name": "제품명", "brand": "브랜드", "category": "${def.productCats}", "reason": "추천 이유 1문장" }
   ]
 }
 
@@ -144,7 +177,7 @@ JSON만 반환하세요.`;
           model: MODEL,
           messages: [
             { role: 'system', content: '당신은 한국 피부과·뷰티 전문가입니다. JSON만 반환합니다.' },
-            { role: 'user', content: cleansingPrompt },
+            { role: 'user', content: guidePrompt },
           ],
           temperature: 0.3,
           max_tokens: 1200,

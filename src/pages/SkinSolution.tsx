@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useBack } from '@/hooks/use-back';
 import { useUser } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
 import BottomNav from '@/components/BottomNav';
@@ -112,6 +113,7 @@ const MedicineCard = ({ med }: { med: MedicineType }) => {
 
 const SkinSolution = () => {
   const navigate = useNavigate();
+  const goBack = useBack('/');
   const { profile } = useUser();
   const [selected, setSelected] = useState<string[]>([]);
   const [location, setLocation] = useState('');
@@ -164,8 +166,7 @@ const SkinSolution = () => {
     <div className="min-h-screen bg-neutral-50 pb-24">
       {/* 헤더 */}
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
-          <ChevronLeft className="h-5 w-5" />
+        <button onClick={goBack} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">          <ChevronLeft className="h-5 w-5" />
         </button>
         <div className="flex-1 min-w-0">
           <h1 className="text-base font-bold text-foreground">트러블 솔루션</h1>

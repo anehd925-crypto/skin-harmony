@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useBack } from '@/hooks/use-back';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,7 +9,7 @@ import {
   ChevronLeft, ChevronDown, ChevronUp, GitCompare, X,
   Heart, Tag, RefreshCw, BookOpen, TrendingDown
 } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 interface AnalyzedIngredient {
@@ -78,6 +79,8 @@ type TabKey = 'analysis' | 'wish' | 'discounts' | 'report';
 
 const History = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const goBack = useBack('/');
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -86,6 +89,16 @@ const History = () => {
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [showCompare, setShowCompare] = useState(false);
   const [isCheckingDiscounts, setIsCheckingDiscounts] = useState(false);
+
+  // 보관함 등 외부에서 highlightId로 진입했을 때 해당 항목 자동 펼침
+  useEffect(() => {
+    const highlightId = (location.state as { highlightId?: string } | null)?.highlightId;
+    if (highlightId) {
+      setExpandedId(highlightId);
+      // 상태 소비 후 초기화 (뒤로가기 시 재실행 방지)
+      window.history.replaceState({ ...window.history.state, usr: undefined }, '');
+    }
+  }, [location.state]);
 
   const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
   const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -259,7 +272,7 @@ const History = () => {
     <div className="min-h-screen bg-neutral-50 pb-24">
       {/* 헤더 */}
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
+        <button onClick={goBack} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
           <ChevronLeft className="h-5 w-5" />
         </button>
         <div className="flex-1 min-w-0">

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useBack } from '@/hooks/use-back';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useUser } from '@/contexts/UserContext';
@@ -218,6 +219,7 @@ const StarRating = ({ value, onChange }: { value: number; onChange: (v: number) 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const goBack = useBack('/explore');
   const { profile } = useUser();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -469,7 +471,7 @@ const ProductDetail = () => {
     <div className="min-h-screen bg-neutral-50 pb-24">
       {/* 헤더 */}
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
+        <button onClick={goBack} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
           <ChevronLeft className="h-5 w-5" />
         </button>
         <h1 className="text-base font-bold text-foreground flex-1 min-w-0">제품 상세</h1>

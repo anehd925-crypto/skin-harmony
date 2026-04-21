@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useBack } from '@/hooks/use-back';
 import BottomNav from '@/components/BottomNav';
 import ChatPanel from '@/components/ChatPanel';
 import { ChevronLeft, Sparkles } from 'lucide-react';
@@ -8,6 +9,7 @@ import { track, EVENT } from '@/lib/analytics';
 
 const SkinChat = () => {
   const navigate = useNavigate();
+  const goBack = useBack('/');
   const { profile } = useUser();
 
   useEffect(() => {
@@ -19,7 +21,7 @@ const SkinChat = () => {
       {/* 헤더 */}
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
         <button
-          onClick={() => navigate(-1)}
+          onClick={goBack}
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100"
         >
           <ChevronLeft className="h-5 w-5" />

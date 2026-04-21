@@ -223,7 +223,7 @@ const Profile = () => {
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <h2 className="text-sm font-bold text-foreground">내 피부 진단 결과</h2>
             <button
-              onClick={() => navigate('/skin-test')}
+              onClick={() => navigate('/onboarding')}
               className="text-xs font-semibold text-primary"
             >
               {profile.skinType ? '다시 진단' : '진단 시작'}
@@ -260,7 +260,7 @@ const Profile = () => {
             </div>
           ) : (
             <button
-              onClick={() => navigate('/skin-test')}
+              onClick={() => navigate('/onboarding')}
               className="flex w-full items-center gap-3 px-4 py-4 text-left"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">

@@ -19,7 +19,7 @@ interface Mission {
 
 const checkTable = async (
   userId: string,
-  table: 'analysis_history' | 'my_cabinet' | 'skin_diary' | 'routines',
+  table: 'analysis_history' | 'my_cabinet' | 'skin_diary',
   extraFilter?: (q: ReturnType<typeof supabase.from>) => unknown,
 ): Promise<boolean> => {
   let query = supabase.from(table).select('id', { count: 'exact', head: true }).eq('user_id', userId);
@@ -90,16 +90,15 @@ const MISSIONS: Mission[] = [
     day: 6,
     title: '루틴 궁합 점검',
     subtitle: '내 루틴의 성분 궁합을 AI가 분석해줍니다',
-    path: '/routine',
-    cta: '루틴 보기',
-    // 단순히 routines 행 존재가 아니라, 실제로 제품 1개 이상이 담긴 루틴이 있어야 완료 처리
+    path: '/cabinet',
+    cta: '보관함 열기',
+    // 옵션 B 적용 후: my_cabinet에 제품이 2개 이상 있으면 궁합 분석 가능
     checker: async (uid) => {
-      const { data } = await supabase
-        .from('routines')
-        .select('id, routine_products!inner(id)')
-        .eq('user_id', uid)
-        .limit(1);
-      return !!(data && data.length > 0);
+      const { count } = await supabase
+        .from('my_cabinet' as never)
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id' as never, uid);
+      return (count ?? 0) >= 2;
     },
   },
   {

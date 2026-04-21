@@ -15,12 +15,15 @@ const BottomNav = () => {
 
   const isActive = (path: string) => {
     if (path === '/scan') {
-      return location.pathname.startsWith('/scan') || location.pathname === '/analyze'
-        || location.pathname === '/scan-ocr' || location.pathname === '/compare-ai';
+      return (
+        location.pathname.startsWith('/scan') ||
+        ['/analyze', '/scan-ocr', '/compare-ai', '/history', '/explore'].includes(location.pathname) ||
+        location.pathname.startsWith('/product/')
+      );
     }
     if (path === '/myskin') {
-      return ['/myskin', '/routine', '/diary', '/cabinet', '/timeline'].some(p =>
-        location.pathname === p || location.pathname.startsWith(p),
+      return ['/myskin', '/diary', '/cabinet', '/timeline', '/blacklist', '/skin-solution', '/chat'].some(p =>
+        location.pathname === p || location.pathname.startsWith(p + '/'),
       );
     }
     return location.pathname === path;

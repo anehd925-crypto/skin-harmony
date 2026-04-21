@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useBack } from '@/hooks/use-back';
 import { supabase } from '@/integrations/supabase/client';
 import { useUser } from '@/contexts/UserContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,11 +13,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { syncBlacklist, checkBlacklistHits } from '@/utils/blacklist';
 import { track, EVENT } from '@/lib/analytics';
-import { ChevronLeft, Search, ShieldCheck, AlertTriangle, Loader2, Link2, History, Share2, Check, Zap, Star, Users, BellPlus, ListTree, Info, ChevronRight, BellRing } from 'lucide-react';
+import { ChevronLeft, Search, ShieldCheck, AlertTriangle, Loader2, Link2, History, Share2, Check, Zap, Star, Users, BellPlus, ListTree, Info, ChevronRight, BellRing, Package } from 'lucide-react';
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,
 } from '@/components/ui/sheet';
 import { registerDiscountAlert } from '@/utils/discountAlert';
+import AddToCabinetSheet from '@/components/AddToCabinetSheet';
 
 interface AnalyzedIngredient {
   name: string;
@@ -131,6 +133,7 @@ const AnalysisFeedback = () => {
 
 const IngredientAnalysis = () => {
   const navigate = useNavigate();
+  const goBack = useBack('/scan');
   const location = useLocation();
   const { profile } = useUser();
   const { user } = useAuth();
@@ -331,22 +334,28 @@ BeautyLens로 분석했습니다`;
         }
 
         if (user) {
-          const { error: histErr } = await supabase.from('analysis_history').insert({
-            user_id: user.id,
-            product_name: analysisResult.productName || pName || '이름 없음',
-            product_brand: analysisResult.productBrand || pBrand || '',
-            ingredients_text: text,
-            result: analysisResult as unknown as Record<string, unknown>,
-            overall_grade: analysisResult.overallGrade,
-            skin_fit_score: analysisResult.skinFit?.score ?? null,
-            ...(urlInput.trim() && { product_url: urlInput.trim() }),
-          });
+          const { data: histRow, error: histErr } = await supabase
+            .from('analysis_history')
+            .insert({
+              user_id: user.id,
+              product_name: analysisResult.productName || pName || '이름 없음',
+              product_brand: analysisResult.productBrand || pBrand || '',
+              ingredients_text: text,
+              result: analysisResult as unknown as Record<string, unknown>,
+              overall_grade: analysisResult.overallGrade,
+              skin_fit_score: analysisResult.skinFit?.score ?? null,
+              ...(urlInput.trim() && { product_url: urlInput.trim() }),
+            })
+            .select('id')
+            .single();
           if (histErr) {
             console.error('[analyze] analysis_history insert 실패:', histErr.message);
             toast({
               title: '분석 기록 저장 실패',
               description: '결과는 확인하실 수 있지만 기록에는 남지 않았습니다.',
             });
+          } else {
+            setLastAnalysisId((histRow as { id: string } | null)?.id ?? null);
           }
 
           try {
@@ -390,6 +399,10 @@ BeautyLens로 분석했습니다`;
   // 할인 알림 등록 상태
   const [alertingDiscount, setAlertingDiscount] = useState(false);
   const [alertRegistered, setAlertRegistered] = useState(false);
+
+  // 보관함 추가 시트
+  const [cabinetSheetOpen, setCabinetSheetOpen] = useState(false);
+  const [lastAnalysisId, setLastAnalysisId] = useState<string | null>(null);
 
   const handleAddDiscountAlert = async () => {
     if (!result || !user) {
@@ -441,7 +454,7 @@ BeautyLens로 분석했습니다`;
   return (
     <div className="min-h-screen bg-neutral-50 pb-24">
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-border safe-top px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
+        <button onClick={goBack} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
           <ChevronLeft className="h-5 w-5" />
         </button>
         <div className="flex-1 min-w-0">
@@ -801,7 +814,17 @@ BeautyLens로 분석했습니다`;
               </Sheet>
             </div>
 
-            {/* P4: 액션 영역 — 가로 그룹화로 공간 절약 */}
+            {/* P4: 액션 영역 */}
+            {/* 메인 CTA: 보관함에 1탭 추가 */}
+            <Button
+              onClick={() => setCabinetSheetOpen(true)}
+              className="w-full rounded-xl h-12 gap-1.5 text-sm font-bold bg-violet-600 hover:bg-violet-700 text-white"
+            >
+              <Package className="h-4 w-4" />
+              내 보관함에 추가하기
+            </Button>
+
+            {/* 보조 액션 */}
             <div className="grid grid-cols-2 gap-2">
               <Button onClick={handleShare} variant="outline" className="rounded-xl h-11 gap-1.5 text-sm">
                 {copied ? <><Check className="h-4 w-4 text-success" />복사됨</> : <><Share2 className="h-4 w-4" />공유</>}
@@ -939,6 +962,21 @@ BeautyLens로 분석했습니다`;
       </div>
 
       <BottomNav />
+
+      {/* 보관함 1탭 추가 시트 */}
+      {result && (
+        <AddToCabinetSheet
+          open={cabinetSheetOpen}
+          onOpenChange={setCabinetSheetOpen}
+          product={{
+            name: result.productName,
+            brand: result.productBrand,
+            imageUrl: null,
+            productUrl: urlInput.trim() || null,
+            analysisHistoryId: lastAnalysisId,
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUser } from '@/contexts/UserContext';
 import BottomNav from '@/components/BottomNav';
 import RoutineSafetyCard from '@/components/RoutineSafetyCard';
-import CleansingGuideCard from '@/components/CleansingGuideCard';
+import CareGuideCard from '@/components/CareGuideCard';
 import {
   Sun, Moon, Package, ChevronRight, Layers, TrendingUp,
   Plus, Sparkles, Loader2, Brain, RefreshCw, Mic, MicOff, ShoppingBag, CalendarDays,
@@ -610,10 +610,10 @@ const MySkin = () => {
               <p className="text-sm font-bold text-foreground">오늘의 루틴</p>
             </div>
             <button
-              onClick={() => navigate('/routine')}
+              onClick={() => navigate('/cabinet')}
               className="flex items-center gap-0.5 text-xs text-primary font-medium"
             >
-              루틴 편집 <ChevronRight className="h-3.5 w-3.5" />
+              보관함에서 편집 <ChevronRight className="h-3.5 w-3.5" />
             </button>
           </div>
 
@@ -662,16 +662,23 @@ const MySkin = () => {
             <div className="rounded-2xl border border-dashed border-border bg-white py-6 text-center">
               <p className="text-sm text-muted-foreground">아직 루틴 제품이 없어요</p>
               <button
-                onClick={() => navigate('/routine')}
+                onClick={() => navigate('/cabinet', { state: { openAdd: true } })}
                 className="mt-3 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground"
               >
-                루틴 설정하러 가기
+                보관함에 제품 추가하기
               </button>
             </div>
           )}
 
-          {/* 피부 타입별 클렌징 가이드 */}
-          <CleansingGuideCard />
+        </section>
+
+        {/* ─────────── ③.5 피부 타입별 케어 가이드 (클렌징·스킨케어·썬케어·스페셜) ─────────── */}
+        <section className="space-y-3">
+          <div className="flex items-center gap-1.5 px-1">
+            <Sparkles className="h-3.5 w-3.5 text-violet-600" />
+            <p className="text-sm font-bold text-foreground">케어 가이드</p>
+          </div>
+          <CareGuideCard />
         </section>
 
         {/* ─────────── ④ 보관함 프리뷰 ─────────── */}

@@ -26,7 +26,6 @@ import NotFound from "./pages/NotFound.tsx";
 import AuthCallback from "./pages/AuthCallback.tsx";
 import Privacy from "./pages/Privacy.tsx";
 import Terms from "./pages/Terms.tsx";
-import Routine from "./pages/Routine.tsx";
 import ScanHub from "./pages/ScanHub.tsx";
 import ScanAnalysis from "./pages/ScanAnalysis.tsx";
 import SkinSolution from "./pages/SkinSolution.tsx";
@@ -35,7 +34,6 @@ import SkinTimeline from "./pages/SkinTimeline.tsx";
 import MyCabinet from "./pages/MyCabinet.tsx";
 import MySkin from "./pages/MySkin.tsx";
 import ProductCompare from "./pages/ProductCompare.tsx";
-import SkinTest from "./pages/SkinTest.tsx";
 import SkinChat from "./pages/SkinChat.tsx";
 
 const queryClient = new QueryClient({
@@ -78,7 +76,8 @@ const AnimatedRoutes = () => {
                 <Route path="/scan-ocr" element={<ProtectedRoute><P><ScanAnalysis /></P></ProtectedRoute>} />
                 <Route path="/history" element={<ProtectedRoute><P><AnalysisHistory /></P></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><P><Profile /></P></ProtectedRoute>} />
-                <Route path="/routine" element={<ProtectedRoute><P><Routine /></P></ProtectedRoute>} />
+                {/* /routine 페이지는 옵션 B에 따라 보관함 안 시트로 흡수됨. 기존 링크는 보관함으로 리다이렉트 */}
+                <Route path="/routine" element={<Navigate to="/cabinet" replace />} />
                 <Route path="/diary" element={<Navigate to="/myskin" replace />} />
                 <Route path="/skin-solution" element={<ProtectedRoute><P><SkinSolution /></P></ProtectedRoute>} />
                 <Route path="/blacklist" element={<ProtectedRoute><P><BlacklistPage /></P></ProtectedRoute>} />
@@ -87,7 +86,8 @@ const AnimatedRoutes = () => {
                 <Route path="/myskin" element={<ProtectedRoute><P><MySkin /></P></ProtectedRoute>} />
                 <Route path="/compare" element={<ProtectedRoute><P><Compare /></P></ProtectedRoute>} />
                 <Route path="/compare-ai" element={<ProtectedRoute><P><ProductCompare /></P></ProtectedRoute>} />
-                <Route path="/skin-test" element={<ProtectedRoute><P><SkinTest /></P></ProtectedRoute>} />
+                {/* /skin-test 페이지는 /onboarding으로 통합됨 (재진단 모드 자동 분기) */}
+                <Route path="/skin-test" element={<Navigate to="/onboarding" replace />} />
                 <Route path="/chat" element={<ProtectedRoute><P><SkinChat /></P></ProtectedRoute>} />
                 <Route path="/community" element={<ProtectedRoute><P><Community /></P></ProtectedRoute>} />
 

@@ -14,7 +14,7 @@ import OliveYoungDealsCard from '@/components/OliveYoungDealsCard';
 import {
   Camera, ChevronRight, FlaskConical,
   BookMarked, ShieldAlert, TrendingUp,
-  Grid3X3, X, Pill, Dna, type LucideIcon,
+  Grid3X3, X, Pill, Dna, Package, type LucideIcon,
 } from 'lucide-react';
 
 /* ─── 더보기 메뉴 항목 ─── */
@@ -30,8 +30,22 @@ const MORE_ITEMS: MoreItem[] = [
   { Icon: ShieldAlert, label: '성분 블랙리스트', sub: '위험 성분 자동 경보', path: '/blacklist',     color: 'text-red-500 bg-red-50' },
   { Icon: TrendingUp,  label: '피부 타임라인',   sub: '변화 추세 시각화',   path: '/timeline',      color: 'text-indigo-600 bg-indigo-50' },
   { Icon: Pill,        label: '트러블 솔루션',   sub: '약국 의약품 추천',   path: '/skin-solution', color: 'text-rose-500 bg-rose-50' },
-  { Icon: Dna,         label: '피부 진단',       sub: 'AI 타입 재진단',     path: '/skin-test',     color: 'text-cyan-600 bg-cyan-50' },
+  { Icon: Dna,         label: '피부 진단',       sub: 'AI 타입 재진단',     path: '/onboarding',    color: 'text-cyan-600 bg-cyan-50' },
 ];
+
+/* my_cabinet.category → 한글 라벨 (Home 미리보기용) */
+const CATEGORY_LABEL: Record<string, string> = {
+  cleansing_water: '클렌징워터',
+  cleansing_oil: '클렌징오일',
+  cleansing_foam: '클렌징폼',
+  skincare: '스킨케어',
+  suncare: '선케어',
+  treatment: '트리트먼트',
+  makeup: '메이크업',
+  body: '바디',
+  hair: '헤어',
+};
+const categoryLabel = (key: string) => CATEGORY_LABEL[key] ?? key;
 
 const gradeColor = {
   good:     'text-emerald-600 bg-emerald-50 border-emerald-200',
@@ -61,6 +75,27 @@ const Home = () => {
         .order('created_at', { ascending: false })
         .limit(3);
       return data ?? [];
+    },
+    enabled: !!user,
+  });
+
+  /* ── 내 보관함 요약 (총 개수 + 카테고리 미리보기) ── */
+  const { data: cabinetSummary } = useQuery({
+    queryKey: ['cabinet_summary_home', user?.id],
+    queryFn: async () => {
+      if (!user) return { total: 0, categories: [] as { key: string; count: number }[] };
+      const { data } = await supabase
+        .from('my_cabinet' as never)
+        .select('category')
+        .eq('user_id', user.id);
+      const rows = (data ?? []) as { category: string }[];
+      const counts = new Map<string, number>();
+      rows.forEach(r => counts.set(r.category, (counts.get(r.category) ?? 0) + 1));
+      const categories = Array.from(counts.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([key, count]) => ({ key, count }));
+      return { total: rows.length, categories };
     },
     enabled: !!user,
   });
@@ -142,6 +177,34 @@ const Home = () => {
             </div>
           </button>
         </div>
+
+        {/* ── 내 보관함 진입 카드 ── */}
+        <button
+          onClick={() => navigate('/cabinet')}
+          className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card press text-left"
+        >
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-violet-500/10">
+            <Package className="h-5 w-5 text-violet-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <p className="text-sm font-bold text-foreground">내 화장품 보관함</p>
+              {cabinetSummary && cabinetSummary.total > 0 && (
+                <span className="rounded-full bg-violet-100 px-1.5 py-0.5 text-[10px] font-bold text-violet-700">
+                  {cabinetSummary.total}
+                </span>
+              )}
+            </div>
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">
+              {cabinetSummary && cabinetSummary.total > 0
+                ? cabinetSummary.categories
+                    .map(c => `${categoryLabel(c.key)} ${c.count}`)
+                    .join(' · ')
+                : '쓰는 제품을 등록하고 루틴·리뷰를 한 번에 관리하세요'}
+            </p>
+          </div>
+          <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+        </button>
 
         {/* ── 올리브영 행사·쿠폰 (외부 링크) ── */}
         <OliveYoungDealsCard />

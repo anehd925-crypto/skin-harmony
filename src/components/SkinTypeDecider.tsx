@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronRight, Sparkles, Loader2 } from 'lucide-react';
 
@@ -206,10 +206,23 @@ const SkinTypeDecider = ({
   const [diagnosing, setDiagnosing] = useState(false);
   const [result, setResult] = useState<DiagnosisResult | null>(initialResult ?? null);
 
+  // 부모가 비동기(예: localStorage 로드)로 initialResult/initialAnswers를 늦게 채워준 경우,
+  // 컴포넌트 internal state도 결과 화면으로 동기화한다.
+  // 사용자가 이후 직접 "다시 진단하기"를 눌러 result=null이 된 후에는 다시 동기화하지 않도록
+  // "한 번이라도 사용자 인터랙션이 있었는지"를 ref로 추적한다.
+  const userTouchedRef = useRef(false);
+
+  useEffect(() => {
+    if (userTouchedRef.current) return;
+    if (initialResult && !result) setResult(initialResult);
+    if (initialAnswers && Object.keys(answers).length === 0) setAnswers(initialAnswers);
+  }, [initialResult, initialAnswers, result, answers]);
+
   const currentQ = SKIN_TEST_QUESTIONS[step];
   const isLastStep = step === SKIN_TEST_QUESTIONS.length - 1;
 
   const selectAnswer = (value: string) => {
+    userTouchedRef.current = true;
     setAnswers(prev => ({ ...prev, [currentQ.id]: value }));
   };
 
@@ -272,6 +285,7 @@ const SkinTypeDecider = ({
   };
 
   const handleRestart = () => {
+    userTouchedRef.current = true;
     setStep(0);
     setAnswers({});
     setResult(null);

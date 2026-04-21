@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useBack } from '@/hooks/use-back';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import BottomNav from '@/components/BottomNav';
@@ -33,6 +34,7 @@ const SCORE_EMOJI: Record<number, string> = { 1: '😞', 2: '😐', 3: '🙂', 4
 
 const SkinTimeline = () => {
   const navigate = useNavigate();
+  const goBack = useBack('/myskin');
   const { user } = useAuth();
 
   const [points, setPoints] = useState<TimelinePoint[]>([]);
@@ -67,25 +69,29 @@ const SkinTimeline = () => {
 
       const entries: DiaryEntry[] = (diaryData ?? []) as DiaryEntry[];
 
-      // 루틴 변경 이력: routine_products의 created_at 활용
-      // inner join으로 서버에서 본인 소유 routines만 받도록 제한해 RLS 의존도를 낮춘다.
-      const { data: rpData } = await supabase
-        .from('routine_products')
-        .select('id, product_name, created_at, routines!inner(name, user_id)')
-        .eq('routines.user_id', user!.id)
+      // 루틴 변경 이력: 옵션 B 적용으로 my_cabinet 단일 소스에서 created_at 활용
+      // 아침/저녁 표시 중 하나라도 켜져 있으면 루틴 등록으로 간주
+      const { data: cabinetData } = await supabase
+        .from('my_cabinet')
+        .select('id, product_name, is_morning, is_evening, created_at')
+        .eq('user_id', user!.id)
         .gte('created_at', from.toISOString())
         .order('created_at', { ascending: true });
 
-      const routineChanges: RoutineChange[] = ((rpData ?? []) as Array<{
+      const routineChanges: RoutineChange[] = ((cabinetData ?? []) as Array<{
         product_name: string;
         created_at: string;
-        routines: { name: string; user_id: string } | null;
-      }>).map(rp => ({
-        date: rp.created_at.split('T')[0],
-        type: 'added' as const,
-        product_name: rp.product_name,
-        routine_name: rp.routines?.name ?? 'morning',
-      }));
+        is_morning: boolean | null;
+        is_evening: boolean | null;
+      }>)
+        .filter(c => c.is_morning === true || c.is_evening === true)
+        .map(c => ({
+          date: c.created_at.split('T')[0],
+          type: 'added' as const,
+          product_name: c.product_name,
+          // 루틴 라벨: 아침/저녁 둘 다 → morning, 저녁만 → evening, 그 외 morning
+          routine_name: c.is_morning ? 'morning' : (c.is_evening ? 'evening' : 'morning'),
+        }));
 
       // 날짜 범위를 합쳐 timeline 생성
       const dateMap = new Map<string, TimelinePoint>();
@@ -140,7 +146,7 @@ const SkinTimeline = () => {
     <div className="min-h-screen bg-neutral-50 pb-24">
       {/* 헤더 */}
       <div className="sticky top-0 z-10 bg-white border-b border-border px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="rounded-full p-1.5 hover:bg-neutral-100">
+        <button onClick={goBack} className="rounded-full p-1.5 hover:bg-neutral-100">
           <ChevronLeft className="h-5 w-5 text-foreground" />
         </button>
         <div className="flex-1">
@@ -177,16 +183,15 @@ const SkinTimeline = () => {
           </p>
           <div className="flex gap-2 mt-2">
             <button
-              onClick={() => navigate('/diary')}
-              className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
+              onClick={() => navigate('/myskin')}              className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
             >
               피부 일기 작성
             </button>
             <button
-              onClick={() => navigate('/routine')}
+              onClick={() => navigate('/cabinet', { state: { openAdd: true } })}
               className="rounded-full border border-primary px-4 py-2 text-xs font-semibold text-primary"
             >
-              루틴 등록
+              보관함에 등록
             </button>
           </div>
         </div>
@@ -357,8 +362,7 @@ const SkinTimeline = () => {
           {/* 바로가기 버튼 */}
           <div className="grid grid-cols-2 gap-2">
             <button
-              onClick={() => navigate('/diary')}
-              className="flex items-center justify-between rounded-xl border border-border bg-white p-3.5 shadow-card"
+              onClick={() => navigate('/myskin')}              className="flex items-center justify-between rounded-xl border border-border bg-white p-3.5 shadow-card"
             >
               <div className="flex items-center gap-2">
                 <BookMarked className="h-4 w-4 text-primary" />
@@ -367,12 +371,12 @@ const SkinTimeline = () => {
               <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
             <button
-              onClick={() => navigate('/routine')}
+              onClick={() => navigate('/cabinet')}
               className="flex items-center justify-between rounded-xl border border-border bg-white p-3.5 shadow-card"
             >
               <div className="flex items-center gap-2">
                 <Layers className="h-4 w-4 text-purple-500" />
-                <span className="text-xs font-semibold text-foreground">루틴 관리</span>
+                <span className="text-xs font-semibold text-foreground">보관함·루틴 관리</span>
               </div>
               <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
             </button>

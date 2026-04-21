@@ -41,21 +41,18 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
     if (!user) { setLoading(false); return; }
     setLoading(true);
     try {
-      // 오전·오후·저녁 루틴 모두를 포함해 안전도를 계산한다.
-      // 오후 루틴은 프로필에서 opt-in된 경우에만 생성되지만, 존재하면 점수에 반영되어야 한다.
-      const { data: routines } = await supabase
-        .from('routines')
-        .select('id, name, routine_products(product_name, ingredients_snapshot)')
-        .eq('user_id', user.id)
-        .in('name', ['morning', 'afternoon', 'evening']);
+      // 옵션 B 적용: 루틴 정보는 my_cabinet 단일 소스에서 읽는다.
+      // 오전(is_morning) / 저녁(is_evening) 둘 중 하나라도 표시된 제품이면 루틴 대상.
+      const { data: cabinet } = await supabase
+        .from('my_cabinet')
+        .select('id, is_morning, is_evening')
+        .eq('user_id', user.id);
 
-      if (!routines || routines.length === 0) { setLoading(false); return; }
+      const routineItems = (cabinet ?? []).filter(
+        (c) => c.is_morning === true || c.is_evening === true,
+      );
 
-      let totalProducts = 0;
-      for (const r of routines as Array<{ routine_products: Array<{ ingredients_snapshot: string }> }>) {
-        totalProducts += r.routine_products.length;
-      }
-
+      const totalProducts = routineItems.length;
       if (totalProducts < 2) { setLoading(false); return; }
 
       const { data: conflictCache } = await supabase
@@ -108,7 +105,7 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
     if (compact) {
       return (
         <button
-          onClick={() => navigate('/routine')}
+          onClick={() => navigate('/cabinet', { state: { openRoutineSheet: true } })}
           className="flex flex-col justify-between rounded-2xl border border-dashed border-purple-200 bg-purple-50/50 p-4 text-left min-h-[100px] transition-all active:scale-[0.98]"
         >
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-100">
@@ -130,7 +127,7 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
     return (
       <button
         type="button"
-        onClick={() => navigate('/routine')}
+        onClick={() => navigate('/cabinet', { state: { openRoutineSheet: true } })}
         className={`flex flex-col justify-between rounded-2xl border ${c.border} ${c.bg} p-4 text-left min-h-[100px] transition-all active:scale-[0.98]`}
       >
         <div className="flex items-center justify-between">
@@ -156,7 +153,7 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
   return (
     <button
       type="button"
-      onClick={() => navigate('/routine')}
+      onClick={() => navigate('/cabinet', { state: { openRoutineSheet: true } })}
       className={`flex w-full items-center gap-3 rounded-2xl border ${c.border} ${c.bg} px-4 py-3.5 text-left transition-all active:scale-[0.98]`}
     >
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm">

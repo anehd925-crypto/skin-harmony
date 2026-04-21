@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useBack } from '@/hooks/use-back';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import BottomNav from '@/components/BottomNav';
@@ -11,6 +12,8 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { track, EVENT } from '@/lib/analytics';
+import ImportFromAnalysesSheet from '@/components/ImportFromAnalysesSheet';
+import RoutineCompatibilitySheet from '@/components/RoutineCompatibilitySheet';
 
 // ─── 타입 ─────────────────────────────────────────────────────────────────────
 interface CabinetItem {
@@ -117,6 +120,7 @@ type FilterCat = CategoryKey | 'all' | 'cleansing';
 // ─── 컴포넌트 ─────────────────────────────────────────────────────────────────
 const MyCabinet = () => {
   const navigate = useNavigate();
+  const goBack = useBack('/');
   const location = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -150,6 +154,13 @@ const MyCabinet = () => {
 
   // URL 자동 스크랩
   const [scraping, setScraping] = useState(false);
+
+  // 분석 기록에서 일괄 가져오기 시트
+  const [importSheetOpen, setImportSheetOpen] = useState(false);
+
+  // 루틴 성분 궁합 시트 (옵션 B: /routine 페이지를 시트로 흡수)
+  const [routineSheetOpen, setRoutineSheetOpen] = useState(false);
+  const [routineSheetDefaultTab, setRoutineSheetDefaultTab] = useState<'morning' | 'evening'>('morning');
 
   const handleScrapeUrl = async () => {
     const url = form.product_url.trim();
@@ -208,9 +219,30 @@ const MyCabinet = () => {
 
   useEffect(() => { loadCabinet(); }, [loadCabinet]);
 
-  // 카메라 제품 인식에서 prefill 데이터가 있으면 모달 자동 오픈
+  // 외부에서 진입할 때 모달/시트 자동 오픈 (state.openAdd, state.openRoutineSheet) 또는 prefill 처리
   useEffect(() => {
-    const state = location.state as { prefill?: { name: string; brand: string; category: string; step: string; is_morning: boolean; is_evening: boolean; note: string } } | null;
+    const state = location.state as {
+      openAdd?: boolean;
+      openRoutineSheet?: boolean;
+      routineTab?: 'morning' | 'evening';
+      prefill?: { name: string; brand: string; category: string; step: string; is_morning: boolean; is_evening: boolean; note: string };
+    } | null;
+
+    if (state?.openRoutineSheet) {
+      setRoutineSheetDefaultTab(state.routineTab ?? 'morning');
+      setRoutineSheetOpen(true);
+      window.history.replaceState({}, '', location.pathname);
+      return;
+    }
+
+    if (state?.openAdd && !state?.prefill) {
+      setForm({ ...EMPTY_FORM });
+      setEditId(null);
+      setShowModal(true);
+      window.history.replaceState({}, '', location.pathname);
+      return;
+    }
+
     if (state?.prefill) {
       const stepMap: Record<string, number> = {
         '클렌징': 1, '토너·스킨': 2, '에센스': 3, '세럼·앰플': 4,
@@ -442,7 +474,7 @@ const MyCabinet = () => {
 
       {/* ── 헤더 ── */}
       <div className="sticky top-0 z-10 bg-white border-b border-border px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
+        <button onClick={goBack} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100">
           <ChevronLeft className="h-5 w-5" />
         </button>
         <div className="flex-1 min-w-0">
@@ -450,10 +482,19 @@ const MyCabinet = () => {
           <p className="text-xs text-muted-foreground">{items.length}개 제품</p>
         </div>
         <button
-          onClick={() => navigate('/routine')}
-          className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary shrink-0"
+          onClick={() => { setRoutineSheetDefaultTab('morning'); setRoutineSheetOpen(true); }}
+          className="flex items-center gap-1.5 rounded-full border border-violet-300 bg-violet-50 px-3 py-1.5 text-xs font-semibold text-violet-700 shrink-0"
+          title="아침/저녁 루틴 성분 충돌·시너지를 분석"
+          disabled={items.length < 2}
         >
-          <Layers className="h-3.5 w-3.5" /> 루틴 체커
+          <Sparkles className="h-3.5 w-3.5" /> 성분 궁합
+        </button>
+        <button
+          onClick={() => setImportSheetOpen(true)}
+          className="flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-xs font-semibold text-muted-foreground shrink-0"
+          title="최근 분석 기록에서 일괄 등록"
+        >
+          <FlaskConical className="h-3.5 w-3.5" /> 분석에서
         </button>
         <button
           onClick={openAdd}
@@ -535,26 +576,26 @@ const MyCabinet = () => {
               <p key={i} className="text-xs text-red-700 leading-relaxed pl-7">· {c}</p>
             ))}
             <button
-              onClick={() => { setConflictAlert(null); navigate('/routine'); }}
+              onClick={() => { setConflictAlert(null); setRoutineSheetDefaultTab('morning'); setRoutineSheetOpen(true); }}
               className="w-full rounded-xl bg-red-600 py-2 text-xs font-bold text-white mt-1"
             >
-              루틴 체커에서 자세히 보기
+              성분 궁합 자세히 보기
             </button>
           </div>
         )}
 
-        {/* ── 루틴 성분 궁합 바로가기 배너 ── */}
+        {/* ── 루틴 성분 궁합 (보관함 안 시트로 통합) ── */}
         {items.length >= 2 && (
           <button
-            onClick={() => navigate('/routine')}
+            onClick={() => { setRoutineSheetDefaultTab('morning'); setRoutineSheetOpen(true); }}
             className="flex w-full items-center gap-3 rounded-2xl border border-violet-200 bg-violet-50 px-4 py-3.5 text-left"
           >
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-100">
-              <Layers className="h-4 w-4 text-violet-600" />
+              <Sparkles className="h-4 w-4 text-violet-600" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-violet-800">루틴 성분 궁합 체크</p>
-              <p className="text-xs text-violet-600 mt-0.5">보관함 제품들의 성분 충돌·시너지를 확인해보세요</p>
+              <p className="text-xs text-violet-600 mt-0.5">아침·저녁 루틴 제품의 충돌·시너지를 즉시 분석</p>
             </div>
             <ChevronDown className="h-4 w-4 text-violet-400 rotate-[-90deg] shrink-0" />
           </button>
@@ -662,20 +703,44 @@ const MyCabinet = () => {
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
+          <div className="flex flex-col items-center justify-center py-10 gap-3 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
               <Package className="h-8 w-8 text-primary/40" />
             </div>
             <p className="text-sm font-bold text-foreground">보관함이 비어있어요</p>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              갖고 있는 화장품을 추가하면<br />날씨 맞춤 루틴 추천을 받을 수 있어요
+              두 가지 방법으로 빠르게 시작할 수 있어요
             </p>
-            <button
-              onClick={openAdd}
-              className="mt-2 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground"
-            >
-              첫 번째 제품 추가
-            </button>
+
+            <div className="w-full max-w-sm space-y-2 mt-2">
+              {/* 옵션 1: 분석 기록에서 일괄 가져오기 (B안) */}
+              <button
+                onClick={() => setImportSheetOpen(true)}
+                className="flex w-full items-center gap-3 rounded-2xl border border-violet-200 bg-violet-50 px-4 py-3 text-left"
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-100">
+                  <FlaskConical className="h-4 w-4 text-violet-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-violet-900">분석한 제품 가져오기</p>
+                  <p className="text-[11px] text-violet-700 mt-0.5">스캔 탭에서 분석한 기록을 한 번에 등록</p>
+                </div>
+              </button>
+
+              {/* 옵션 2: 직접 추가 */}
+              <button
+                onClick={openAdd}
+                className="flex w-full items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-left"
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                  <Plus className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-foreground">새 제품 직접 추가</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">검색·URL 스크랩·카메라 인식 지원</p>
+                </div>
+              </button>
+            </div>
           </div>
         ) : (
           <div className="space-y-2">
@@ -841,10 +906,11 @@ const MyCabinet = () => {
                           <Pencil className="h-3 w-3" /> 수정
                         </button>
                         <button
-                          onClick={() => navigate('/routine')}
+                          onClick={() => { setRoutineSheetDefaultTab(item.is_morning ? 'morning' : 'evening'); setRoutineSheetOpen(true); }}
                           className="flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs font-semibold text-violet-600"
+                          disabled={items.length < 2}
                         >
-                          <Layers className="h-3 w-3" /> 루틴 체커
+                          <Sparkles className="h-3 w-3" /> 성분 궁합
                         </button>
                         {item.analysis_history_id && (
                           <button
@@ -1126,6 +1192,21 @@ const MyCabinet = () => {
       )}
 
       <BottomNav />
+
+      {/* 분석 기록에서 일괄 가져오기 시트 (B안) */}
+      <ImportFromAnalysesSheet
+        open={importSheetOpen}
+        onOpenChange={setImportSheetOpen}
+        onImported={() => { loadCabinet(); }}
+      />
+
+      {/* 루틴 성분 궁합 시트 (옵션 B: /routine 페이지를 보관함 안 시트로 흡수) */}
+      <RoutineCompatibilitySheet
+        open={routineSheetOpen}
+        onOpenChange={setRoutineSheetOpen}
+        items={items}
+        defaultTab={routineSheetDefaultTab}
+      />
     </div>
   );
 };
