@@ -73,6 +73,17 @@ Vite + React 18 + TypeScript + Tailwind 3.4 + shadcn/ui + Radix + Supabase + Fra
 3. 새 브랜치 `redesign/v2-forest-olive` 생성 제안
 4. Day 1 작업 시작 제안: "먼저 디자인 토큰 3개 파일만 덮어쓰고 `bun run dev`로 확인해볼까요?"
 
+## 배포
+
+- **프로덕션 URL**: https://skin-harmony.vercel.app
+- **플랫폼**: Vercel (Hobby, anehd925-2861s-projects)
+- **배포 방법**: `.deploy.sh` 실행 (토큰 포함, git 비공개)
+  ```
+  bash .deploy.sh
+  ```
+- **주의**: 회사 네트워크에서 `NODE_TLS_REJECT_UNAUTHORIZED=0` 필요 (SSL 프록시 우회)
+- **토큰 위치**: `.deploy.sh` (`.gitignore` 처리됨 — GitHub에 올라가지 않음)
+
 ## 참고 링크
 - 레포: https://github.com/anehd925-crypto/skin-harmony
 - 유저 워크스페이스 규칙: macOS (`anehd925`), Cursor + Claude Code 병용
