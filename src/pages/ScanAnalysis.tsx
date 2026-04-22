@@ -205,7 +205,7 @@ const ScanAnalysis = () => {
     <div className="flex min-h-screen flex-col bg-background pb-24">
 
       {/* 헤더 */}
-      <div className="sticky top-0 z-10 bg-white border-b border-border px-4 py-3 flex items-center gap-3">
+      <div className="sticky top-0 z-10 bg-background/95 border-b border-border px-4 py-3 flex items-center gap-3">
         <button onClick={() => navigate('/scan')} className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted">
           <ChevronLeft className="h-5 w-5" />
         </button>
@@ -217,7 +217,7 @@ const ScanAnalysis = () => {
         <button
           onClick={() => handleModeChange('ingredient')}
           className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2.5 text-xs font-semibold transition-all ${
-            scanMode === 'ingredient' ? 'bg-white shadow text-foreground' : 'text-muted-foreground'
+            scanMode === 'ingredient' ? 'bg-card shadow text-foreground' : 'text-muted-foreground'
           }`}
         >
           <Scan className="h-3.5 w-3.5" />
@@ -226,7 +226,7 @@ const ScanAnalysis = () => {
         <button
           onClick={() => handleModeChange('product')}
           className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2.5 text-xs font-semibold transition-all ${
-            scanMode === 'product' ? 'bg-white shadow text-foreground' : 'text-muted-foreground'
+            scanMode === 'product' ? 'bg-card shadow text-foreground' : 'text-muted-foreground'
           }`}
         >
           <Package className="h-3.5 w-3.5" />
@@ -284,7 +284,7 @@ const ScanAnalysis = () => {
 
         {/* 처리 중 */}
         {status === 'processing' && (
-          <div className="rounded-2xl border border-border bg-white p-6 text-center space-y-3">
+          <div className="rounded-2xl border border-border bg-card p-6 text-center space-y-3">
             {scanMode === 'ingredient' ? (
               <>
                 <Scan className="h-8 w-8 text-primary animate-pulse mx-auto" />
@@ -324,7 +324,7 @@ const ScanAnalysis = () => {
               <CheckCircle className="h-4 w-4 text-green-500" />
               <p className="text-sm font-bold text-foreground">성분 인식 완료</p>
             </div>
-            <div className="rounded-2xl border border-border bg-white p-4">
+            <div className="rounded-2xl border border-border bg-card p-4">
               <p className="text-xs font-semibold text-muted-foreground mb-2">인식된 성분 텍스트</p>
               <textarea
                 className="w-full text-xs text-foreground bg-transparent resize-none leading-relaxed focus:outline-none min-h-[100px]"
@@ -359,7 +359,7 @@ const ScanAnalysis = () => {
             </div>
 
             {/* 인식된 제품 카드 */}
-            <div className="rounded-2xl border border-border bg-white p-4 space-y-3">
+            <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
               <div className="flex items-start gap-3">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-2xl">
                   📦
@@ -418,7 +418,7 @@ const ScanAnalysis = () => {
             </Button>
             <label className="cursor-pointer block">
               <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
-              <div className="w-full flex items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-white h-14 text-sm font-semibold text-muted-foreground hover:border-primary/50 transition-colors">
+              <div className="w-full flex items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card h-14 text-sm font-semibold text-muted-foreground hover:border-primary/50 transition-colors">
                 <ImagePlus className="h-5 w-5" />
                 갤러리에서 선택
               </div>
@@ -441,7 +441,7 @@ const ScanAnalysis = () => {
 
         {/* 팁 */}
         {status === 'idle' && (
-          <div className="rounded-2xl border border-border bg-white p-4 space-y-1.5">
+          <div className="rounded-2xl border border-border bg-card p-4 space-y-1.5">
             <p className="text-xs font-bold text-muted-foreground">촬영 팁</p>
             <ul className="space-y-1 text-xs text-muted-foreground">
               {scanMode === 'ingredient' ? (

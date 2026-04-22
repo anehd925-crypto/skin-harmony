@@ -131,7 +131,7 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
         className={`flex flex-col justify-between rounded-2xl border ${c.border} ${c.bg} p-4 text-left min-h-[100px] transition-all active:scale-[0.98]`}
       >
         <div className="flex items-center justify-between">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white shadow-sm">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-card shadow-sm">
             {data.level === 'safe'
               ? <ShieldCheck className={`h-4 w-4 ${c.icon}`} />
               : <AlertTriangle className={`h-4 w-4 ${c.icon}`} />
@@ -156,7 +156,7 @@ const RoutineSafetyCard = ({ compact = false }: { compact?: boolean }) => {
       onClick={() => navigate('/cabinet', { state: { openRoutineSheet: true } })}
       className={`flex w-full items-center gap-3 rounded-2xl border ${c.border} ${c.bg} px-4 py-3.5 text-left transition-all active:scale-[0.98]`}
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-card shadow-sm">
         {data.level === 'safe'
           ? <ShieldCheck className={`h-5 w-5 ${c.icon}`} />
           : <AlertTriangle className={`h-5 w-5 ${c.icon}`} />

@@ -76,9 +76,9 @@ const IngredientDetail = ({ ingredientName, onClose }: IngredientDetailProps) =>
   return (
     <div className="fixed inset-0 z-50 flex items-end">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-h-[85vh] rounded-t-3xl bg-white overflow-y-auto safe-bottom animate-in slide-in-from-bottom duration-300">
+      <div className="relative w-full max-h-[85vh] rounded-t-3xl bg-card overflow-y-auto safe-bottom animate-in slide-in-from-bottom duration-300">
 
-        <div className="sticky top-0 z-10 bg-white border-b border-border px-4 py-3 flex items-center justify-between">
+        <div className="sticky top-0 z-10 bg-card border-b border-border px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <BookOpen className="h-4 w-4 text-primary" />
             <span className="text-sm font-bold text-foreground">성분 사전</span>

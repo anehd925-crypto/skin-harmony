@@ -61,7 +61,7 @@ const ChatFab = () => {
           <div
             className="
               relative w-full h-[88vh] max-h-[88vh]
-              bg-white rounded-t-3xl shadow-xl
+              bg-card rounded-t-3xl shadow-xl
               flex flex-col
               animate-in slide-in-from-bottom duration-300
               overflow-hidden

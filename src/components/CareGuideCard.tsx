@@ -154,7 +154,7 @@ const CategoryPanel = ({ def }: { def: CategoryDef }) => {
             <button
               key={i}
               onClick={() => navigate(`/explore?q=${encodeURIComponent(`${p.brand} ${p.name}`)}`)}
-              className="flex w-full items-start gap-2 rounded-xl border border-border bg-white p-2.5 text-left"
+              className="flex w-full items-start gap-2 rounded-xl border border-border bg-card p-2.5 text-left"
             >
               <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${def.bg} text-base`}>
                 {def.emoji}
@@ -184,7 +184,7 @@ const CareGuideCard = () => {
     return (
       <button
         onClick={() => navigate('/onboarding')}
-        className="flex w-full items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3.5 text-left shadow-card"
+        className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3.5 text-left shadow-card"
       >
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-100">
           <Sparkles className="h-4 w-4 text-violet-600" />
@@ -199,7 +199,7 @@ const CareGuideCard = () => {
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-white overflow-hidden shadow-card">
+    <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-card">
       {/* 헤더 */}
       <div className="px-4 pt-3.5 pb-2.5 border-b border-border">
         <div className="flex items-center gap-1.5 mb-0.5">
@@ -224,7 +224,7 @@ const CareGuideCard = () => {
               className={`flex flex-col items-center justify-center gap-1 rounded-xl border py-2.5 transition-all ${
                 isActive
                   ? `${c.border} ${c.bg} ${c.color}`
-                  : 'border-border bg-white text-muted-foreground'
+                  : 'border-border bg-card text-muted-foreground'
               }`}
             >
               <Icon className={`h-4 w-4 ${isActive ? c.color : 'text-muted-foreground'}`} />

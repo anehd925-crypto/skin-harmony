@@ -94,7 +94,7 @@ const ProductCompare = () => {
     <div className="flex min-h-screen flex-col bg-background pb-24">
 
       {/* 헤더 */}
-      <div className="sticky top-0 z-10 bg-white border-b border-border px-4 py-3 flex items-center gap-3">
+      <div className="sticky top-0 z-10 bg-card border-b border-border px-4 py-3 flex items-center gap-3">
         <button onClick={() => navigate(-1)} className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted">
           <ChevronLeft className="h-5 w-5" />
         </button>
@@ -123,7 +123,7 @@ const ProductCompare = () => {
             </div>
 
             {/* 제품 A */}
-            <div className="rounded-2xl border border-border bg-white p-4 space-y-3">
+            <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">A</span>
                 <p className="text-sm font-bold text-foreground">첫 번째 제품</p>
@@ -150,7 +150,7 @@ const ProductCompare = () => {
             </div>
 
             {/* 제품 B */}
-            <div className="rounded-2xl border border-border bg-white p-4 space-y-3">
+            <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-700 text-xs font-bold text-white">B</span>
                 <p className="text-sm font-bold text-foreground">두 번째 제품</p>
@@ -236,7 +236,7 @@ const ProductCompare = () => {
             </div>
 
             {/* 항목별 비교 */}
-            <div className="rounded-2xl border border-border bg-white overflow-hidden">
+            <div className="rounded-2xl border border-border bg-card overflow-hidden">
               <div className="px-4 py-3 border-b border-border flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-primary" />
                 <p className="text-sm font-bold text-foreground">항목별 비교</p>
@@ -269,7 +269,7 @@ const ProductCompare = () => {
             {(['A', 'B'] as const).map(side => {
               const p = side === 'A' ? result.productA : result.productB;
               return (
-                <div key={side} className="rounded-2xl border border-border bg-white p-4 space-y-3">
+                <div key={side} className="rounded-2xl border border-border bg-card p-4 space-y-3">
                   <div className="flex items-center gap-2">
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${side === 'A' ? 'bg-primary/10 text-primary' : 'bg-muted text-neutral-700'}`}>{side}</span>
                     <div>

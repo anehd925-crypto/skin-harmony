@@ -328,7 +328,7 @@ const SkinTypeDecider = ({
                 className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all ${
                   answers[currentQ.id] === opt.value
                     ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                    : 'border-border bg-white hover:bg-neutral-50'
+                    : 'border-border bg-card hover:bg-neutral-50'
                 }`}
               >
                 <span className="text-xl shrink-0">{opt.emoji}</span>
@@ -370,7 +370,7 @@ const SkinTypeDecider = ({
       {/* 결과 */}
       {result && (
         <div className="space-y-3">
-          <div className="rounded-2xl border border-border bg-white p-5 text-center shadow-card">
+          <div className="rounded-2xl border border-border bg-card p-5 text-center shadow-card">
             <p className="text-xs text-muted-foreground mb-2">내 피부 건강 점수</p>
             <div className={`text-4xl font-black ${scoreColor(result.score)}`}>{result.score}</div>
             <div className="w-full bg-neutral-100 rounded-full h-2 mt-3 mb-3">
@@ -387,7 +387,7 @@ const SkinTypeDecider = ({
 
           {variant === 'full' && (
             <>
-              <div className="rounded-2xl border border-border bg-white p-4 shadow-card">
+              <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
                 <p className="text-sm font-bold text-foreground mb-2">내 피부 특징</p>
                 <div className="space-y-1.5">
                   {result.characteristics.map((c, i) => (
@@ -417,7 +417,7 @@ const SkinTypeDecider = ({
                 <p className="text-sm font-bold text-red-800 mb-2">피해야 할 성분</p>
                 <div className="flex flex-wrap gap-1">
                   {result.avoidIngredients.map((a, i) => (
-                    <span key={i} className="rounded-full border border-red-200 bg-white px-2.5 py-0.5 text-xs font-medium text-red-700">
+                    <span key={i} className="rounded-full border border-red-200 bg-card px-2.5 py-0.5 text-xs font-medium text-red-700">
                       {a}
                     </span>
                   ))}
