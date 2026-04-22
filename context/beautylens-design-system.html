@@ -1,0 +1,2636 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BeautyLens · Premium Design System v2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      as="style"
+      crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: "#f1f9f4",
+                100: "#dcf0e3",
+                200: "#bce0ca",
+                300: "#8ec9a7",
+                400: "#5eaa81",
+                500: "#3d8e64",
+                600: "#2c724f",
+                700: "#235b41",
+                800: "#1e4937",
+                900: "#1a3d2f",
+                950: "#0c2219",
+              },
+              ink: {
+                50: "#fafaf9",
+                100: "#f4f3f1",
+                200: "#e7e5e1",
+                300: "#d4d1cb",
+                400: "#a8a39a",
+                500: "#797267",
+                600: "#5d564c",
+                700: "#48423a",
+                800: "#2f2b25",
+                900: "#1a1815",
+                950: "#0d0c0a",
+              },
+              sand: {
+                50: "#fdfcf9",
+                100: "#faf6ed",
+                200: "#f3ebd4",
+              },
+              beneficial: "#3d8e64",
+              caution: "#d89b2a",
+              harmful: "#c14a3a",
+            },
+            fontFamily: {
+              display: ['"Fraunces"', "Pretendard Variable", "serif"],
+              sans: [
+                "Pretendard Variable",
+                "Pretendard",
+                "-apple-system",
+                "sans-serif",
+              ],
+              mono: ['"JetBrains Mono"', "monospace"],
+            },
+            boxShadow: {
+              soft: "0 1px 2px rgba(26, 24, 21, 0.04), 0 2px 4px rgba(26, 24, 21, 0.03)",
+              card: "0 4px 12px -2px rgba(26, 24, 21, 0.06), 0 2px 6px -2px rgba(26, 24, 21, 0.04)",
+              float:
+                "0 16px 40px -12px rgba(26, 24, 21, 0.12), 0 4px 12px -4px rgba(26, 24, 21, 0.06)",
+              brand:
+                "0 20px 40px -16px rgba(35, 91, 65, 0.35), 0 8px 16px -8px rgba(35, 91, 65, 0.2)",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family:
+          "Pretendard Variable",
+          Pretendard,
+          -apple-system,
+          sans-serif;
+        font-feature-settings:
+          "ss01",
+          "ss02",
+          "cv01",
+          "cv02";
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        word-break: keep-all;
+      }
+      .font-display {
+        font-family: "Fraunces", serif;
+        font-optical-sizing: auto;
+        font-variation-settings: "opsz" 144;
+        letter-spacing: -0.02em;
+      }
+      .bg-hero {
+        background:
+          radial-gradient(
+            ellipse at top left,
+            rgba(188, 224, 202, 0.35) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            ellipse at bottom right,
+            rgba(243, 235, 212, 0.5) 0%,
+            transparent 50%
+          ),
+          #fdfcf9;
+      }
+      .bg-forest {
+        background-image: linear-gradient(
+          135deg,
+          #0c2219 0%,
+          #1a3d2f 50%,
+          #235b41 100%
+        );
+        position: relative;
+      }
+      .bg-forest::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.2'/%3E%3C/svg%3E");
+        opacity: 0.35;
+        pointer-events: none;
+        mix-blend-mode: overlay;
+      }
+      @keyframes scan-line {
+        0% {
+          transform: translateY(0%);
+          opacity: 0;
+        }
+        20% {
+          opacity: 1;
+        }
+        80% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(100%);
+          opacity: 0;
+        }
+      }
+      .animate-scan {
+        animation: scan-line 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+      }
+      @keyframes count-up {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-count {
+        animation: count-up 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: -200% center;
+        }
+        100% {
+          background-position: 200% center;
+        }
+      }
+      .shimmer-bg {
+        background: linear-gradient(
+          90deg,
+          #f4f3f1 0%,
+          #faf6ed 50%,
+          #f4f3f1 100%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 2s linear infinite;
+      }
+      .phone-frame {
+        width: 320px;
+        height: 680px;
+        border-radius: 40px;
+        padding: 8px;
+        background: linear-gradient(145deg, #2f2b25, #1a1815);
+        box-shadow:
+          0 32px 80px -20px rgba(26, 24, 21, 0.45),
+          0 8px 24px -8px rgba(26, 24, 21, 0.25),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+        position: relative;
+      }
+      .phone-frame::before {
+        content: "";
+        position: absolute;
+        top: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 82px;
+        height: 22px;
+        background: #0d0c0a;
+        border-radius: 12px;
+        z-index: 20;
+      }
+      .phone-screen {
+        width: 100%;
+        height: 100%;
+        border-radius: 32px;
+        overflow: hidden;
+        position: relative;
+        background: #fdfcf9;
+      }
+      .hide-scroll::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scroll {
+        scrollbar-width: none;
+      }
+      .tag-appear {
+        opacity: 0;
+        transform: translateY(4px);
+        animation: tag-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
+      @keyframes tag-in {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .d-1 { animation-delay: 0.4s; }
+      .d-2 { animation-delay: 0.8s; }
+      .d-3 { animation-delay: 1.2s; }
+      .d-4 { animation-delay: 1.6s; }
+      .grain-overlay {
+        position: relative;
+      }
+      .grain-overlay::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+        pointer-events: none;
+      }
+      details > summary {
+        list-style: none;
+        cursor: pointer;
+      }
+      details > summary::-webkit-details-marker {
+        display: none;
+      }
+      details[open] .chevron {
+        transform: rotate(180deg);
+      }
+      .chevron {
+        transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+    </style>
+  </head>
+  <body class="bg-sand-50 text-ink-900">
+    <!-- ========================= TOP BAR ========================= -->
+    <nav
+      class="sticky top-0 z-50 border-b border-ink-200/60 bg-sand-50/80 backdrop-blur-lg"
+    >
+      <div
+        class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4"
+      >
+        <div class="flex items-center gap-2.5">
+          <div
+            class="grid h-9 w-9 place-items-center rounded-xl bg-brand-800 font-display text-base font-medium text-white shadow-brand"
+          >
+            B
+          </div>
+          <div>
+            <div class="font-display text-[15px] font-semibold leading-none">
+              BeautyLens
+            </div>
+            <div class="mt-1 text-[10px] tracking-widest text-ink-500">
+              DESIGN SYSTEM · v2.0
+            </div>
+          </div>
+        </div>
+        <div
+          class="hidden items-center gap-6 text-[13px] text-ink-600 md:flex"
+        >
+          <a href="#brand" class="hover:text-brand-700">Brand</a>
+          <a href="#tokens" class="hover:text-brand-700">Tokens</a>
+          <a href="#components" class="hover:text-brand-700">Components</a>
+          <a href="#screens" class="hover:text-brand-700">Screens</a>
+          <a href="#before-after" class="hover:text-brand-700">Compare</a>
+        </div>
+        <a
+          href="#screens"
+          class="rounded-full bg-brand-800 px-4 py-2 text-xs font-medium text-white shadow-brand transition hover:bg-brand-900"
+          >Preview →</a
+        >
+      </div>
+    </nav>
+
+    <!-- ========================= HERO ========================= -->
+    <section class="bg-hero relative overflow-hidden">
+      <div class="relative mx-auto max-w-7xl px-6 pb-24 pt-20 lg:pb-32 lg:pt-28">
+        <div class="grid items-center gap-16 lg:grid-cols-[1.15fr_1fr]">
+          <div>
+            <div
+              class="mb-7 inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/60 px-3 py-1 text-xs font-medium text-brand-700 backdrop-blur"
+            >
+              <span class="h-1.5 w-1.5 rounded-full bg-brand-500"></span>
+              Premium Rebrand · v2.0
+            </div>
+            <h1
+              class="font-display text-[52px] font-light leading-[1.02] text-ink-900 lg:text-[76px]"
+            >
+              내 피부가<br />
+              <span class="italic text-brand-800">이해하는</span> 성분.
+            </h1>
+            <p class="mt-8 max-w-md text-[17px] leading-relaxed text-ink-600">
+              BeautyLens는 올리브영 URL 하나로 시작되는 AI 전성분 분석
+              서비스입니다. 핫핑크에서 <strong class="text-ink-800"
+                >신뢰의 Forest Olive</strong
+              >로 — 브랜드, 디자인 시스템, UX 전반을 프리미엄 스킨케어 앱의
+              정수로 재정립했습니다.
+            </p>
+            <div class="mt-9 flex flex-wrap items-center gap-3">
+              <a
+                href="#screens"
+                class="group inline-flex items-center gap-2 rounded-full bg-brand-800 px-6 py-3.5 text-sm font-medium text-white shadow-brand transition hover:bg-brand-900"
+              >
+                스크린 목업 보기
+                <span class="transition group-hover:translate-x-0.5">→</span>
+              </a>
+              <a
+                href="#before-after"
+                class="inline-flex items-center gap-2 rounded-full border border-ink-300 bg-white/80 px-6 py-3.5 text-sm font-medium text-ink-800 backdrop-blur hover:border-ink-400"
+              >
+                Before / After
+              </a>
+            </div>
+            <div
+              class="mt-14 grid max-w-lg grid-cols-4 gap-6 border-t border-ink-200/80 pt-8"
+            >
+              <div>
+                <div class="font-display text-3xl text-brand-800">11</div>
+                <div class="mt-1 text-[11px] text-ink-500">
+                  컬러 스케일<br />토큰
+                </div>
+              </div>
+              <div>
+                <div class="font-display text-3xl text-brand-800">3</div>
+                <div class="mt-1 text-[11px] text-ink-500">
+                  폰트 패밀리<br />시스템
+                </div>
+              </div>
+              <div>
+                <div class="font-display text-3xl text-brand-800">6→3</div>
+                <div class="mt-1 text-[11px] text-ink-500">
+                  온보딩<br />단축
+                </div>
+              </div>
+              <div>
+                <div class="font-display text-3xl text-brand-800">AAA</div>
+                <div class="mt-1 text-[11px] text-ink-500">
+                  WCAG<br />접근성
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative mx-auto">
+            <div
+              class="absolute -left-10 -top-10 h-48 w-48 rounded-full bg-brand-200/50 blur-3xl"
+            ></div>
+            <div
+              class="absolute -bottom-10 -right-10 h-56 w-56 rounded-full bg-sand-200/70 blur-3xl"
+            ></div>
+            <div class="phone-frame relative">
+              <div class="phone-screen">
+                <div class="h-full overflow-hidden bg-sand-50">
+                  <div
+                    class="flex items-center justify-between px-5 pb-2 pt-10 text-[10px] font-medium text-ink-900"
+                  >
+                    <span>9:41</span>
+                    <span class="flex gap-0.5">● ◐ ▮</span>
+                  </div>
+                  <div class="px-5 pt-3">
+                    <div class="text-[10px] tracking-widest text-ink-500">
+                      WEDNESDAY · APR 21
+                    </div>
+                    <h2
+                      class="mt-0.5 font-display text-[22px] font-light leading-tight"
+                    >
+                      안녕하세요,<br />지영님
+                    </h2>
+                  </div>
+                  <div class="px-5 pt-4">
+                    <div
+                      class="relative overflow-hidden rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50 via-white to-sand-100 p-3.5 shadow-card"
+                    >
+                      <div class="mb-1.5 flex items-center gap-1.5">
+                        <span
+                          class="grid h-4 w-4 place-items-center rounded-full bg-brand-800 text-[8px] text-white"
+                          >✦</span
+                        >
+                        <div
+                          class="text-[9px] font-medium tracking-widest text-brand-700"
+                        >
+                          AI 전성분 분석
+                        </div>
+                      </div>
+                      <div class="font-display text-[14px] text-ink-900">
+                        올리브영 URL을 붙여넣어 보세요
+                      </div>
+                      <div
+                        class="mt-2.5 flex items-center gap-1.5 rounded-xl border border-ink-200 bg-white p-1 pl-2.5"
+                      >
+                        <svg
+                          class="h-3 w-3 text-ink-400"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                          />
+                          <path
+                            d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                          />
+                        </svg>
+                        <input
+                          value="oliveyoung.co.kr/goods/..."
+                          class="flex-1 bg-transparent py-1 text-[10px] outline-none"
+                          readonly
+                        />
+                        <button
+                          class="rounded-lg bg-brand-800 px-2.5 py-1 text-[10px] font-medium text-white"
+                        >
+                          분석
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mt-3 flex gap-1.5 overflow-x-auto px-5 hide-scroll">
+                    <span
+                      class="whitespace-nowrap rounded-full bg-ink-900 px-3 py-1 text-[10px] font-medium text-white"
+                      >추천</span
+                    >
+                    <span
+                      class="whitespace-nowrap rounded-full border border-ink-200 bg-white px-3 py-1 text-[10px] text-ink-700"
+                      >지성</span
+                    >
+                    <span
+                      class="whitespace-nowrap rounded-full border border-ink-200 bg-white px-3 py-1 text-[10px] text-ink-700"
+                      >수분</span
+                    >
+                    <span
+                      class="whitespace-nowrap rounded-full border border-ink-200 bg-white px-3 py-1 text-[10px] text-ink-700"
+                      >민감</span
+                    >
+                    <span
+                      class="whitespace-nowrap rounded-full border border-ink-200 bg-white px-3 py-1 text-[10px] text-ink-700"
+                      >비건</span
+                    >
+                  </div>
+                  <div class="px-5 pt-4">
+                    <div
+                      class="mb-2 flex items-center justify-between text-[10px] font-medium tracking-widest"
+                    >
+                      <span class="text-ink-500">이번 주 인기 분석</span>
+                      <span class="text-brand-700">더보기 →</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                      <div
+                        class="rounded-xl border border-ink-100 bg-white p-1.5"
+                      >
+                        <div
+                          class="aspect-square rounded-lg bg-gradient-to-br from-brand-100 to-brand-50"
+                        ></div>
+                        <div class="mt-1.5 px-0.5">
+                          <div class="text-[8px] text-ink-500">아누아</div>
+                          <div
+                            class="text-[10px] font-medium text-ink-900 truncate"
+                          >
+                            어성초 77%
+                          </div>
+                          <div
+                            class="mt-0.5 font-mono text-[10px] font-bold text-brand-700"
+                          >
+                            94%
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        class="rounded-xl border border-ink-100 bg-white p-1.5"
+                      >
+                        <div
+                          class="aspect-square rounded-lg bg-gradient-to-br from-sand-200 to-sand-100"
+                        ></div>
+                        <div class="mt-1.5 px-0.5">
+                          <div class="text-[8px] text-ink-500">토리든</div>
+                          <div
+                            class="text-[10px] font-medium text-ink-900 truncate"
+                          >
+                            다이브인 세럼
+                          </div>
+                          <div
+                            class="mt-0.5 font-mono text-[10px] font-bold text-brand-700"
+                          >
+                            91%
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="absolute inset-x-2.5 bottom-2.5 rounded-2xl border border-ink-200 bg-white/95 p-1.5 shadow-float backdrop-blur"
+                  >
+                    <div
+                      class="flex items-center justify-around text-[8px]"
+                    >
+                      <div class="grid place-items-center py-1 text-brand-800">
+                        <span class="text-sm">⌂</span
+                        ><span class="font-bold">홈</span>
+                      </div>
+                      <div class="grid place-items-center py-1 text-ink-400">
+                        <span class="text-sm">⌕</span><span>탐색</span>
+                      </div>
+                      <div
+                        class="grid h-10 w-10 -translate-y-4 place-items-center rounded-full bg-brand-800 text-white shadow-brand"
+                      >
+                        <span class="text-base">✦</span>
+                      </div>
+                      <div class="grid place-items-center py-1 text-ink-400">
+                        <span class="text-sm">◱</span><span>기록</span>
+                      </div>
+                      <div class="grid place-items-center py-1 text-ink-400">
+                        <span class="text-sm">◉</span><span>내피부</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= PROCESS ========================= -->
+    <section class="border-t border-ink-200/60 bg-white py-20">
+      <div class="mx-auto max-w-7xl px-6">
+        <div class="mb-12 max-w-2xl">
+          <div class="mb-3 text-xs font-medium tracking-widest text-brand-700">
+            00 · TASK FORCE
+          </div>
+          <h2 class="font-display text-4xl font-light leading-tight">
+            6명의 전문가 협업으로<br />설계된 디자인 시스템
+          </h2>
+        </div>
+        <div class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+          <div
+            class="rounded-2xl border border-ink-200 bg-sand-50 p-4 transition hover:border-brand-300 hover:bg-white"
+          >
+            <div
+              class="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-800"
+            >
+              <span class="text-sm">⚑</span>
+            </div>
+            <div class="mt-3 text-[10px] tracking-widest text-ink-500">
+              BRAND
+            </div>
+            <div class="mt-0.5 text-sm font-semibold text-ink-900">박하림</div>
+            <div class="mt-1 text-[11px] text-ink-600">
+              Forest Olive 포지셔닝, 지적 간결체 톤
+            </div>
+          </div>
+          <div
+            class="rounded-2xl border border-ink-200 bg-sand-50 p-4 transition hover:border-brand-300 hover:bg-white"
+          >
+            <div
+              class="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-800"
+            >
+              <span class="text-sm">◐</span>
+            </div>
+            <div class="mt-3 text-[10px] tracking-widest text-ink-500">
+              UIUX
+            </div>
+            <div class="mt-0.5 text-sm font-semibold text-ink-900">김세윤</div>
+            <div class="mt-1 text-[11px] text-ink-600">
+              온보딩 3단축, 시그니처 스캔 모션
+            </div>
+          </div>
+          <div
+            class="rounded-2xl border border-ink-200 bg-sand-50 p-4 transition hover:border-brand-300 hover:bg-white"
+          >
+            <div
+              class="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-800"
+            >
+              <span class="text-sm">◈</span>
+            </div>
+            <div class="mt-3 text-[10px] tracking-widest text-ink-500">
+              VISUAL
+            </div>
+            <div class="mt-0.5 text-sm font-semibold text-ink-900">이도현</div>
+            <div class="mt-1 text-[11px] text-ink-600">
+              11단계 토큰, Warm Ink, 컬러드 섀도우
+            </div>
+          </div>
+          <div
+            class="rounded-2xl border border-ink-200 bg-sand-50 p-4 transition hover:border-brand-300 hover:bg-white"
+          >
+            <div
+              class="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-800"
+            >
+              <span class="text-sm">◇</span>
+            </div>
+            <div class="mt-3 text-[10px] tracking-widest text-ink-500">PM</div>
+            <div class="mt-0.5 text-sm font-semibold text-ink-900">최지민</div>
+            <div class="mt-1 text-[11px] text-ink-600">
+              P0/P1 스코프, 리텐션 funnel
+            </div>
+          </div>
+          <div
+            class="rounded-2xl border border-ink-200 bg-sand-50 p-4 transition hover:border-brand-300 hover:bg-white"
+          >
+            <div
+              class="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-800"
+            >
+              <span class="text-sm">◉</span>
+            </div>
+            <div class="mt-3 text-[10px] tracking-widest text-ink-500">QA</div>
+            <div class="mt-0.5 text-sm font-semibold text-ink-900">정재원</div>
+            <div class="mt-1 text-[11px] text-ink-600">
+              폰트 섭셋, PWA 캐시, a11y
+            </div>
+          </div>
+          <div
+            class="rounded-2xl border border-ink-200 bg-sand-50 p-4 transition hover:border-brand-300 hover:bg-white"
+          >
+            <div
+              class="grid h-9 w-9 place-items-center rounded-lg bg-brand-100 text-brand-800"
+            >
+              <span class="text-sm">⟨⟩</span>
+            </div>
+            <div class="mt-3 text-[10px] tracking-widest text-ink-500">
+              DEV
+            </div>
+            <div class="mt-0.5 text-sm font-semibold text-ink-900">강태오</div>
+            <div class="mt-1 text-[11px] text-ink-600">
+              5일 구현 로드맵, Supabase 스키마
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= BRAND ========================= -->
+    <section id="brand" class="border-t border-ink-200/60 bg-sand-50 py-24">
+      <div class="mx-auto max-w-7xl px-6">
+        <div class="mb-16 max-w-2xl">
+          <div class="mb-3 text-xs font-medium tracking-widest text-brand-700">
+            01 · BRAND FOUNDATION
+          </div>
+          <h2 class="font-display text-5xl font-light leading-tight">
+            브랜드의 방향을<br />다시 설정했습니다.
+          </h2>
+          <p class="mt-6 text-ink-600">
+            핵심 가치(성분 분석 · AI · 올리브영 맥락)는 청결함, 신뢰, 전문성을
+            요구합니다. 그동안의 핫핑크는 이 가치와 충돌했어요. 이제
+            <strong class="text-ink-800">Forest Olive</strong>를 기반으로 한
+            프리미엄 체계로 돌아왔습니다.
+          </p>
+        </div>
+
+        <div class="grid gap-6 lg:grid-cols-2">
+          <div
+            class="relative overflow-hidden rounded-3xl border border-ink-200 bg-white p-8"
+          >
+            <div
+              class="mb-4 inline-flex items-center gap-2 rounded-full bg-ink-100 px-3 py-1 text-[11px] font-medium text-ink-700"
+            >
+              BEFORE · 현재
+            </div>
+            <div class="text-2xl font-bold text-[#E8619A]">BeautyLens</div>
+            <div class="mt-1 text-xs text-ink-500">#E8619A · Hot Pink</div>
+            <div class="mt-6 grid grid-cols-5 gap-2">
+              <div class="h-10 rounded-lg" style="background: #ffe0ee"></div>
+              <div class="h-10 rounded-lg" style="background: #ffb3d1"></div>
+              <div class="h-10 rounded-lg" style="background: #ff88b5"></div>
+              <div class="h-10 rounded-lg" style="background: #e8619a"></div>
+              <div class="h-10 rounded-lg" style="background: #b03870"></div>
+            </div>
+            <div
+              class="mt-6 rounded-xl border border-ink-200 bg-ink-50 p-4 text-sm"
+            >
+              <div class="text-[11px] text-ink-500">연상 키워드</div>
+              <div class="mt-1.5 flex flex-wrap gap-1.5">
+                <span
+                  class="rounded bg-white px-2 py-0.5 text-[11px] text-ink-700"
+                  >러블리</span
+                >
+                <span
+                  class="rounded bg-white px-2 py-0.5 text-[11px] text-ink-700"
+                  >K-캐주얼</span
+                >
+                <span
+                  class="rounded bg-white px-2 py-0.5 text-[11px] text-ink-700"
+                  >10-20대 초반</span
+                >
+                <span
+                  class="rounded bg-white px-2 py-0.5 text-[11px] text-ink-700"
+                  >엔터테인먼트</span
+                >
+              </div>
+              <div class="mt-3 text-[11px] text-ink-500">
+                ⚠ 핵심 가치(성분·전문성)와 톤 불일치
+              </div>
+            </div>
+          </div>
+          <div
+            class="relative overflow-hidden rounded-3xl border border-brand-200 bg-brand-50 p-8"
+          >
+            <div
+              class="absolute right-0 top-0 h-40 w-40 rounded-full bg-brand-200/50 blur-3xl"
+            ></div>
+            <div
+              class="relative mb-4 inline-flex items-center gap-2 rounded-full bg-brand-800 px-3 py-1 text-[11px] font-medium text-white"
+            >
+              AFTER · 리브랜딩
+            </div>
+            <div
+              class="relative font-display text-3xl font-light text-brand-900"
+            >
+              BeautyLens
+            </div>
+            <div class="relative mt-1 text-xs text-brand-700">
+              #235B41 · Forest Olive
+            </div>
+            <div class="relative mt-6 grid grid-cols-5 gap-2">
+              <div class="h-10 rounded-lg bg-brand-100"></div>
+              <div class="h-10 rounded-lg bg-brand-300"></div>
+              <div class="h-10 rounded-lg bg-brand-500"></div>
+              <div class="h-10 rounded-lg bg-brand-700"></div>
+              <div class="h-10 rounded-lg bg-brand-900"></div>
+            </div>
+            <div
+              class="relative mt-6 rounded-xl border border-brand-200 bg-white p-4 text-sm"
+            >
+              <div class="text-[11px] text-ink-500">연상 키워드</div>
+              <div class="mt-1.5 flex flex-wrap gap-1.5">
+                <span
+                  class="rounded bg-brand-100 px-2 py-0.5 text-[11px] text-brand-800"
+                  >청결·자연</span
+                >
+                <span
+                  class="rounded bg-brand-100 px-2 py-0.5 text-[11px] text-brand-800"
+                  >프리미엄 스킨케어</span
+                >
+                <span
+                  class="rounded bg-brand-100 px-2 py-0.5 text-[11px] text-brand-800"
+                  >25-40 핵심 타겟</span
+                >
+                <span
+                  class="rounded bg-brand-100 px-2 py-0.5 text-[11px] text-brand-800"
+                  >전문성·신뢰</span
+                >
+              </div>
+              <div class="mt-3 text-[11px] text-brand-700">
+                ✓ 올리브영 그린보다 깊은 포레스트 톤 (차별화)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slogan -->
+        <div
+          class="mt-10 overflow-hidden rounded-3xl bg-forest grain-overlay p-10 text-white lg:p-16"
+        >
+          <div class="relative z-10 max-w-2xl">
+            <div class="text-[10px] tracking-widest text-brand-300">
+              SIGNATURE SLOGAN
+            </div>
+            <div class="mt-4 font-display text-5xl font-light lg:text-7xl">
+              내 피부가<br />
+              <span class="italic text-brand-200">이해하는</span> 성분.
+            </div>
+            <div class="mt-8 max-w-md text-sm leading-relaxed text-brand-100/80">
+              "이해"라는 단어는 감성(피부가 감각한다)과 이성(분석한다)의
+              교집합에 정확히 위치합니다. 핫핑크에서는 절대 쓸 수 없는 카피 —
+              새 브랜드 톤의 정당성을 증명하는 문구.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= TOKENS ========================= -->
+    <section id="tokens" class="border-t border-ink-200/60 bg-white py-24">
+      <div class="mx-auto max-w-7xl px-6">
+        <div class="mb-16 max-w-2xl">
+          <div class="mb-3 text-xs font-medium tracking-widest text-brand-700">
+            02 · DESIGN TOKENS
+          </div>
+          <h2 class="font-display text-5xl font-light leading-tight">
+            Forest Olive<br />색상 체계
+          </h2>
+          <p class="mt-6 text-ink-600">
+            단일 primary 색상이 아닌 11단계 스케일 + 웜톤 뉴트럴 11단계 + 성분
+            평가 전용 시맨틱 컬러. 기본 사용은 <strong
+              class="text-brand-800"
+              >brand-700, brand-500, brand-100, brand-50</strong
+            > 4개 컬러가 커버합니다.
+          </p>
+        </div>
+
+        <!-- Brand scale -->
+        <div class="mb-12">
+          <div
+            class="mb-4 flex items-baseline justify-between border-b border-ink-200 pb-3"
+          >
+            <div>
+              <div class="font-display text-xl">Brand · Forest Olive</div>
+              <div class="text-xs text-ink-500">
+                Primary color scale · 11 steps
+              </div>
+            </div>
+            <div class="font-mono text-[11px] text-ink-500">
+              --brand-{50..950}
+            </div>
+          </div>
+          <div class="grid grid-cols-11 gap-1.5">
+            <div class="text-center">
+              <div
+                class="h-20 rounded-lg border border-ink-200 bg-brand-50"
+              ></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">50</div>
+              <div class="font-mono text-[9px] text-ink-400">#f1f9f4</div>
+            </div>
+            <div class="text-center">
+              <div class="h-20 rounded-lg bg-brand-100"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">100</div>
+              <div class="font-mono text-[9px] text-ink-400">#dcf0e3</div>
+            </div>
+            <div class="text-center">
+              <div class="h-20 rounded-lg bg-brand-200"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">200</div>
+              <div class="font-mono text-[9px] text-ink-400">#bce0ca</div>
+            </div>
+            <div class="text-center">
+              <div class="h-20 rounded-lg bg-brand-300"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">300</div>
+              <div class="font-mono text-[9px] text-ink-400">#8ec9a7</div>
+            </div>
+            <div class="text-center">
+              <div class="h-20 rounded-lg bg-brand-400"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">400</div>
+              <div class="font-mono text-[9px] text-ink-400">#5eaa81</div>
+            </div>
+            <div class="text-center">
+              <div class="h-20 rounded-lg bg-brand-500"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">500</div>
+              <div class="font-mono text-[9px] text-ink-400">#3d8e64</div>
+            </div>
+            <div class="text-center">
+              <div class="h-20 rounded-lg bg-brand-600"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">600</div>
+              <div class="font-mono text-[9px] text-ink-400">#2c724f</div>
+            </div>
+            <div class="relative text-center">
+              <div
+                class="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-ink-900 px-1.5 py-0.5 text-[8px] font-bold tracking-wider text-white"
+              >
+                DEFAULT
+              </div>
+              <div
+                class="h-20 rounded-lg bg-brand-700 ring-2 ring-ink-900 ring-offset-2"
+              ></div>
+              <div class="mt-2 font-mono text-[10px] font-bold text-ink-900">
+                700
+              </div>
+              <div class="font-mono text-[9px] text-ink-400">#235b41</div>
+            </div>
+            <div class="text-center">
+              <div class="h-20 rounded-lg bg-brand-800"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">800</div>
+              <div class="font-mono text-[9px] text-ink-400">#1e4937</div>
+            </div>
+            <div class="text-center">
+              <div class="h-20 rounded-lg bg-brand-900"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">900</div>
+              <div class="font-mono text-[9px] text-ink-400">#1a3d2f</div>
+            </div>
+            <div class="text-center">
+              <div class="h-20 rounded-lg bg-brand-950"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">950</div>
+              <div class="font-mono text-[9px] text-ink-400">#0c2219</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ink scale -->
+        <div class="mb-12">
+          <div
+            class="mb-4 flex items-baseline justify-between border-b border-ink-200 pb-3"
+          >
+            <div>
+              <div class="font-display text-xl">Neutral · Warm Ink</div>
+              <div class="text-xs text-ink-500">
+                Text & background · warm hue (not slate)
+              </div>
+            </div>
+            <div class="font-mono text-[11px] text-ink-500">
+              --ink-{50..950}
+            </div>
+          </div>
+          <div class="grid grid-cols-11 gap-1.5">
+            <div class="text-center">
+              <div class="h-16 rounded-lg border border-ink-200 bg-ink-50"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">50</div>
+            </div>
+            <div class="text-center">
+              <div class="h-16 rounded-lg bg-ink-100"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">100</div>
+            </div>
+            <div class="text-center">
+              <div class="h-16 rounded-lg bg-ink-200"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">200</div>
+            </div>
+            <div class="text-center">
+              <div class="h-16 rounded-lg bg-ink-300"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">300</div>
+            </div>
+            <div class="text-center">
+              <div class="h-16 rounded-lg bg-ink-400"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">400</div>
+            </div>
+            <div class="text-center">
+              <div class="h-16 rounded-lg bg-ink-500"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">500</div>
+            </div>
+            <div class="text-center">
+              <div class="h-16 rounded-lg bg-ink-600"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">600</div>
+            </div>
+            <div class="text-center">
+              <div class="h-16 rounded-lg bg-ink-700"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">700</div>
+            </div>
+            <div class="text-center">
+              <div class="h-16 rounded-lg bg-ink-800"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">800</div>
+            </div>
+            <div class="text-center">
+              <div class="h-16 rounded-lg bg-ink-900"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">900</div>
+            </div>
+            <div class="text-center">
+              <div class="h-16 rounded-lg bg-ink-950"></div>
+              <div class="mt-2 font-mono text-[10px] text-ink-700">950</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sand + Signal -->
+        <div class="grid gap-6 lg:grid-cols-2">
+          <div>
+            <div
+              class="mb-4 flex items-baseline justify-between border-b border-ink-200 pb-3"
+            >
+              <div>
+                <div class="font-display text-xl">Sand · Background</div>
+                <div class="text-xs text-ink-500">
+                  Warm base (not pure white)
+                </div>
+              </div>
+              <div class="font-mono text-[11px] text-ink-500">--sand-*</div>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <div
+                  class="h-24 rounded-lg border border-ink-200 bg-sand-50"
+                ></div>
+                <div class="mt-2 text-xs font-medium text-ink-700">
+                  Canvas · 50
+                </div>
+                <div class="font-mono text-[10px] text-ink-400">#fdfcf9</div>
+              </div>
+              <div>
+                <div class="h-24 rounded-lg bg-sand-100"></div>
+                <div class="mt-2 text-xs font-medium text-ink-700">
+                  Warm · 100
+                </div>
+                <div class="font-mono text-[10px] text-ink-400">#faf6ed</div>
+              </div>
+              <div>
+                <div class="h-24 rounded-lg bg-sand-200"></div>
+                <div class="mt-2 text-xs font-medium text-ink-700">
+                  Glow · 200
+                </div>
+                <div class="font-mono text-[10px] text-ink-400">#f3ebd4</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div
+              class="mb-4 flex items-baseline justify-between border-b border-ink-200 pb-3"
+            >
+              <div>
+                <div class="font-display text-xl">Signal · 성분 평가</div>
+                <div class="text-xs text-ink-500">
+                  BeautyLens 독점 semantic
+                </div>
+              </div>
+              <div class="font-mono text-[11px] text-ink-500">signal-*</div>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <div class="h-24 rounded-lg bg-beneficial"></div>
+                <div class="mt-2 text-xs font-medium text-ink-700">
+                  Beneficial
+                </div>
+                <div class="font-mono text-[10px] text-ink-400">#3d8e64</div>
+              </div>
+              <div>
+                <div class="h-24 rounded-lg bg-caution"></div>
+                <div class="mt-2 text-xs font-medium text-ink-700">
+                  Caution
+                </div>
+                <div class="font-mono text-[10px] text-ink-400">#d89b2a</div>
+              </div>
+              <div>
+                <div class="h-24 rounded-lg bg-harmful"></div>
+                <div class="mt-2 text-xs font-medium text-ink-700">Harmful</div>
+                <div class="font-mono text-[10px] text-ink-400">#c14a3a</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Typography -->
+        <div class="mt-16">
+          <div
+            class="mb-4 flex items-baseline justify-between border-b border-ink-200 pb-3"
+          >
+            <div>
+              <div class="font-display text-xl">
+                Typography · 3-Family System
+              </div>
+              <div class="text-xs text-ink-500">
+                Display (세리프) / Body (산세리프) / Numeric (모노)
+              </div>
+            </div>
+          </div>
+          <div class="grid gap-6 lg:grid-cols-3">
+            <div
+              class="rounded-2xl border border-ink-200 bg-sand-50 p-8 transition hover:shadow-card"
+            >
+              <div class="text-[10px] tracking-widest text-brand-700">
+                DISPLAY · 감성
+              </div>
+              <div class="mt-3 font-display text-5xl font-light">Fraunces</div>
+              <div class="mt-2 text-xs text-ink-500">
+                Variable · opsz axis · 극소 범위
+              </div>
+              <div
+                class="mt-6 space-y-2 border-t border-ink-200 pt-4"
+              >
+                <div class="text-[11px] text-ink-500">
+                  로고, 히어로 카피, 섹션 타이틀 전용
+                </div>
+                <div class="font-display text-3xl font-light">
+                  내 피부가 <em class="text-brand-700">이해하는</em>
+                </div>
+              </div>
+            </div>
+            <div
+              class="rounded-2xl border border-ink-200 bg-sand-50 p-8 transition hover:shadow-card"
+            >
+              <div class="text-[10px] tracking-widest text-brand-700">
+                BODY · UI
+              </div>
+              <div class="mt-3 text-5xl font-bold">Pretendard</div>
+              <div class="mt-2 text-xs text-ink-500">
+                Variable · KR+EN · 앱 전체
+              </div>
+              <div
+                class="mt-6 space-y-2 border-t border-ink-200 pt-4"
+              >
+                <div class="text-[11px] text-ink-500">
+                  본문 · 버튼 · 라벨 · 모든 UI 텍스트
+                </div>
+                <div class="text-lg">
+                  한국어 가독성 <span class="font-semibold">최적화</span>
+                </div>
+                <div class="text-sm text-ink-600">
+                  모든 화면의 body text는 Pretendard가 담당합니다.
+                </div>
+              </div>
+            </div>
+            <div
+              class="rounded-2xl border border-ink-200 bg-sand-50 p-8 transition hover:shadow-card"
+            >
+              <div class="text-[10px] tracking-widest text-brand-700">
+                NUMERIC · 데이터
+              </div>
+              <div class="mt-3 font-mono text-5xl font-bold">JetBrains</div>
+              <div class="mt-2 text-xs text-ink-500">Mono · tabular nums</div>
+              <div
+                class="mt-6 space-y-2 border-t border-ink-200 pt-4"
+              >
+                <div class="text-[11px] text-ink-500">
+                  매치율 · EWG 등급 · 가격
+                </div>
+                <div
+                  class="font-mono text-3xl font-bold tracking-tighter text-brand-700"
+                >
+                  94.2%
+                </div>
+                <div class="font-mono text-xs text-ink-600">
+                  EWG · 1-2 safe
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shadow + Radius -->
+        <div class="mt-16 grid gap-6 lg:grid-cols-2">
+          <div class="rounded-2xl border border-ink-200 bg-sand-50 p-8">
+            <div class="mb-6">
+              <div class="font-display text-xl">Elevation</div>
+              <div class="text-xs text-ink-500">4-tier · colored primary</div>
+            </div>
+            <div class="grid grid-cols-2 gap-6">
+              <div class="text-center">
+                <div
+                  class="mx-auto h-20 w-20 rounded-2xl bg-white shadow-soft"
+                ></div>
+                <div class="mt-3 text-xs font-medium">Soft</div>
+                <div class="font-mono text-[10px] text-ink-400">
+                  inputs, chips
+                </div>
+              </div>
+              <div class="text-center">
+                <div
+                  class="mx-auto h-20 w-20 rounded-2xl bg-white shadow-card"
+                ></div>
+                <div class="mt-3 text-xs font-medium">Card</div>
+                <div class="font-mono text-[10px] text-ink-400">
+                  product card
+                </div>
+              </div>
+              <div class="text-center">
+                <div
+                  class="mx-auto h-20 w-20 rounded-2xl bg-white shadow-float"
+                ></div>
+                <div class="mt-3 text-xs font-medium">Float</div>
+                <div class="font-mono text-[10px] text-ink-400">
+                  modal, toast
+                </div>
+              </div>
+              <div class="text-center">
+                <div
+                  class="mx-auto h-20 w-20 rounded-2xl bg-brand-700 shadow-brand"
+                ></div>
+                <div class="mt-3 text-xs font-medium">Brand ★</div>
+                <div class="font-mono text-[10px] text-ink-400">
+                  primary CTA
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="rounded-2xl border border-ink-200 bg-sand-50 p-8">
+            <div class="mb-6">
+              <div class="font-display text-xl">Radius</div>
+              <div class="text-xs text-ink-500">
+                16px default · softer feel
+              </div>
+            </div>
+            <div class="grid grid-cols-4 gap-3">
+              <div class="text-center">
+                <div
+                  class="mx-auto h-16 w-16 rounded-md bg-brand-100"
+                ></div>
+                <div class="mt-2 font-mono text-[10px] text-ink-700">
+                  sm · 8
+                </div>
+              </div>
+              <div class="text-center">
+                <div class="mx-auto h-16 w-16 rounded-xl bg-brand-200"></div>
+                <div class="mt-2 font-mono text-[10px] text-ink-700">
+                  md · 12
+                </div>
+              </div>
+              <div class="text-center">
+                <div class="mx-auto h-16 w-16 rounded-2xl bg-brand-300"></div>
+                <div class="mt-2 font-mono text-[10px] text-ink-700">
+                  lg · 16
+                </div>
+              </div>
+              <div class="text-center">
+                <div class="mx-auto h-16 w-16 rounded-full bg-brand-700"></div>
+                <div class="mt-2 font-mono text-[10px] text-ink-700">full</div>
+              </div>
+            </div>
+            <div
+              class="mt-6 rounded-xl bg-white p-4 text-[11px] leading-relaxed text-ink-600"
+            >
+              <strong class="text-brand-800">기본값 16px</strong> — shadcn
+              기본(8px)보다 부드럽게. 버튼·입력·카드 모두 동일 리듬. "각진"
+              느낌을 "흐르는" 느낌으로.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= COMPONENTS ========================= -->
+    <section
+      id="components"
+      class="border-t border-ink-200/60 bg-sand-50 py-24"
+    >
+      <div class="mx-auto max-w-7xl px-6">
+        <div class="mb-16 max-w-2xl">
+          <div class="mb-3 text-xs font-medium tracking-widest text-brand-700">
+            03 · COMPONENTS
+          </div>
+          <h2 class="font-display text-5xl font-light leading-tight">
+            프리미엄 컴포넌트<br />라이브러리
+          </h2>
+        </div>
+
+        <!-- Buttons -->
+        <div class="mb-12">
+          <div class="mb-4 flex items-baseline justify-between">
+            <div class="font-display text-xl">Buttons</div>
+            <div class="text-[11px] text-ink-500">4 variants × 3 sizes</div>
+          </div>
+          <div
+            class="flex flex-wrap items-center gap-4 rounded-2xl border border-ink-200 bg-white p-8"
+          >
+            <button
+              class="rounded-full bg-brand-800 px-6 py-3 text-sm font-medium text-white shadow-brand transition hover:bg-brand-900"
+            >
+              Primary · 분석 시작하기
+            </button>
+            <button
+              class="rounded-full border border-ink-300 bg-white px-6 py-3 text-sm font-medium text-ink-800 transition hover:border-ink-400"
+            >
+              Secondary · 둘러보기
+            </button>
+            <button
+              class="rounded-full px-6 py-3 text-sm font-medium text-brand-800 transition hover:bg-brand-50"
+            >
+              Ghost · 건너뛰기
+            </button>
+            <button
+              disabled
+              class="cursor-not-allowed rounded-full bg-ink-200 px-6 py-3 text-sm font-medium text-ink-400"
+            >
+              Disabled
+            </button>
+            <button
+              class="grid h-12 w-12 place-items-center rounded-full bg-brand-800 text-white shadow-brand transition hover:bg-brand-900"
+            >
+              →
+            </button>
+          </div>
+        </div>
+
+        <!-- Chips & ingredient tags -->
+        <div class="mb-12">
+          <div class="mb-4 flex items-baseline justify-between">
+            <div class="font-display text-xl">Chips & Ingredient Tags</div>
+            <div class="text-[11px] text-ink-500">
+              Signal color 적용
+            </div>
+          </div>
+          <div
+            class="flex flex-wrap items-center gap-3 rounded-2xl border border-ink-200 bg-white p-8"
+          >
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full bg-brand-800 px-4 py-1.5 text-xs font-medium text-white"
+              >✓ 선택됨</span
+            >
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full border border-ink-300 bg-white px-4 py-1.5 text-xs text-ink-700"
+              >민감성</span
+            >
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full border border-ink-300 bg-white px-4 py-1.5 text-xs text-ink-700"
+              >지성</span
+            >
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full bg-beneficial/10 px-3 py-1.5 text-xs font-medium text-beneficial"
+            >
+              <span class="h-1.5 w-1.5 rounded-full bg-beneficial"></span>
+              히알루론산 · 보습
+            </span>
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full bg-caution/10 px-3 py-1.5 text-xs font-medium text-caution"
+            >
+              <span class="h-1.5 w-1.5 rounded-full bg-caution"></span>
+              페녹시에탄올 · 주의
+            </span>
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full bg-harmful/10 px-3 py-1.5 text-xs font-medium text-harmful"
+            >
+              <span class="h-1.5 w-1.5 rounded-full bg-harmful"></span>
+              SLS · 민감피부 비추
+            </span>
+          </div>
+        </div>
+
+        <!-- Inputs -->
+        <div class="mb-12">
+          <div class="mb-4 flex items-baseline justify-between">
+            <div class="font-display text-xl">Inputs</div>
+            <div class="text-[11px] text-ink-500">
+              URL (primary) + Text (underline)
+            </div>
+          </div>
+          <div
+            class="grid gap-6 rounded-2xl border border-ink-200 bg-white p-8 lg:grid-cols-2"
+          >
+            <div>
+              <label class="mb-2 block text-xs font-medium text-ink-700"
+                >URL 입력 · Signature</label
+              >
+              <div
+                class="flex items-center gap-2 rounded-2xl border-2 border-brand-300 bg-white p-1 pl-4 shadow-soft transition focus-within:border-brand-700 focus-within:ring-4 focus-within:ring-brand-100"
+              >
+                <svg
+                  class="h-4 w-4 text-ink-400"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.3-4.3" />
+                </svg>
+                <input
+                  class="flex-1 bg-transparent py-3 text-sm outline-none placeholder:text-ink-400"
+                  placeholder="oliveyoung.co.kr/goods/..."
+                />
+                <button
+                  class="grid h-10 w-10 place-items-center rounded-xl bg-brand-800 text-white shadow-brand"
+                >
+                  →
+                </button>
+              </div>
+              <div class="mt-2 text-[11px] text-ink-500">
+                붙여넣기 시 자동 감지
+              </div>
+            </div>
+            <div>
+              <label class="mb-2 block text-xs font-medium text-ink-700"
+                >Text · Underlined</label
+              >
+              <div
+                class="flex items-center gap-2 border-b-2 border-ink-200 bg-transparent transition focus-within:border-brand-700"
+              >
+                <input
+                  class="flex-1 bg-transparent py-3 text-sm outline-none placeholder:text-ink-400"
+                  placeholder="이메일을 입력해주세요"
+                />
+              </div>
+              <div class="mt-2 text-[11px] text-ink-500">
+                로그인 · 프로필 편집 등
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cards -->
+        <div class="mb-12">
+          <div class="mb-4 flex items-baseline justify-between">
+            <div class="font-display text-xl">Cards</div>
+            <div class="text-[11px] text-ink-500">
+              Match · Product · Stat
+            </div>
+          </div>
+          <div class="grid gap-6 lg:grid-cols-3">
+            <div
+              class="relative overflow-hidden rounded-3xl border border-brand-200 bg-gradient-to-br from-brand-50 to-sand-100 p-6"
+            >
+              <div
+                class="mb-4 text-[10px] font-medium tracking-widest text-brand-700"
+              >
+                나와의 매치율
+              </div>
+              <div
+                class="font-mono text-6xl font-bold tracking-tight text-brand-800 animate-count"
+              >
+                94<span class="text-3xl text-brand-600">%</span>
+              </div>
+              <div class="mt-2 text-sm text-ink-700">지성 피부에 매우 적합</div>
+              <div class="mt-4 flex gap-1">
+                <div class="h-1.5 flex-1 rounded-full bg-brand-700"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-brand-700"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-brand-700"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-brand-700"></div>
+                <div class="h-1.5 flex-1 rounded-full bg-brand-300"></div>
+              </div>
+            </div>
+            <div
+              class="group cursor-pointer overflow-hidden rounded-3xl border border-ink-200 bg-white shadow-card transition hover:-translate-y-1 hover:shadow-float"
+            >
+              <div
+                class="relative aspect-[4/3] bg-gradient-to-br from-sand-100 to-sand-200"
+              >
+                <div
+                  class="absolute inset-0 grid place-items-center font-display text-5xl font-light text-ink-300"
+                >
+                  RO
+                </div>
+                <div
+                  class="absolute right-3 top-3 rounded-full bg-white/95 px-2.5 py-1 font-mono text-[10px] font-bold text-brand-800 backdrop-blur shadow-soft"
+                >
+                  88%
+                </div>
+              </div>
+              <div class="p-5">
+                <div class="text-[10px] tracking-widest text-ink-500">
+                  라운드랩
+                </div>
+                <div class="mt-1 text-sm font-medium text-ink-900">
+                  자작나무 수분 에센스
+                </div>
+                <div class="mt-2 flex gap-1">
+                  <span
+                    class="rounded bg-brand-50 px-1.5 py-0.5 text-[10px] text-brand-800"
+                    >수분</span
+                  >
+                  <span
+                    class="rounded bg-brand-50 px-1.5 py-0.5 text-[10px] text-brand-800"
+                    >진정</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="rounded-3xl bg-forest grain-overlay p-6 text-white shadow-float">
+              <div class="relative">
+                <div
+                  class="mb-3 text-[10px] font-medium tracking-widest text-brand-300"
+                >
+                  이번 달 분석
+                </div>
+                <div class="font-display text-5xl font-light">
+                  <span class="font-mono font-bold">17</span
+                  ><span class="text-2xl text-brand-300">개</span>
+                </div>
+                <div class="mt-3 text-xs text-brand-100/80">
+                  지난 달 대비 +4개
+                </div>
+                <div
+                  class="mt-4 h-16 w-full rounded-xl bg-white/5 p-3 ring-1 ring-white/10"
+                >
+                  <div class="flex h-full items-end gap-1.5">
+                    <div
+                      class="h-1/2 flex-1 rounded-sm bg-brand-300/40"
+                    ></div>
+                    <div
+                      class="h-3/5 flex-1 rounded-sm bg-brand-300/60"
+                    ></div>
+                    <div
+                      class="h-2/5 flex-1 rounded-sm bg-brand-300/40"
+                    ></div>
+                    <div
+                      class="h-4/5 flex-1 rounded-sm bg-brand-300/80"
+                    ></div>
+                    <div
+                      class="h-3/4 flex-1 rounded-sm bg-brand-300/60"
+                    ></div>
+                    <div class="h-full flex-1 rounded-sm bg-brand-300"></div>
+                    <div
+                      class="h-5/6 flex-1 rounded-sm bg-brand-300/80"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div>
+          <div class="mb-4 flex items-baseline justify-between">
+            <div class="font-display text-xl">Navigation</div>
+            <div class="text-[11px] text-ink-500">
+              Tabs (underline) + Bottom Nav
+            </div>
+          </div>
+          <div class="space-y-6">
+            <div class="rounded-2xl border border-ink-200 bg-white p-8">
+              <div class="mb-3 text-[11px] font-medium text-ink-500">
+                Section Tabs (bold underline, 올리브영 스타일)
+              </div>
+              <div class="flex gap-6 border-b border-ink-200">
+                <button
+                  class="relative pb-3 text-sm font-semibold text-ink-900"
+                >
+                  성분 분석
+                  <span
+                    class="absolute inset-x-0 bottom-0 h-[2.5px] rounded-full bg-brand-800"
+                  ></span>
+                </button>
+                <button class="pb-3 text-sm text-ink-500 hover:text-ink-900">
+                  리뷰
+                </button>
+                <button class="pb-3 text-sm text-ink-500 hover:text-ink-900">
+                  비슷한 제품
+                </button>
+                <button class="pb-3 text-sm text-ink-500 hover:text-ink-900">
+                  Q&A
+                </button>
+              </div>
+            </div>
+            <div class="rounded-2xl border border-ink-200 bg-white p-8">
+              <div class="mb-3 text-[11px] font-medium text-ink-500">
+                Bottom Navigation · 5-tab with floating CTA (iOS blur)
+              </div>
+              <div class="mx-auto max-w-xs">
+                <div
+                  class="rounded-3xl border border-ink-200 bg-white/90 p-2 shadow-float backdrop-blur-xl"
+                >
+                  <div class="flex items-center justify-around">
+                    <div
+                      class="grid place-items-center gap-0.5 py-2 text-brand-800"
+                    >
+                      <svg
+                        class="h-5 w-5"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path
+                          d="M3 12 12 3l9 9v9a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2v-9Z"
+                        />
+                      </svg>
+                      <span class="text-[10px] font-semibold">홈</span>
+                    </div>
+                    <div
+                      class="grid place-items-center gap-0.5 py-2 text-ink-400"
+                    >
+                      <svg
+                        class="h-5 w-5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.3-4.3" />
+                      </svg>
+                      <span class="text-[10px]">탐색</span>
+                    </div>
+                    <div class="grid -mt-6 place-items-center">
+                      <div
+                        class="grid h-14 w-14 place-items-center rounded-full bg-brand-800 text-white shadow-brand"
+                      >
+                        <svg
+                          class="h-6 w-6"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+                          />
+                          <circle cx="12" cy="13" r="4" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div
+                      class="grid place-items-center gap-0.5 py-2 text-ink-400"
+                    >
+                      <svg
+                        class="h-5 w-5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                        />
+                      </svg>
+                      <span class="text-[10px]">기록</span>
+                    </div>
+                    <div
+                      class="grid place-items-center gap-0.5 py-2 text-ink-400"
+                    >
+                      <svg
+                        class="h-5 w-5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                        />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                      <span class="text-[10px]">내 피부</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= SCREENS ========================= -->
+    <section id="screens" class="bg-forest grain-overlay relative py-28">
+      <div class="relative mx-auto max-w-7xl px-6">
+        <div class="mb-16 max-w-2xl">
+          <div class="mb-3 text-xs font-medium tracking-widest text-brand-300">
+            04 · SCREENS
+          </div>
+          <h2
+            class="font-display text-5xl font-light leading-tight text-white"
+          >
+            주요 화면<br />리디자인 목업
+          </h2>
+          <p class="mt-6 text-brand-100/80">
+            Onboarding (3-step) · Home · Analyzing (signature) · Result ·
+            Profile Settings. 실제 모바일 프레임 안에 풀 디테일로 렌더링.
+          </p>
+        </div>
+
+        <div
+          class="grid grid-cols-1 gap-y-16 justify-items-center md:grid-cols-2 xl:grid-cols-3"
+        >
+          <!-- Screen 1: Onboarding Step 2 -->
+          <div>
+            <div class="phone-frame">
+              <div class="phone-screen bg-sand-50">
+                <div
+                  class="flex items-center justify-between px-5 pb-2 pt-10 text-[10px] font-medium text-ink-900"
+                >
+                  <span>9:41</span>
+                  <span class="flex gap-0.5">● ◐ ▮</span>
+                </div>
+                <div class="px-5 pt-3">
+                  <div class="flex gap-1">
+                    <div class="h-1 flex-1 rounded-full bg-brand-800"></div>
+                    <div class="h-1 flex-1 rounded-full bg-brand-800"></div>
+                    <div class="h-1 flex-1 rounded-full bg-ink-200"></div>
+                  </div>
+                  <div class="mt-2 flex items-center justify-between">
+                    <div
+                      class="text-[10px] font-medium tracking-widest text-brand-700"
+                    >
+                      STEP 02 / 03
+                    </div>
+                    <button class="text-[11px] text-ink-500">건너뛰기</button>
+                  </div>
+                </div>
+                <div class="px-5 pt-7">
+                  <div class="font-display text-[26px] font-light leading-tight">
+                    어떤 피부<br />고민이 있으세요?
+                  </div>
+                  <div class="mt-2 text-xs text-ink-500">중복 선택 가능</div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 px-5 pt-5">
+                  <div
+                    class="rounded-2xl border-2 border-brand-700 bg-brand-50 p-3.5"
+                  >
+                    <div class="text-xl">💧</div>
+                    <div class="mt-1.5 text-[11px] font-semibold text-brand-900">
+                      수분 부족
+                    </div>
+                  </div>
+                  <div class="rounded-2xl border border-ink-200 bg-white p-3.5">
+                    <div class="text-xl">🫧</div>
+                    <div class="mt-1.5 text-[11px] font-medium text-ink-700">
+                      피지·블랙헤드
+                    </div>
+                  </div>
+                  <div
+                    class="rounded-2xl border-2 border-brand-700 bg-brand-50 p-3.5"
+                  >
+                    <div class="text-xl">✨</div>
+                    <div class="mt-1.5 text-[11px] font-semibold text-brand-900">
+                      주름·탄력
+                    </div>
+                  </div>
+                  <div class="rounded-2xl border border-ink-200 bg-white p-3.5">
+                    <div class="text-xl">🌡️</div>
+                    <div class="mt-1.5 text-[11px] font-medium text-ink-700">
+                      민감·트러블
+                    </div>
+                  </div>
+                  <div class="rounded-2xl border border-ink-200 bg-white p-3.5">
+                    <div class="text-xl">☀️</div>
+                    <div class="mt-1.5 text-[11px] font-medium text-ink-700">
+                      색소·기미
+                    </div>
+                  </div>
+                  <div class="rounded-2xl border border-ink-200 bg-white p-3.5">
+                    <div class="text-xl">🌿</div>
+                    <div class="mt-1.5 text-[11px] font-medium text-ink-700">
+                      클린뷰티
+                    </div>
+                  </div>
+                </div>
+                <div class="absolute inset-x-5 bottom-6">
+                  <button
+                    class="w-full rounded-2xl bg-brand-800 py-3.5 text-sm font-semibold text-white shadow-brand"
+                  >
+                    다음으로 →
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 text-center">
+              <div class="font-display text-lg font-light text-white">
+                Onboarding · Step 2
+              </div>
+              <div class="text-[11px] text-brand-200">6단계 → 3단계 축소</div>
+            </div>
+          </div>
+
+          <!-- Screen 2: Home -->
+          <div>
+            <div class="phone-frame">
+              <div class="phone-screen bg-sand-50">
+                <div
+                  class="flex items-center justify-between px-5 pb-2 pt-10 text-[10px] font-medium text-ink-900"
+                >
+                  <span>9:41</span>
+                  <span class="flex gap-0.5">● ◐ ▮</span>
+                </div>
+                <div class="flex items-start justify-between px-5 pt-3">
+                  <div>
+                    <div class="text-[10px] tracking-widest text-ink-500">
+                      WEDNESDAY · APR 21
+                    </div>
+                    <div
+                      class="mt-0.5 font-display text-[22px] font-light leading-tight"
+                    >
+                      안녕하세요,<br />지영님
+                    </div>
+                  </div>
+                  <div
+                    class="grid h-9 w-9 place-items-center rounded-full border border-ink-200 bg-white"
+                  >
+                    <span class="text-sm">🔔</span>
+                  </div>
+                </div>
+                <div class="px-5 pt-4">
+                  <div
+                    class="relative overflow-hidden rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50 via-white to-sand-100 p-3.5 shadow-card"
+                  >
+                    <div class="mb-1.5 flex items-center gap-1.5">
+                      <span
+                        class="grid h-4 w-4 place-items-center rounded-full bg-brand-800 text-[8px] text-white"
+                        >✦</span
+                      >
+                      <div
+                        class="text-[9px] font-medium tracking-widest text-brand-700"
+                      >
+                        AI 전성분 분석
+                      </div>
+                    </div>
+                    <div class="font-display text-[14px] text-ink-900">
+                      올리브영 URL을 붙여넣어 보세요
+                    </div>
+                    <div
+                      class="mt-2.5 flex items-center gap-1.5 rounded-xl border border-ink-200 bg-white p-1 pl-2.5"
+                    >
+                      <svg
+                        class="h-3 w-3 text-ink-400"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                        />
+                        <path
+                          d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                        />
+                      </svg>
+                      <input
+                        value="oliveyoung.co.kr/goods/..."
+                        class="flex-1 bg-transparent py-1 text-[10px] outline-none"
+                        readonly
+                      />
+                      <button
+                        class="rounded-lg bg-brand-800 px-2.5 py-1 text-[10px] font-medium text-white"
+                      >
+                        분석
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-3 flex gap-1.5 overflow-x-auto px-5 hide-scroll">
+                  <span
+                    class="whitespace-nowrap rounded-full bg-ink-900 px-3 py-1 text-[10px] font-medium text-white"
+                    >추천</span
+                  >
+                  <span
+                    class="whitespace-nowrap rounded-full border border-ink-200 bg-white px-3 py-1 text-[10px] text-ink-700"
+                    >지성</span
+                  >
+                  <span
+                    class="whitespace-nowrap rounded-full border border-ink-200 bg-white px-3 py-1 text-[10px] text-ink-700"
+                    >수분</span
+                  >
+                  <span
+                    class="whitespace-nowrap rounded-full border border-ink-200 bg-white px-3 py-1 text-[10px] text-ink-700"
+                    >민감</span
+                  >
+                  <span
+                    class="whitespace-nowrap rounded-full border border-ink-200 bg-white px-3 py-1 text-[10px] text-ink-700"
+                    >비건</span
+                  >
+                </div>
+                <div class="px-5 pt-4">
+                  <div
+                    class="mb-2 flex items-center justify-between text-[10px] font-medium tracking-widest"
+                  >
+                    <span class="text-ink-500">이번 주 인기 분석</span>
+                    <span class="text-brand-700">더보기 →</span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2">
+                    <div class="rounded-xl border border-ink-100 bg-white p-1.5">
+                      <div
+                        class="aspect-square rounded-lg bg-gradient-to-br from-brand-100 to-brand-50"
+                      ></div>
+                      <div class="mt-1.5 px-0.5">
+                        <div class="text-[8px] text-ink-500">아누아</div>
+                        <div
+                          class="text-[10px] font-medium text-ink-900 truncate"
+                        >
+                          어성초 77%
+                        </div>
+                        <div
+                          class="mt-0.5 font-mono text-[10px] font-bold text-brand-700"
+                        >
+                          94%
+                        </div>
+                      </div>
+                    </div>
+                    <div class="rounded-xl border border-ink-100 bg-white p-1.5">
+                      <div
+                        class="aspect-square rounded-lg bg-gradient-to-br from-sand-200 to-sand-100"
+                      ></div>
+                      <div class="mt-1.5 px-0.5">
+                        <div class="text-[8px] text-ink-500">토리든</div>
+                        <div
+                          class="text-[10px] font-medium text-ink-900 truncate"
+                        >
+                          다이브인 세럼
+                        </div>
+                        <div
+                          class="mt-0.5 font-mono text-[10px] font-bold text-brand-700"
+                        >
+                          91%
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="absolute inset-x-2.5 bottom-2.5 rounded-2xl border border-ink-200 bg-white/95 p-1.5 shadow-float backdrop-blur"
+                >
+                  <div class="flex items-center justify-around text-[8px]">
+                    <div class="grid place-items-center py-1 text-brand-800">
+                      <span class="text-sm">⌂</span><span class="font-bold">홈</span>
+                    </div>
+                    <div class="grid place-items-center py-1 text-ink-400">
+                      <span class="text-sm">⌕</span><span>탐색</span>
+                    </div>
+                    <div
+                      class="grid h-10 w-10 -translate-y-4 place-items-center rounded-full bg-brand-800 text-white shadow-brand"
+                    >
+                      <span class="text-base">✦</span>
+                    </div>
+                    <div class="grid place-items-center py-1 text-ink-400">
+                      <span class="text-sm">◱</span><span>기록</span>
+                    </div>
+                    <div class="grid place-items-center py-1 text-ink-400">
+                      <span class="text-sm">◉</span><span>내피부</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 text-center">
+              <div class="font-display text-lg font-light text-white">Home</div>
+              <div class="text-[11px] text-brand-200">
+                URL 입력창 최상단 · 핵심 액션 1-탭
+              </div>
+            </div>
+          </div>
+
+          <!-- Screen 3: Analyzing -->
+          <div>
+            <div class="phone-frame">
+              <div class="phone-screen bg-ink-950">
+                <div
+                  class="flex items-center justify-between px-5 pb-2 pt-10 text-[10px] font-medium text-white/80"
+                >
+                  <span>9:41</span>
+                  <span class="flex gap-0.5">● ◐ ▮</span>
+                </div>
+                <div class="px-5 pt-3">
+                  <button
+                    class="grid h-8 w-8 place-items-center rounded-full bg-white/10 text-white/70 backdrop-blur"
+                  >
+                    ×
+                  </button>
+                </div>
+                <div class="relative mx-auto mt-5 h-56 w-56">
+                  <div
+                    class="absolute inset-0 rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent backdrop-blur"
+                  ></div>
+                  <div
+                    class="absolute inset-5 overflow-hidden rounded-2xl"
+                  >
+                    <div
+                      class="grid h-full w-full place-items-center bg-gradient-to-br from-sand-100 to-sand-200 font-display text-6xl font-light text-ink-300"
+                    >
+                      AN
+                    </div>
+                    <div
+                      class="absolute inset-x-0 h-[2px] animate-scan bg-brand-400 shadow-[0_0_20px_4px_rgba(94,170,129,0.8)]"
+                    ></div>
+                  </div>
+                  <div
+                    class="absolute -right-2 -top-2 rounded-full bg-brand-500 px-2 py-0.5 text-[9px] font-medium text-white"
+                  >
+                    분석중
+                  </div>
+                </div>
+                <div class="mt-6 text-center">
+                  <div class="font-display text-xl font-light text-white">
+                    성분을 살펴보는 중
+                  </div>
+                  <div class="mt-1.5 text-[11px] text-white/50">
+                    아누아 · 어성초 77% 토너
+                  </div>
+                </div>
+                <div class="mt-5 space-y-1.5 px-6">
+                  <div
+                    class="tag-appear d-1 flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[10px] text-white backdrop-blur"
+                  >
+                    <span class="h-1.5 w-1.5 rounded-full bg-beneficial"></span>
+                    어성초 추출물 · 진정
+                  </div>
+                  <div
+                    class="tag-appear d-2 flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[10px] text-white backdrop-blur"
+                  >
+                    <span class="h-1.5 w-1.5 rounded-full bg-beneficial"></span>
+                    나이아신아마이드 · 미백
+                  </div>
+                  <div
+                    class="tag-appear d-3 flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[10px] text-white backdrop-blur"
+                  >
+                    <span class="h-1.5 w-1.5 rounded-full bg-caution"></span>
+                    페녹시에탄올 · 방부제
+                  </div>
+                  <div
+                    class="tag-appear d-4 flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5 text-[10px] text-white/50 backdrop-blur"
+                  >
+                    <span class="h-1.5 w-1.5 rounded-full bg-white/30"></span>
+                    <span class="shimmer-bg rounded-full px-4 text-transparent">
+                      분석중...
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 text-center">
+              <div class="font-display text-lg font-light text-white">
+                Analyzing · Signature
+              </div>
+              <div class="text-[11px] text-brand-200">
+                스캔 라인 + 실시간 성분 pop-up
+              </div>
+            </div>
+          </div>
+
+          <!-- Screen 4: Result -->
+          <div>
+            <div class="phone-frame">
+              <div class="phone-screen bg-sand-50">
+                <div
+                  class="flex items-center justify-between px-5 pb-2 pt-10 text-[10px] font-medium text-ink-900"
+                >
+                  <span>9:41</span>
+                  <span class="flex gap-0.5">● ◐ ▮</span>
+                </div>
+                <div class="flex items-center justify-between px-5 pt-2">
+                  <button
+                    class="grid h-8 w-8 place-items-center rounded-full border border-ink-200 bg-white text-ink-700"
+                  >
+                    ←
+                  </button>
+                  <div class="flex gap-1.5">
+                    <button
+                      class="grid h-8 w-8 place-items-center rounded-full border border-ink-200 bg-white text-ink-700"
+                    >
+                      ♡
+                    </button>
+                    <button
+                      class="grid h-8 w-8 place-items-center rounded-full border border-ink-200 bg-white text-ink-700"
+                    >
+                      ↗
+                    </button>
+                  </div>
+                </div>
+                <div class="px-5 pt-2">
+                  <div
+                    class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-50 via-sand-100 to-sand-200"
+                  >
+                    <div
+                      class="grid aspect-[5/3] place-items-center font-display text-5xl font-light text-ink-400"
+                    >
+                      AN
+                    </div>
+                  </div>
+                  <div class="mt-2">
+                    <div class="text-[10px] tracking-widest text-ink-500">
+                      아누아 · ANUA
+                    </div>
+                    <div class="font-display text-[17px] leading-tight">
+                      어성초 77%<br />수분 진정 토너
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-3 px-5">
+                  <div
+                    class="relative overflow-hidden rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-100 to-brand-50 p-3.5"
+                  >
+                    <div
+                      class="absolute right-0 top-0 h-20 w-20 rounded-full bg-brand-200/60 blur-2xl"
+                    ></div>
+                    <div class="relative flex items-center justify-between">
+                      <div>
+                        <div
+                          class="text-[9px] font-medium tracking-widest text-brand-700"
+                        >
+                          나와의 궁합
+                        </div>
+                        <div
+                          class="mt-0.5 font-display text-[12px] font-medium text-brand-900"
+                        >
+                          지성·민감 피부에 매우 적합
+                        </div>
+                      </div>
+                      <div
+                        class="font-mono text-4xl font-bold leading-none text-brand-800 animate-count"
+                      >
+                        94<span class="text-lg">%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-3 px-5">
+                  <div class="flex gap-4 border-b border-ink-200">
+                    <button
+                      class="relative pb-2 text-[11px] font-semibold text-ink-900"
+                    >
+                      성분 분석
+                      <span
+                        class="absolute inset-x-0 bottom-0 h-[2px] rounded-full bg-brand-800"
+                      ></span>
+                    </button>
+                    <button class="pb-2 text-[11px] text-ink-500">리뷰</button>
+                    <button class="pb-2 text-[11px] text-ink-500">비슷한 제품</button>
+                  </div>
+                  <div class="mt-2 space-y-1.5">
+                    <div
+                      class="flex items-center gap-2 rounded-lg bg-beneficial/10 p-2"
+                    >
+                      <span
+                        class="grid h-5 w-5 place-items-center rounded-full bg-beneficial text-[10px] text-white"
+                      >
+                        ✓
+                      </span>
+                      <div class="flex-1">
+                        <div class="text-[10px] font-semibold text-ink-900">
+                          유익 성분 12개
+                        </div>
+                        <div class="text-[9px] text-ink-500">
+                          어성초 · 나이아신아마이드 · 판테놀
+                        </div>
+                      </div>
+                      <span class="text-ink-400">›</span>
+                    </div>
+                    <div
+                      class="flex items-center gap-2 rounded-lg bg-caution/10 p-2"
+                    >
+                      <span
+                        class="grid h-5 w-5 place-items-center rounded-full bg-caution text-[10px] text-white"
+                      >
+                        !
+                      </span>
+                      <div class="flex-1">
+                        <div class="text-[10px] font-semibold text-ink-900">
+                          주의 성분 2개
+                        </div>
+                        <div class="text-[9px] text-ink-500">
+                          페녹시에탄올 (방부제)
+                        </div>
+                      </div>
+                      <span class="text-ink-400">›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="absolute inset-x-2.5 bottom-2.5">
+                  <div
+                    class="flex items-center gap-2 rounded-2xl border border-ink-200 bg-white/95 p-1.5 shadow-float backdrop-blur"
+                  >
+                    <button
+                      class="grid h-9 w-9 place-items-center rounded-xl bg-ink-100 text-ink-700"
+                    >
+                      ♡
+                    </button>
+                    <button
+                      class="flex-1 rounded-xl bg-brand-800 py-2.5 text-[11px] font-semibold text-white"
+                    >
+                      올리브영에서 구매 →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 text-center">
+              <div class="font-display text-lg font-light text-white">
+                Analysis Result
+              </div>
+              <div class="text-[11px] text-brand-200">
+                매치율 중심 재배치 · 매치율 60pt
+              </div>
+            </div>
+          </div>
+
+          <!-- Screen 5: Profile Settings -->
+          <div>
+            <div class="phone-frame">
+              <div class="phone-screen bg-sand-50">
+                <div
+                  class="flex items-center justify-between px-5 pb-2 pt-10 text-[10px] font-medium text-ink-900"
+                >
+                  <span>9:41</span>
+                  <span class="flex gap-0.5">● ◐ ▮</span>
+                </div>
+                <div class="flex items-center justify-between px-5 pt-2">
+                  <button
+                    class="grid h-8 w-8 place-items-center rounded-full border border-ink-200 bg-white text-ink-700"
+                  >
+                    ←
+                  </button>
+                  <div class="font-display text-sm">설정</div>
+                  <div class="w-8"></div>
+                </div>
+                <div class="mt-3 px-5">
+                  <div
+                    class="flex items-center gap-3 rounded-2xl border border-ink-200 bg-white p-3"
+                  >
+                    <div
+                      class="grid h-12 w-12 place-items-center rounded-full bg-brand-100 font-display text-lg text-brand-800"
+                    >
+                      지
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-[13px] font-semibold">지영님</div>
+                      <div class="text-[10px] text-ink-500">
+                        지성 · 민감성 피부
+                      </div>
+                    </div>
+                    <button
+                      class="text-[11px] text-brand-700"
+                    >
+                      편집
+                    </button>
+                  </div>
+                </div>
+                <div class="mt-4 px-5">
+                  <div
+                    class="mb-2 text-[9px] font-medium tracking-widest text-ink-500"
+                  >
+                    화면
+                  </div>
+                  <div
+                    class="overflow-hidden rounded-2xl border border-ink-200 bg-white"
+                  >
+                    <div
+                      class="flex items-center justify-between px-3.5 py-2.5"
+                    >
+                      <div class="flex items-center gap-2">
+                        <span class="text-sm">🌙</span>
+                        <span class="text-[11px] text-ink-900">다크 모드</span>
+                      </div>
+                      <div
+                        class="relative h-5 w-9 rounded-full bg-ink-200 transition"
+                      >
+                        <div
+                          class="absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-soft"
+                        ></div>
+                      </div>
+                    </div>
+                    <div
+                      class="border-t border-ink-100 px-3.5 py-2.5 flex items-center justify-between"
+                    >
+                      <div class="flex items-center gap-2">
+                        <span class="text-sm">✦</span>
+                        <span class="text-[11px] text-ink-900">시스템 자동</span>
+                      </div>
+                      <div
+                        class="relative h-5 w-9 rounded-full bg-brand-700 transition"
+                      >
+                        <div
+                          class="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-white shadow-soft"
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-4 px-5">
+                  <div
+                    class="mb-2 text-[9px] font-medium tracking-widest text-ink-500"
+                  >
+                    피부 프로필
+                  </div>
+                  <div
+                    class="overflow-hidden rounded-2xl border border-ink-200 bg-white"
+                  >
+                    <div
+                      class="flex items-center justify-between px-3.5 py-2.5"
+                    >
+                      <span class="text-[11px] text-ink-900">피부 타입</span>
+                      <span class="text-[11px] text-ink-500">지성 ›</span>
+                    </div>
+                    <div
+                      class="border-t border-ink-100 flex items-center justify-between px-3.5 py-2.5"
+                    >
+                      <span class="text-[11px] text-ink-900">피부 고민</span>
+                      <span class="text-[11px] text-ink-500">3개 선택 ›</span>
+                    </div>
+                    <div
+                      class="border-t border-ink-100 flex items-center justify-between px-3.5 py-2.5"
+                    >
+                      <span class="text-[11px] text-ink-900">알러지 성분</span>
+                      <span class="text-[11px] text-ink-500">2개 ›</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-4 px-5">
+                  <div
+                    class="mb-2 text-[9px] font-medium tracking-widest text-ink-500"
+                  >
+                    알림
+                  </div>
+                  <div
+                    class="overflow-hidden rounded-2xl border border-ink-200 bg-white"
+                  >
+                    <div
+                      class="flex items-center justify-between px-3.5 py-2.5"
+                    >
+                      <span class="text-[11px] text-ink-900">푸시 알림</span>
+                      <div
+                        class="relative h-5 w-9 rounded-full bg-brand-700 transition"
+                      >
+                        <div
+                          class="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-white shadow-soft"
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 text-center">
+              <div class="font-display text-lg font-light text-white">
+                Profile · Settings
+              </div>
+              <div class="text-[11px] text-brand-200">
+                다크모드 토글 포함
+              </div>
+            </div>
+          </div>
+
+          <!-- Screen 6: Product Detail scroll -->
+          <div>
+            <div class="phone-frame">
+              <div class="phone-screen bg-sand-50">
+                <div
+                  class="flex items-center justify-between px-5 pb-2 pt-10 text-[10px] font-medium text-ink-900"
+                >
+                  <span>9:41</span>
+                  <span class="flex gap-0.5">● ◐ ▮</span>
+                </div>
+                <div class="px-5 pt-3">
+                  <div class="text-[10px] tracking-widest text-brand-700">
+                    EMPTY STATE · 히스토리 없음
+                  </div>
+                  <div class="mt-4 flex flex-col items-center text-center">
+                    <div
+                      class="grid h-28 w-28 place-items-center rounded-full bg-brand-50 font-display text-5xl font-light text-brand-300"
+                    >
+                      ⌕
+                    </div>
+                    <div class="mt-6 font-display text-xl leading-tight">
+                      아직 분석한 제품이<br />없어요
+                    </div>
+                    <div class="mt-2 max-w-[220px] text-xs text-ink-600">
+                      올리브영 URL을 붙여넣으면<br />AI가 전성분을 분석해
+                      드려요
+                    </div>
+                    <button
+                      class="mt-6 rounded-full bg-brand-800 px-5 py-2.5 text-xs font-semibold text-white shadow-brand"
+                    >
+                      첫 분석 시작하기 →
+                    </button>
+                  </div>
+                </div>
+                <div class="mt-10 px-5">
+                  <div
+                    class="rounded-2xl border border-ink-200 bg-white p-3"
+                  >
+                    <div
+                      class="mb-2 text-[9px] font-medium tracking-widest text-ink-500"
+                    >
+                      이런 제품은 어때요?
+                    </div>
+                    <div class="flex gap-2">
+                      <div class="flex-1 rounded-xl bg-gradient-to-br from-brand-100 to-brand-50 p-2">
+                        <div class="aspect-square rounded-lg bg-white/50"></div>
+                        <div
+                          class="mt-1 font-mono text-[9px] font-bold text-brand-800"
+                        >
+                          94%
+                        </div>
+                      </div>
+                      <div class="flex-1 rounded-xl bg-gradient-to-br from-sand-200 to-sand-100 p-2">
+                        <div class="aspect-square rounded-lg bg-white/50"></div>
+                        <div
+                          class="mt-1 font-mono text-[9px] font-bold text-brand-800"
+                        >
+                          91%
+                        </div>
+                      </div>
+                      <div class="flex-1 rounded-xl bg-gradient-to-br from-ink-100 to-ink-50 p-2">
+                        <div class="aspect-square rounded-lg bg-white/50"></div>
+                        <div
+                          class="mt-1 font-mono text-[9px] font-bold text-brand-800"
+                        >
+                          88%
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="absolute inset-x-2.5 bottom-2.5 rounded-2xl border border-ink-200 bg-white/95 p-1.5 shadow-float backdrop-blur"
+                >
+                  <div class="flex items-center justify-around text-[8px]">
+                    <div class="grid place-items-center py-1 text-ink-400">
+                      <span class="text-sm">⌂</span><span>홈</span>
+                    </div>
+                    <div class="grid place-items-center py-1 text-ink-400">
+                      <span class="text-sm">⌕</span><span>탐색</span>
+                    </div>
+                    <div
+                      class="grid h-10 w-10 -translate-y-4 place-items-center rounded-full bg-brand-800 text-white shadow-brand"
+                    >
+                      <span class="text-base">✦</span>
+                    </div>
+                    <div class="grid place-items-center py-1 text-brand-800">
+                      <span class="text-sm">◱</span><span class="font-bold">기록</span>
+                    </div>
+                    <div class="grid place-items-center py-1 text-ink-400">
+                      <span class="text-sm">◉</span><span>내피부</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 text-center">
+              <div class="font-display text-lg font-light text-white">
+                Empty State
+              </div>
+              <div class="text-[11px] text-brand-200">
+                빈 히스토리 + 추천 카드
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= ROADMAP ========================= -->
+    <section class="border-t border-ink-200/60 bg-white py-24">
+      <div class="mx-auto max-w-7xl px-6">
+        <div class="mb-12 max-w-2xl">
+          <div class="mb-3 text-xs font-medium tracking-widest text-brand-700">
+            05 · ROADMAP
+          </div>
+          <h2 class="font-display text-5xl font-light leading-tight">
+            5일 구현<br />로드맵
+          </h2>
+          <p class="mt-6 text-ink-600">
+            강태오 개발자가 산출한 실제 공수 견적. P0 필수 항목 3일, P1 포함 시 5일.
+          </p>
+        </div>
+        <div class="space-y-3">
+          <details class="group rounded-2xl border border-ink-200 bg-sand-50 p-5 open:shadow-card open:bg-white" open>
+            <summary class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="grid h-8 w-8 place-items-center rounded-full bg-brand-800 font-mono text-xs font-bold text-white">01</span>
+                <div>
+                  <div class="font-display text-base">Day 1 · 디자인 시스템 토대</div>
+                  <div class="text-[11px] text-ink-500">index.css 교체 + Tailwind config 확장 + 공용 컴포넌트</div>
+                </div>
+              </div>
+              <span class="chevron text-ink-400">▼</span>
+            </summary>
+            <ul class="mt-4 space-y-1.5 pl-11 text-sm text-ink-700">
+              <li>• <span class="font-mono text-[11px] text-ink-500">09:00</span> src/index.css 완전 교체 (CSS 변수 모두 Forest Olive로)</li>
+              <li>• <span class="font-mono text-[11px] text-ink-500">11:00</span> tailwind.config.ts 확장 (신규 토큰, 폰트 패밀리, 섀도우)</li>
+              <li>• <span class="font-mono text-[11px] text-ink-500">14:00</span> shadcn Button, Card, Input, Badge 리스타일</li>
+              <li>• <span class="font-mono text-[11px] text-ink-500">16:00</span> 폰트 로드 최적화 (Google Fonts text= 섭셋팅)</li>
+              <li>• <span class="font-mono text-[11px] text-ink-500">17:00</span> index.html PWA theme-color, OG 메타 업데이트</li>
+            </ul>
+          </details>
+          <details class="group rounded-2xl border border-ink-200 bg-sand-50 p-5 open:shadow-card open:bg-white">
+            <summary class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="grid h-8 w-8 place-items-center rounded-full bg-brand-700 font-mono text-xs font-bold text-white">02</span>
+                <div>
+                  <div class="font-display text-base">Day 2 · 온보딩 + 홈</div>
+                  <div class="text-[11px] text-ink-500">6단계 → 3단계 + Home 재구성 + Bottom Nav</div>
+                </div>
+              </div>
+              <span class="chevron text-ink-400">▼</span>
+            </summary>
+            <ul class="mt-4 space-y-1.5 pl-11 text-sm text-ink-700">
+              <li>• Onboarding 3-step 리팩토링 (skin_type / concerns+sensitivity / age+routines)</li>
+              <li>• Supabase profiles 테이블 스키마 적용 (8 필드)</li>
+              <li>• Home 화면 재구성 (URL hero 입력 + 추천 그리드 + 히스토리)</li>
+              <li>• Bottom Navigation 재설계 (5탭 + 센터 floating CTA)</li>
+            </ul>
+          </details>
+          <details class="group rounded-2xl border border-ink-200 bg-sand-50 p-5 open:shadow-card open:bg-white">
+            <summary class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="grid h-8 w-8 place-items-center rounded-full bg-brand-600 font-mono text-xs font-bold text-white">03</span>
+                <div>
+                  <div class="font-display text-base">Day 3 · Analyzing + Result</div>
+                  <div class="text-[11px] text-ink-500">시그니처 스캔 모션 + 매치율 중심 재배치</div>
+                </div>
+              </div>
+              <span class="chevron text-ink-400">▼</span>
+            </summary>
+            <ul class="mt-4 space-y-1.5 pl-11 text-sm text-ink-700">
+              <li>• Analyzing 화면 신설 (스캔 라인 + 실시간 성분 pop-up + 2.4초 최소 보장)</li>
+              <li>• Grok Edge Function 통합 + 매치율 산출 로직 v1</li>
+              <li>• Product Detail 매치율 중심 재배치</li>
+              <li>• 카피 일괄 교체 (지적 간결체 톤 적용)</li>
+            </ul>
+          </details>
+          <details class="group rounded-2xl border border-ink-200 bg-sand-50 p-5 open:shadow-card open:bg-white">
+            <summary class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="grid h-8 w-8 place-items-center rounded-full bg-brand-500 font-mono text-xs font-bold text-white">04</span>
+                <div>
+                  <div class="font-display text-base">Day 4 · 다크모드 + 공유</div>
+                  <div class="text-[11px] text-ink-500">Profile 설정 + html2canvas 공유 + Empty States</div>
+                </div>
+              </div>
+              <span class="chevron text-ink-400">▼</span>
+            </summary>
+            <ul class="mt-4 space-y-1.5 pl-11 text-sm text-ink-700">
+              <li>• Dark mode 전체 토큰 적용 + 테마 스위치 (next-themes 활용)</li>
+              <li>• Profile / Settings 페이지 신설</li>
+              <li>• 공유 이미지 생성 (html2canvas + 카카오톡 공유)</li>
+              <li>• Empty States · Error States 전체 일러스트 적용</li>
+            </ul>
+          </details>
+          <details class="group rounded-2xl border border-ink-200 bg-sand-50 p-5 open:shadow-card open:bg-white">
+            <summary class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="grid h-8 w-8 place-items-center rounded-full bg-brand-400 font-mono text-xs font-bold text-white">05</span>
+                <div>
+                  <div class="font-display text-base">Day 5 · QA + 배포</div>
+                  <div class="text-[11px] text-ink-500">Analytics + E2E + Lighthouse + PWA 캐시</div>
+                </div>
+              </div>
+              <span class="chevron text-ink-400">▼</span>
+            </summary>
+            <ul class="mt-4 space-y-1.5 pl-11 text-sm text-ink-700">
+              <li>• Supabase events 테이블 + useTrack() Hook 심기</li>
+              <li>• Playwright E2E 기본 플로우 3개</li>
+              <li>• axe-core a11y 자동 검증 + 수정</li>
+              <li>• PWA 버전업 + Service Worker 캐시 갱신</li>
+              <li>• Vercel 프리뷰 → 프로덕션 배포</li>
+            </ul>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= BEFORE/AFTER ========================= -->
+    <section id="before-after" class="border-t border-ink-200/60 bg-sand-50 py-24">
+      <div class="mx-auto max-w-7xl px-6">
+        <div class="mb-12 max-w-2xl">
+          <div class="mb-3 text-xs font-medium tracking-widest text-brand-700">
+            06 · BEFORE / AFTER
+          </div>
+          <h2 class="font-display text-5xl font-light leading-tight">
+            변화를<br />한눈에
+          </h2>
+        </div>
+        <div class="grid gap-6 lg:grid-cols-2">
+          <div class="overflow-hidden rounded-3xl border border-ink-200 bg-ink-50">
+            <div class="flex items-center justify-between border-b border-ink-200 bg-white px-6 py-3">
+              <div class="text-[10px] font-medium tracking-widest text-ink-500">
+                BEFORE · 현재
+              </div>
+              <div class="flex gap-1">
+                <div class="h-2 w-2 rounded-full bg-ink-300"></div>
+                <div class="h-2 w-2 rounded-full bg-ink-300"></div>
+                <div class="h-2 w-2 rounded-full bg-ink-300"></div>
+              </div>
+            </div>
+            <div class="bg-[#fff5f9] p-8">
+              <div class="font-['Arial'] text-2xl font-bold text-[#E8619A]">
+                BeautyLens
+              </div>
+              <div class="mt-4 text-xs text-[#E8619A]/70">
+                내 피부에 맞는 전성분 분석 앱
+              </div>
+              <div class="mt-6 space-y-2">
+                <div class="rounded-lg bg-[#ffe0ee] p-3 text-xs text-[#b03870]">
+                  시스템 폰트 · primary light/dark 2단계
+                </div>
+                <div class="rounded-lg bg-[#ffe0ee] p-3 text-xs text-[#b03870]">
+                  slate neutral 4단계 (50/100/200/700)
+                </div>
+                <div class="rounded-lg bg-[#ffe0ee] p-3 text-xs text-[#b03870]">
+                  온보딩 6단계 · 시그니처 모션 없음
+                </div>
+                <div class="rounded-lg bg-[#ffe0ee] p-3 text-xs text-[#b03870]">
+                  Grok 저렴이 · 매치율 로직 미구현
+                </div>
+                <div class="rounded-lg bg-[#ffe0ee] p-3 text-xs text-[#b03870]">
+                  다크모드 미지원 · 테스트 커버리지 0%
+                </div>
+              </div>
+              <button class="mt-8 w-full rounded-md bg-[#E8619A] py-2.5 text-xs font-bold text-white">
+                분석 시작하기
+              </button>
+            </div>
+          </div>
+          <div class="overflow-hidden rounded-3xl border border-brand-200 bg-white shadow-float">
+            <div class="flex items-center justify-between border-b border-brand-100 bg-brand-50 px-6 py-3">
+              <div class="text-[10px] font-medium tracking-widest text-brand-700">
+                AFTER · 리디자인
+              </div>
+              <div class="flex gap-1">
+                <div class="h-2 w-2 rounded-full bg-brand-300"></div>
+                <div class="h-2 w-2 rounded-full bg-brand-500"></div>
+                <div class="h-2 w-2 rounded-full bg-brand-700"></div>
+              </div>
+            </div>
+            <div class="bg-hero p-8">
+              <div class="font-display text-3xl font-light text-brand-900">
+                BeautyLens
+              </div>
+              <div class="mt-4 text-xs text-brand-700/80">
+                내 피부가 이해하는 성분. 올리브영 URL 하나로.
+              </div>
+              <div class="mt-6 space-y-2">
+                <div class="rounded-lg border border-brand-200 bg-white p-3 text-xs text-ink-700">
+                  Fraunces + Pretendard + JetBrains Mono
+                </div>
+                <div class="rounded-lg border border-brand-200 bg-white p-3 text-xs text-ink-700">
+                  Brand 11단 + Neutral 11단 + Signal 3단
+                </div>
+                <div class="rounded-lg border border-brand-200 bg-white p-3 text-xs text-ink-700">
+                  온보딩 3단계 · 스캔 시그니처 모션
+                </div>
+                <div class="rounded-lg border border-brand-200 bg-white p-3 text-xs text-ink-700">
+                  매치율 로직 v1 · Edge Function
+                </div>
+                <div class="rounded-lg border border-brand-200 bg-white p-3 text-xs text-ink-700">
+                  다크모드 · E2E + a11y 자동화
+                </div>
+              </div>
+              <button class="mt-8 w-full rounded-2xl bg-brand-800 py-3 text-xs font-semibold text-white shadow-brand">
+                분석 시작하기 →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= FOOTER ========================= -->
+    <footer class="border-t border-ink-200/60 bg-ink-50 py-12">
+      <div
+        class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 md:flex-row"
+      >
+        <div class="flex items-center gap-2.5">
+          <div
+            class="grid h-7 w-7 place-items-center rounded-lg bg-brand-800 font-display text-xs text-white"
+          >
+            B
+          </div>
+          <div class="font-display text-sm">BeautyLens · Design System v2</div>
+        </div>
+        <div class="text-[11px] text-ink-500">
+          Designed for anehd925-crypto/skin-harmony · 2026.04
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -29,6 +29,7 @@ export default defineConfig(({ mode }) => ({
         name: "BeautyLens",
         short_name: "BeautyLens",
         description: "내 피부에 맞는 전성분 분석 앱",
+        version: "2.0.0",
         theme_color: "#235B41",
         background_color: "#fdfcf9",
         display: "standalone",

@@ -12,11 +12,10 @@ import { cn } from '@/lib/utils';
 
 /* ─── Step 1: 피부 타입 ─── */
 const SKIN_TYPE_OPTIONS = [
-  { value: 'dry',         label: '건성',  desc: '자주 당기고 건조해요',        emoji: '💧' },
-  { value: 'oily',        label: '지성',  desc: '번들거리고 모공이 넓어요',     emoji: '✨' },
-  { value: 'combination', label: '복합성', desc: '부위마다 달라요',              emoji: '🌿' },
-  { value: 'sensitive',   label: '민감성', desc: '쉽게 붉어지고 자극에 예민해요', emoji: '🌸' },
-  { value: 'normal',      label: '보통',   desc: '딱히 문제없는 편이에요',       emoji: '😊' },
+  { value: '건성',  label: '건성',  desc: '자주 당기고 건조해요',          emoji: '💧' },
+  { value: '지성',  label: '지성',  desc: '번들거리고 모공이 넓어요',       emoji: '✨' },
+  { value: '복합성', label: '복합성', desc: '부위마다 유분·수분이 달라요',   emoji: '🌿' },
+  { value: '민감성', label: '민감성', desc: '쉽게 붉어지고 자극에 예민해요', emoji: '🌸' },
 ] as const;
 
 /* ─── Step 2: 피부 고민 ─── */
