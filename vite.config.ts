@@ -78,9 +78,10 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-query': ['@tanstack/react-query'],
-          'vendor-supabase': ['@supabase/supabase-js'],
+          'vendor-react':     ['react', 'react-dom', 'react-router-dom'],
+          'vendor-query':     ['@tanstack/react-query'],
+          'vendor-supabase':  ['@supabase/supabase-js'],
+          'vendor-animation': ['framer-motion'],
           'vendor-ui': [
             '@radix-ui/react-dialog',
             '@radix-ui/react-dropdown-menu',
@@ -93,6 +94,6 @@ export default defineConfig(({ mode }) => ({
         },
       },
     },
-    chunkSizeWarningLimit: 600,
+    chunkSizeWarningLimit: 500,
   },
 }));
