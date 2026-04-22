@@ -474,7 +474,7 @@ const MyCabinet = () => {
 
       {/* ── 헤더 ── */}
       <div className="sticky top-0 z-10 bg-white border-b border-border px-4 py-3 flex items-center gap-3">
-        <button onClick={goBack} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-muted">
+        <button onClick={goBack} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full hover:bg-muted">
           <ChevronLeft className="h-5 w-5" />
         </button>
         <div className="flex-1 min-w-0">

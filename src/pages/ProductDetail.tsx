@@ -148,7 +148,7 @@ const OliveyoungInventory = ({ productName }: { productName: string }) => {
                       </span>
                     </div>
                   ))}
-                  <p className="text-right text-[10px] text-muted-foreground">
+                  <p className="text-right text-xs text-muted-foreground">
                     방문 전 올리브영 앱에서 재확인을 권장합니다
                   </p>
                 </div>
@@ -427,20 +427,20 @@ const ProductDetail = () => {
       {/* ── 헤더 ── */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border pt-safe">
         <div className="flex items-center gap-2 px-4 py-3">
-          <button onClick={goBack} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-muted transition-colors">
+          <button onClick={goBack} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full hover:bg-muted transition-colors">
             <ChevronLeft className="h-5 w-5" />
           </button>
           <h1 className="flex-1 min-w-0 text-base font-semibold text-foreground truncate">제품 상세</h1>
           <div className="flex items-center gap-1">
             <button
               onClick={() => wishMutation.mutate()}
-              className={cn('flex h-9 w-9 items-center justify-center rounded-full transition-colors', isWished ? 'bg-harmful/10' : 'hover:bg-muted')}
+              className={cn('flex h-11 w-11 items-center justify-center rounded-full transition-colors', isWished ? 'bg-harmful/10' : 'hover:bg-muted')}
             >
               <Heart className={cn('h-5 w-5', isWished ? 'fill-harmful text-harmful' : 'text-muted-foreground')} />
             </button>
             <button
               onClick={toggleCompare}
-              className={cn('flex h-9 w-9 items-center justify-center rounded-full transition-colors', inCompare ? 'bg-brand-50' : 'hover:bg-muted')}
+              className={cn('flex h-11 w-11 items-center justify-center rounded-full transition-colors', inCompare ? 'bg-brand-50' : 'hover:bg-muted')}
             >
               <GitCompare className={cn('h-5 w-5', inCompare ? 'text-brand-700' : 'text-muted-foreground')} />
             </button>
@@ -448,84 +448,127 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      <div className="mx-auto max-w-md space-y-4 px-4 pt-4">
+      {/* ════ 제품 + 매치율 풀-히어로 ════ */}
+      <div className={cn(
+        'px-4 pt-5 pb-6',
+        rawScore >= 70 ? 'bg-gradient-to-b from-beneficial/12 to-background'
+        : rawScore >= 40 ? 'bg-gradient-to-b from-caution/10 to-background'
+        : 'bg-gradient-to-b from-harmful/10 to-background',
+      )}>
+        <div className="mx-auto max-w-md">
 
-        {/* ── 제품 정보 ── */}
-        <div className="flex items-start gap-3">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-sand-100 text-3xl select-none">
-            {(product as { category?: string }).category === 'makeup' ? '💄'
-             : (product as { category?: string }).category === 'suncare' ? '☀️' : '🧴'}
-          </div>
-          <div className="flex-1 min-w-0">
-            <h2 className="text-base font-semibold text-foreground leading-snug">{product.name}</h2>
-            <p className="mt-0.5 text-sm text-muted-foreground">{product.brand}</p>
-            {ratingStats && ratingStats.count > 0 && (
-              <div className="mt-1 flex items-center gap-1">
-                <Star className="h-3 w-3 fill-caution text-caution" />
-                <span className="font-numeric text-xs font-semibold text-foreground">{ratingStats.avg.toFixed(1)}</span>
-                <span className="text-[10px] text-muted-foreground">({ratingStats.count}명)</span>
-              </div>
-            )}
-            {(product as { is_on_sale?: boolean }).is_on_sale && (
-              <div className="mt-1.5 flex items-center gap-2">
-                {(product as { original_price?: number }).original_price! > 0 && (
-                  <span className="font-numeric text-xs text-muted-foreground line-through">
-                    {(product as { original_price?: number }).original_price!.toLocaleString()}원
-                  </span>
-                )}
-                <span className="font-numeric text-sm font-bold text-brand-700">
-                  {(product as { current_price?: number }).current_price!.toLocaleString()}원
-                </span>
-                <span className="rounded-full bg-harmful px-1.5 py-0.5 font-numeric text-[10px] font-bold text-white">
-                  {Math.round((product as { discount_rate?: number }).discount_rate ?? 0)}% 할인
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ── 매치율 히어로 ── */}
-        {hasIngredients ? (
-          <>
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className={cn('rounded-xl border bg-gradient-to-b p-5', scoreBg)}
-            >
-              <p className="mb-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide">내 피부 매치율</p>
-              <div className="flex items-end gap-1.5 mb-2">
-                <span className={cn('font-numeric font-bold leading-none', scoreColor)} style={{ fontSize: '4rem' }}>
-                  {displayScore}
-                </span>
-                <span className={cn('mb-2 font-numeric text-2xl font-semibold', scoreColor)}>/100</span>
-              </div>
-              <p className="text-sm text-foreground/80">{scoreLabel}</p>
-
-              {/* 성분 요약 pills */}
-              <div className="mt-3 flex gap-2">
-                <span className="rounded-full border border-beneficial/30 bg-beneficial/10 px-2.5 py-1 text-xs font-semibold text-beneficial">
-                  유익 {safeCount}
-                </span>
-                <span className="rounded-full border border-caution/30 bg-caution/10 px-2.5 py-1 text-xs font-semibold text-caution">
-                  주의 {cautionCount}
-                </span>
-                <span className="rounded-full border border-harmful/30 bg-harmful/10 px-2.5 py-1 text-xs font-semibold text-harmful">
-                  위험 {dangerCount}
-                </span>
-              </div>
-
-              {allergyMatches.length > 0 && (
-                <div className="mt-3 flex items-start gap-2 rounded-lg border border-harmful/20 bg-harmful/8 px-3 py-2">
-                  <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-harmful" />
-                  <p className="text-xs text-harmful leading-relaxed">
-                    알레르기 성분 감지: {allergyMatches.map((i: { name_kr: string }) => i.name_kr).join(', ')}
-                  </p>
+          {/* 제품 정보 */}
+          <div className="flex items-start gap-3 mb-5">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/80 shadow-soft text-3xl select-none">
+              {(product as { category?: string }).category === 'makeup' ? '💄'
+               : (product as { category?: string }).category === 'suncare' ? '☀️' : '🧴'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-base font-bold text-foreground leading-snug">{product.name}</h2>
+              <p className="mt-0.5 text-sm text-muted-foreground">{product.brand}</p>
+              {ratingStats && ratingStats.count > 0 && (
+                <div className="mt-1 flex items-center gap-1">
+                  <Star className="h-3.5 w-3.5 fill-caution text-caution" />
+                  <span className="font-numeric text-sm font-bold text-foreground">{ratingStats.avg.toFixed(1)}</span>
+                  <span className="text-sm text-muted-foreground">({ratingStats.count}명)</span>
                 </div>
               )}
-            </motion.div>
+              {(product as { is_on_sale?: boolean }).is_on_sale && (
+                <div className="mt-1.5 flex items-center gap-2">
+                  {(product as { original_price?: number }).original_price! > 0 && (
+                    <span className="font-numeric text-xs text-muted-foreground line-through">
+                      {(product as { original_price?: number }).original_price!.toLocaleString()}원
+                    </span>
+                  )}
+                  <span className="font-numeric text-sm font-bold text-brand-700">
+                    {(product as { current_price?: number }).current_price!.toLocaleString()}원
+                  </span>
+                  <span className="rounded-full bg-harmful px-2 py-0.5 font-numeric text-xs font-bold text-white">
+                    {Math.round((product as { discount_rate?: number }).discount_rate ?? 0)}% 할인
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
 
-            {/* ── 성분 탭 ── */}
+          {/* ── 매치율 빅넘버 히어로 ── */}
+          {hasIngredients ? (
+            <>
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                className="glass-card p-6 mb-2"
+              >
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">내 피부 매치율</p>
+                <div className="flex items-end gap-2 mb-3">
+                  <span className={cn('font-numeric font-black leading-none animate-count', scoreColor)} style={{ fontSize: '5.5rem' }}>
+                    {displayScore}
+                  </span>
+                  <div className="mb-3">
+                    <span className={cn('font-numeric text-2xl font-bold', scoreColor)}>/100</span>
+                    <p className={cn('text-xs font-semibold mt-0.5', scoreColor)}>{scoreLabel}</p>
+                  </div>
+                </div>
+
+                {/* 진행 바 */}
+                <div className="h-2.5 w-full rounded-full bg-black/5 overflow-hidden mb-4">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${rawScore}%` }}
+                    transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                    className={cn('h-full rounded-full', rawScore >= 70 ? 'bg-beneficial' : rawScore >= 40 ? 'bg-caution' : 'bg-harmful')}
+                  />
+                </div>
+
+                {/* 성분 요약 pills */}
+                <div className="flex gap-2">
+                  <span className="flex-1 flex items-center justify-center gap-1 rounded-xl border border-beneficial/30 bg-beneficial/10 py-2 text-sm font-bold text-beneficial">
+                    유익 {safeCount}
+                  </span>
+                  <span className="flex-1 flex items-center justify-center gap-1 rounded-xl border border-caution/30 bg-caution/10 py-2 text-sm font-bold text-caution">
+                    주의 {cautionCount}
+                  </span>
+                  <span className="flex-1 flex items-center justify-center gap-1 rounded-xl border border-harmful/30 bg-harmful/10 py-2 text-sm font-bold text-harmful">
+                    위험 {dangerCount}
+                  </span>
+                </div>
+
+                {allergyMatches.length > 0 && (
+                  <div className="mt-3 flex items-start gap-2 rounded-xl border border-harmful/25 bg-harmful/8 px-3 py-3">
+                    <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-harmful" />
+                    <p className="text-sm text-harmful leading-relaxed font-medium">
+                      알레르기 성분 감지: {allergyMatches.map((i: { name_kr: string }) => i.name_kr).join(', ')}
+                    </p>
+                  </div>
+                )}
+              </motion.div>
+
+          </> /* hasIngredients end */
+          ) : (
+            /* ── 분석 미완료 인라인 ── */
+            <div className="rounded-2xl border border-brand-100 bg-brand-50 p-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-700">
+                  <FlaskConical className="h-5 w-5 text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-brand-900">전성분 분석 전</p>
+                  <p className="text-xs text-brand-700/70">홈에서 올리브영 URL을 입력하면 분석됩니다</p>
+                </div>
+                <Button size="sm" onClick={() => navigate('/')} className="shrink-0">분석하기</Button>
+              </div>
+            </div>
+          )}
+
+        </div>{/* mx-auto hero end */}
+      </div>{/* hero-bg end */}
+
+      {/* ════ 성분 탭 + 기타 섹션 ════ */}
+      <div className="mx-auto max-w-md space-y-4 px-4 pt-4">
+
+        {/* ── 성분 탭 ── */}
+        {hasIngredients && <div>
             <div>
               <div className="flex gap-1 rounded-xl bg-sand-100 p-1 mb-3">
                 {TABS.map(tab => (
@@ -572,7 +615,7 @@ const ProductDetail = () => {
                               <p className="text-sm font-semibold text-foreground">{ingredient.name_kr}</p>
                               <p className="text-xs text-muted-foreground">{ingredient.name}</p>
                             </div>
-                            <span className={cn('shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold', cfg.cls)}>
+                            <span className={cn('shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-semibold', cfg.cls)}>
                               {cfg.label}
                             </span>
                           </div>
@@ -586,24 +629,7 @@ const ProductDetail = () => {
                 </motion.div>
               </AnimatePresence>
             </div>
-          </>
-        ) : (
-          /* ── 분석 미완료 ── */
-          <div className="rounded-xl border border-brand-100 bg-brand-50 p-5">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-700">
-                <FlaskConical className="h-5 w-5 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-brand-900">전성분 분석 전</p>
-                <p className="text-xs text-brand-700/70">홈에서 올리브영 URL을 입력하면 분석됩니다</p>
-              </div>
-              <Button size="sm" onClick={() => navigate('/')} className="shrink-0">
-                분석하기
-              </Button>
-            </div>
-          </div>
-        )}
+        </div>}{/* hasIngredients tab section end */}
 
         {/* ── 구매처 ── */}
         <div className="rounded-xl border border-border bg-card shadow-card p-4">
@@ -676,7 +702,7 @@ const ProductDetail = () => {
                       </button>
                     )}
                   </div>
-                  <p className="mt-1 font-numeric text-[10px] text-muted-foreground">{formatDate(c.created_at)}</p>
+                  <p className="mt-1 font-numeric text-xs text-muted-foreground">{formatDate(c.created_at)}</p>
                 </div>
               ))}
             </div>

@@ -282,13 +282,13 @@ const Explore = () => {
                       <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
                       {Number(p.avg_rating).toFixed(1)}
                     </span>
-                    <span className="text-[10px] text-muted-foreground">({p.review_count})</span>
+                    <span className="text-xs text-muted-foreground">({p.review_count})</span>
                   </div>
                 </button>
               ))}
             </div>
             <div className="px-4 py-2 bg-primary/5 border-t border-primary/15">
-              <p className="text-[10px] text-muted-foreground leading-relaxed">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 같은 피부 타입 유저들이 보관함에 추가하고 직접 남긴 별점 평균이에요. (익명 집계)
               </p>
             </div>

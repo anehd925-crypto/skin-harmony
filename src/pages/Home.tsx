@@ -8,28 +8,23 @@ import BottomNav from '@/components/BottomNav';
 import NotificationPermission from '@/components/NotificationPermission';
 import ChatFab from '@/components/ChatFab';
 import OliveYoungDealsCard from '@/components/OliveYoungDealsCard';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import DailyMissionCard from '@/components/DailyMissionCard';
 import {
   ArrowRight,
   ChevronRight,
   FlaskConical,
-  Search,
+  ScanLine,
   Sparkles,
   Tag,
-  Clock,
+  TrendingUp,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-/* ─── 필터 칩 ─── */
-const FILTER_CHIPS = ['전체', '스킨케어', '세럼', '로션', '선크림', '마스크', '클렌저'] as const;
-type FilterChip = typeof FILTER_CHIPS[number];
-
 /* ─── 분석 결과 색상 ─── */
 const gradeConfig = {
-  good:     { label: '안전',  cls: 'bg-beneficial text-white' },
-  moderate: { label: '보통',  cls: 'bg-caution text-white' },
-  bad:      { label: '주의',  cls: 'bg-harmful text-white' },
+  good:     { label: '안전', cls: 'bg-beneficial/15 text-beneficial', dot: 'bg-beneficial' },
+  moderate: { label: '보통', cls: 'bg-caution/15 text-caution',   dot: 'bg-caution' },
+  bad:      { label: '주의', cls: 'bg-harmful/15 text-harmful',    dot: 'bg-harmful' },
 } as const;
 type Grade = keyof typeof gradeConfig;
 
@@ -39,22 +34,19 @@ const Home = () => {
   const navigate = useNavigate();
 
   const [url, setUrl] = useState('');
-  const [activeFilter, setActiveFilter] = useState<FilterChip>('전체');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const displayName = profile.nickname || (user?.email?.split('@')[0] ?? '');
+  const skinLabel = profile.skinType ?? '';
 
   /* ── URL 분석 제출 ── */
   const handleAnalyze = () => {
     const trimmed = url.trim();
-    if (!trimmed) {
-      inputRef.current?.focus();
-      return;
-    }
+    if (!trimmed) { inputRef.current?.focus(); return; }
     navigate(`/analyzing?url=${encodeURIComponent(trimmed)}`);
   };
 
-  /* ── 최근 분석 (3건) ── */
+  /* ── 최근 분석 (6건) ── */
   const { data: recentAnalysis = [], isLoading: analysisLoading } = useQuery({
     queryKey: ['recent_analysis_home', user?.id],
     queryFn: async () => {
@@ -70,13 +62,10 @@ const Home = () => {
     enabled: !!user,
   });
 
-  /* ── 필터링 (카테고리는 아직 없으므로 전체만 활성화) ── */
-  const filteredAnalysis = recentAnalysis; // category 컬럼 추가 후 필터링 적용 예정
-
   return (
     <div className="min-h-screen bg-background pb-28">
 
-      {/* ── 헤더 ── */}
+      {/* ════ 헤더 ════ */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border pt-safe">
         <div className="mx-auto flex max-w-md items-center justify-between px-4 py-3">
           <span className="font-display text-lg font-semibold tracking-tight text-brand-700">
@@ -87,7 +76,7 @@ const Home = () => {
             <button
               onClick={() => navigate('/profile')}
               aria-label="프로필"
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-50 text-brand-700 text-xs font-bold ring-1 ring-brand-100"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-700 text-white text-sm font-bold shadow-sm active:scale-95 transition-transform"
             >
               {displayName.slice(0, 1).toUpperCase() || 'B'}
             </button>
@@ -95,110 +84,92 @@ const Home = () => {
         </div>
       </div>
 
-      {/* ── Hero: URL 입력 ── */}
-      <div className="bg-hero px-4 pt-6 pb-5">
-        <div className="mx-auto max-w-md">
-          <div className="flex items-center gap-1.5 mb-1">
-            <Sparkles className="h-4 w-4 text-brand-600" />
-            <p className="text-xs font-semibold text-brand-600">AI 전성분 분석</p>
+      {/* ════ HERO — 그라디언트 배경 + URL 입력 ════ */}
+      <div className="hero-brand px-4 pt-7 pb-8 relative overflow-hidden">
+        {/* 배경 장식 */}
+        <div className="pointer-events-none absolute -top-10 -right-10 h-48 w-48 rounded-full bg-white/5" />
+        <div className="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-white/5" />
+
+        <div className="relative mx-auto max-w-md">
+          {/* 인사 + 피부타입 */}
+          <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1">
+              <Sparkles className="h-3.5 w-3.5 text-white/80" />
+              <span className="text-xs font-semibold text-white/90">
+                {displayName ? `${displayName}님` : 'AI 전성분 분석'}
+                {skinLabel ? ` · ${skinLabel}` : ''}
+              </span>
+            </div>
           </div>
-          <h1 className="font-display text-display-sm font-semibold text-foreground mb-1">
-            내 피부가 이해하는 성분
+
+          <h1 className="font-display text-2xl font-bold text-white leading-snug mb-1">
+            내 피부가 이해하는
+            <br />성분 분석
           </h1>
-          <p className="text-sm text-muted-foreground mb-4">
-            올리브영 URL을 붙여넣으면 AI가 성분을 분석해드려요
+          <p className="text-sm text-white/70 mb-5">
+            올리브영 URL 하나로 AI가 성분을 분석해드려요
           </p>
+
+          {/* URL 입력 + 분석 버튼 */}
           <div className="flex gap-2">
-            <Input
+            <input
               ref={inputRef}
               value={url}
               onChange={e => setUrl(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleAnalyze()}
-              placeholder="https://www.oliveyoung.co.kr/..."
-              className="flex-1 bg-white/80 placeholder:text-muted-foreground/60 text-sm"
+              placeholder="oliveyoung.co.kr URL 붙여넣기"
+              className="
+                flex-1 h-12 rounded-xl bg-white/95 px-4
+                text-sm text-foreground placeholder:text-muted-foreground/60
+                border-0 outline-none shadow-md
+                focus:ring-2 focus:ring-white/50
+              "
             />
-            <Button
-              onClick={handleAnalyze}
-              disabled={!url.trim()}
-              size="icon"
-              className="shrink-0"
-              aria-label="분석 시작"
-            >
-              <Search className="h-5 w-5" />
-            </Button>
-          </div>
-          <p className="mt-2 text-[11px] text-muted-foreground/70">
-            예시: oliveyoung.co.kr/store/goods/getGoodsDetail...
-          </p>
-        </div>
-      </div>
-
-      {/* ── 필터 칩 ── */}
-      <div className="mx-auto max-w-md">
-        <div className="flex gap-2 overflow-x-auto hide-scroll px-4 py-3">
-          {FILTER_CHIPS.map(chip => (
             <button
-              key={chip}
-              onClick={() => setActiveFilter(chip)}
-              className={cn(
-                'shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all duration-base ease-brand',
-                activeFilter === chip
-                  ? 'border-brand-700 bg-brand-700 text-white'
-                  : 'border-border bg-white text-muted-foreground hover:border-brand-300',
-              )}
+              onClick={handleAnalyze}
+              aria-label="분석 시작"
+              className="
+                h-12 px-5 rounded-xl font-semibold text-sm
+                bg-white text-brand-700 shadow-md
+                active:scale-95 transition-transform
+                disabled:opacity-50
+              "
+              disabled={!url.trim()}
             >
-              {chip}
+              분석
             </button>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      <div className="mx-auto max-w-md space-y-5 px-4">
-
-        {/* ── 빠른 진입 카드 ── */}
-        <div className="grid grid-cols-2 gap-3">
+          {/* 또는 스캔 버튼 */}
           <button
             onClick={() => navigate('/scan')}
-            className="flex flex-col gap-3 rounded-xl border border-brand-100 bg-brand-50 p-4 text-left transition-all active:scale-[0.98]"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 py-3 text-sm font-semibold text-white active:scale-95 transition-transform"
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-700">
-              <FlaskConical className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-brand-900">제품 스캔</p>
-              <p className="text-xs text-brand-700/70 mt-0.5">바코드·OCR 분석</p>
-            </div>
-          </button>
-
-          <button
-            onClick={() => navigate('/history')}
-            className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 text-left transition-all active:scale-[0.98]"
-          >
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink-100">
-              <Clock className="h-5 w-5 text-ink-600" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-foreground">분석 기록</p>
-              <p className="text-xs text-muted-foreground mt-0.5">지난 분석 보기</p>
-            </div>
+            <ScanLine className="h-4 w-4" />
+            바코드·OCR로 스캔하기
           </button>
         </div>
+      </div>
 
-        {/* ── 올리브영 행사 ── */}
-        <OliveYoungDealsCard />
+      <div className="mx-auto max-w-md space-y-5 px-4 pt-5">
 
-        {/* ── 최근 분석 ── */}
+        {/* ════ 오늘의 미션 ════ */}
+        <DailyMissionCard />
+
+        {/* ════ 최근 분석 기록 ════ */}
         {user && (
           <section>
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-1.5">
-                <FlaskConical className="h-4 w-4 text-brand-600" />
-                <h2 className="text-sm font-semibold text-foreground">최근 분석</h2>
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-50">
+                  <TrendingUp className="h-4 w-4 text-brand-700" />
+                </div>
+                <h2 className="text-sm font-bold text-foreground">최근 분석</h2>
               </div>
               {recentAnalysis.length > 0 && (
                 <button
                   onClick={() => navigate('/history')}
-                  className="flex items-center gap-0.5 text-xs font-medium text-brand-700"
+                  className="flex items-center gap-0.5 text-xs font-semibold text-brand-700 min-h-[44px] px-1"
                 >
                   전체 보기 <ChevronRight className="h-3.5 w-3.5" />
                 </button>
@@ -207,75 +178,75 @@ const Home = () => {
 
             {analysisLoading ? (
               <div className="grid grid-cols-2 gap-3">
-                {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="h-24 rounded-xl shimmer-bg" />
+                {[1, 2].map(i => (
+                  <div key={i} className="h-28 rounded-2xl shimmer-bg" />
                 ))}
               </div>
-            ) : filteredAnalysis.length > 0 ? (
+            ) : recentAnalysis.length > 0 ? (
               <div className="grid grid-cols-2 gap-3">
-                {filteredAnalysis.map((a: {
+                {(recentAnalysis as Array<{
                   id: string;
                   product_name: string;
                   product_brand: string;
                   overall_grade: string;
                   created_at: string;
-                }) => {
+                }>).map(a => {
                   const grade = (a.overall_grade as Grade) ?? 'moderate';
-                  const config = gradeConfig[grade] ?? gradeConfig.moderate;
+                  const cfg = gradeConfig[grade] ?? gradeConfig.moderate;
                   const d = new Date(a.created_at);
-                  const dateStr = `${d.getMonth() + 1}/${d.getDate()}`;
+                  const dateStr = `${d.getMonth() + 1}.${d.getDate()}`;
                   return (
                     <button
                       key={a.id}
                       onClick={() => navigate('/history')}
-                      className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4 text-left shadow-soft transition-all active:scale-[0.98]"
+                      className="glass-card p-4 text-left press"
                     >
-                      <div className="flex items-start justify-between">
-                        <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-semibold', config.cls)}>
-                          {config.label}
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <span className={cn('h-2 w-2 rounded-full shrink-0', cfg.dot)} />
+                        <span className={cn('text-xs font-bold', cfg.cls.split(' ').filter(c => c.startsWith('text-')).join(' '))}>
+                          {cfg.label}
                         </span>
-                        <span className="text-[10px] text-muted-foreground">{dateStr}</span>
+                        <span className="ml-auto text-xs text-muted-foreground">{dateStr}</span>
                       </div>
-                      <div>
-                        <p className="text-xs font-semibold text-foreground line-clamp-2 leading-snug">
-                          {a.product_name}
-                        </p>
-                        <p className="mt-0.5 text-[10px] text-muted-foreground">{a.product_brand}</p>
-                      </div>
+                      <p className="text-sm font-semibold text-foreground line-clamp-2 leading-snug">
+                        {a.product_name}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground truncate">{a.product_brand}</p>
                     </button>
                   );
                 })}
               </div>
             ) : (
               /* ── Empty State ── */
-              <div className="rounded-xl border border-dashed border-brand-200 bg-brand-50/50 px-4 py-8 text-center">
-                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-100">
-                  <Tag className="h-6 w-6 text-brand-600" />
+              <div className="rounded-2xl border border-dashed border-brand-200 bg-brand-50/50 px-4 py-10 text-center">
+                <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100">
+                  <Tag className="h-7 w-7 text-brand-600" />
                 </div>
-                <p className="text-sm font-semibold text-foreground mb-1">
+                <p className="text-base font-bold text-foreground mb-1">
                   아직 분석 기록이 없어요
                 </p>
-                <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
+                <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
                   위 입력창에 올리브영 URL을 넣거나<br />
-                  스캔 탭에서 바코드를 찍어보세요
+                  스캔 버튼으로 바코드를 찍어보세요
                 </p>
-                <Button
-                  size="sm"
-                  variant="outline"
+                <button
                   onClick={() => navigate('/scan')}
-                  className="gap-1.5"
+                  className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-5 py-3 text-sm font-semibold text-white active:scale-95 transition-transform"
                 >
-                  스캔하러 가기 <ArrowRight className="h-3.5 w-3.5" />
-                </Button>
+                  <FlaskConical className="h-4 w-4" />
+                  지금 분석하러 가기 <ArrowRight className="h-4 w-4" />
+                </button>
               </div>
             )}
           </section>
         )}
+
+        {/* ════ 올리브영 행사 (하단으로 이동) ════ */}
+        <OliveYoungDealsCard />
+
       </div>
 
-      {/* ── AI 채팅 FAB ── */}
       <ChatFab />
-
       <BottomNav />
     </div>
   );

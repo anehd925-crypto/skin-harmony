@@ -181,7 +181,7 @@ const WeeklyStrip = ({ entryMap, onTapDay }: { entryMap: Record<string, DiaryEnt
             <span className="text-lg leading-none">
               {entry ? SCORE_EMOJI[entry.skin_score] : <span className="text-muted-foreground/40 text-base">·</span>}
             </span>
-            <span className={`text-[10px] ${d.isToday ? 'font-bold text-primary' : 'text-muted-foreground/60'}`}>
+            <span className={`text-xs ${d.isToday ? 'font-bold text-primary' : 'text-muted-foreground/60'}`}>
               {d.date.slice(-2)}
             </span>
           </button>
@@ -586,16 +586,16 @@ const MySkin = () => {
             <p className="text-xs font-semibold text-muted-foreground">이번 달 점수 추이</p>
             <MiniMonthHeatmap entryMap={entryMap} />
             <div className="flex items-center gap-2 pt-0.5">
-              <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+              <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
                 <span className="h-2 w-2 rounded-sm bg-red-400" /> 낮음
               </span>
-              <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+              <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
                 <span className="h-2 w-2 rounded-sm bg-yellow-400" /> 보통
               </span>
-              <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+              <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
                 <span className="h-2 w-2 rounded-sm bg-primary" /> 좋음
               </span>
-              <span className="ml-auto text-[10px] text-muted-foreground">
+              <span className="ml-auto text-xs text-muted-foreground">
                 이번 달 {entries.length}회 기록
               </span>
             </div>
@@ -726,7 +726,7 @@ const MySkin = () => {
                   <div className="min-w-0">
                     <p className="truncate text-xs font-semibold text-foreground">{item.product_name}</p>
                     {item.product_brand && (
-                      <p className="truncate text-[10px] text-muted-foreground">{item.product_brand}</p>
+                      <p className="truncate text-xs text-muted-foreground">{item.product_brand}</p>
                     )}
                   </div>
                 </button>

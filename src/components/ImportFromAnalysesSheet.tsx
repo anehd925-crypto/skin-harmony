@@ -246,15 +246,15 @@ const ImportFromAnalysesSheet = ({ open, onOpenChange, onImported }: Props) => {
                         <p className="text-sm font-semibold text-foreground truncate">{a.product_name}</p>
                         <p className="text-[11px] text-muted-foreground truncate">{a.product_brand ?? '브랜드 미상'}</p>
                         <div className="mt-1 flex items-center gap-1.5 flex-wrap">
-                          <span className={`inline-flex items-center gap-0.5 rounded-full border px-1.5 py-0.5 text-[10px] font-semibold ${gradeColor(a.overall_grade)}`}>
+                          <span className={`inline-flex items-center gap-0.5 rounded-full border px-1.5 py-0.5 text-xs font-semibold ${gradeColor(a.overall_grade)}`}>
                             {a.overall_grade === 'bad'
                               ? <AlertTriangle className="h-2.5 w-2.5" />
                               : <ShieldCheck className="h-2.5 w-2.5" />}
                             {gradeLabel(a.overall_grade)}
                           </span>
-                          <span className="text-[10px] text-muted-foreground">{dateStr}</span>
+                          <span className="text-xs text-muted-foreground">{dateStr}</span>
                           {dupKey && (
-                            <span className="rounded-full bg-amber-50 border border-amber-200 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700">
+                            <span className="rounded-full bg-amber-50 border border-amber-200 px-1.5 py-0.5 text-xs font-semibold text-amber-700">
                               이미 보관함에 있음
                             </span>
                           )}
@@ -265,7 +265,7 @@ const ImportFromAnalysesSheet = ({ open, onOpenChange, onImported }: Props) => {
                     {/* 선택된 행만 카테고리 칩 노출 (스크롤 가로) */}
                     {picked && !dupKey && (
                       <div className="px-3 pb-3 border-t border-violet-200/60 mt-1 pt-2">
-                        <p className="text-[10px] font-semibold text-violet-700 mb-1.5">카테고리</p>
+                        <p className="text-xs font-semibold text-violet-700 mb-1.5">카테고리</p>
                         <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
                           {CABINET_CATEGORIES.map(c => {
                             const active = cat === c.key;

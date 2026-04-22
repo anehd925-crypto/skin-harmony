@@ -206,7 +206,7 @@ const ScanAnalysis = () => {
 
       {/* 헤더 */}
       <div className="sticky top-0 z-10 bg-background/95 border-b border-border px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate('/scan')} className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted">
+        <button onClick={() => navigate('/scan')} className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-muted">
           <ChevronLeft className="h-5 w-5" />
         </button>
         <h1 className="text-base font-bold flex-1">카메라 스캔</h1>

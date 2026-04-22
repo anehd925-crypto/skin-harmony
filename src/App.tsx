@@ -95,16 +95,18 @@ const AnimatedRoutes = () => {
           <Route path="/history"    element={<ProtectedRoute><P><AnalysisHistory /></P></ProtectedRoute>} />
           <Route path="/profile"    element={<ProtectedRoute><P><Profile /></P></ProtectedRoute>} />
           <Route path="/settings"   element={<ProtectedRoute><P><Settings /></P></ProtectedRoute>} />
+          {/* 리다이렉트 통합 */}
           <Route path="/routine"    element={<Navigate to="/cabinet" replace />} />
           <Route path="/diary"      element={<Navigate to="/myskin" replace />} />
+          <Route path="/skin-test"  element={<Navigate to="/onboarding" replace />} />
+          <Route path="/compare"    element={<Navigate to="/compare-ai" replace />} />
+
           <Route path="/skin-solution" element={<ProtectedRoute><P><SkinSolution /></P></ProtectedRoute>} />
           <Route path="/blacklist"  element={<ProtectedRoute><P><BlacklistPage /></P></ProtectedRoute>} />
           <Route path="/timeline"   element={<ProtectedRoute><P><SkinTimeline /></P></ProtectedRoute>} />
           <Route path="/cabinet"    element={<ProtectedRoute><P><MyCabinet /></P></ProtectedRoute>} />
           <Route path="/myskin"     element={<ProtectedRoute><P><MySkin /></P></ProtectedRoute>} />
-          <Route path="/compare"    element={<ProtectedRoute><P><Compare /></P></ProtectedRoute>} />
           <Route path="/compare-ai" element={<ProtectedRoute><P><ProductCompare /></P></ProtectedRoute>} />
-          <Route path="/skin-test"  element={<Navigate to="/onboarding" replace />} />
           <Route path="/chat"       element={<ProtectedRoute><P><SkinChat /></P></ProtectedRoute>} />
           <Route path="/community"  element={<ProtectedRoute><P><Community /></P></ProtectedRoute>} />
 

@@ -296,6 +296,52 @@
   }
 }
 
+@layer components {
+  /* ─── Hero gradient (강한 브랜드 그라디언트, 홈/분석 히어로) ─── */
+  .hero-brand {
+    background: linear-gradient(
+      160deg,
+      hsl(153, 46%, 15%) 0%,
+      hsl(151, 46%, 24%) 45%,
+      hsl(149, 40%, 34%) 100%
+    );
+  }
+
+  /* ─── Glass card (글라스모피즘 카드) ─── */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow: 0 4px 24px rgba(35, 91, 65, 0.10), 0 1px 4px rgba(35, 91, 65, 0.06);
+    border-radius: 20px;
+  }
+
+  .dark .glass-card {
+    background: rgba(30, 40, 35, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.30);
+  }
+
+  /* ─── 탭 피드백 (press) ─── */
+  .press {
+    transition: transform 0.15s var(--ease-brand), opacity 0.15s;
+  }
+  .press:active {
+    transform: scale(0.97);
+    opacity: 0.85;
+  }
+
+  /* ─── 접근성 터치 영역 최소 보장 ─── */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
 @layer utilities {
   /* 모바일 safe area 대응 */
   .pb-safe {

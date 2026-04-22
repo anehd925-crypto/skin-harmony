@@ -103,7 +103,7 @@ const ScoreGauge = ({ score, label }: { score: number; label: keyof typeof SCORE
         </svg>
         <div className="absolute flex flex-col items-center">
           <span className={`text-xl font-black ${cfg.text}`}>{score}</span>
-          <span className="text-[10px] text-muted-foreground font-medium">/ 100</span>
+          <span className="text-xs text-muted-foreground font-medium">/ 100</span>
         </div>
       </div>
       <div className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${cfg.bg} ${cfg.text}`}>
@@ -256,7 +256,7 @@ const RoutineCompatibilitySheet = ({ open, onOpenChange, items, defaultTab = 'mo
               >
                 {k === 'morning' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
                 {k === 'morning' ? '아침' : '저녁'} 루틴
-                <span className="rounded-full bg-white/60 px-1.5 py-0.5 text-[10px] font-bold text-muted-foreground">
+                <span className="rounded-full bg-white/60 px-1.5 py-0.5 text-xs font-bold text-muted-foreground">
                   {items.filter(i => k === 'morning' ? i.is_morning : i.is_evening).length}
                 </span>
               </button>
@@ -285,7 +285,7 @@ const RoutineCompatibilitySheet = ({ open, onOpenChange, items, defaultTab = 'mo
                     <span className="w-3 shrink-0 font-bold text-violet-500">{i + 1}</span>
                     <span className="truncate text-foreground font-medium">{t.product_name}</span>
                     {!t.analysis_history_id && (
-                      <span className="ml-auto shrink-0 rounded-full bg-amber-50 border border-amber-200 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700">
+                      <span className="ml-auto shrink-0 rounded-full bg-amber-50 border border-amber-200 px-1.5 py-0.5 text-xs font-semibold text-amber-700">
                         성분 없음
                       </span>
                     )}

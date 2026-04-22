@@ -124,7 +124,7 @@ const CategoryPanel = ({ def }: { def: CategoryDef }) => {
               </div>
               <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{s.detail}</p>
               {s.frequency && (
-                <p className={`text-[10px] ${def.color} font-semibold mt-1`}>{s.frequency}</p>
+                <p className={`text-xs ${def.color} font-semibold mt-1`}>{s.frequency}</p>
               )}
             </div>
           ))}

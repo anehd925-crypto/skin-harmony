@@ -208,8 +208,8 @@ const DailyMissionCard = () => {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-wide text-primary">Day {currentMission.day}/7</span>
-            <span className="text-[10px] text-muted-foreground">· 오늘의 미션</span>
+            <span className="text-xs font-bold uppercase tracking-wide text-primary">Day {currentMission.day}/7</span>
+            <span className="text-xs text-muted-foreground">· 오늘의 미션</span>
           </div>
           <p className="text-sm font-bold text-foreground mt-0.5 truncate">{currentMission.title}</p>
           <p className="text-xs text-muted-foreground truncate">{currentMission.subtitle}</p>
@@ -222,7 +222,7 @@ const DailyMissionCard = () => {
         <div className="flex-1 h-1.5 rounded-full bg-neutral-100 overflow-hidden">
           <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
         </div>
-        <span className="text-[10px] font-semibold text-muted-foreground tabular-nums">
+        <span className="text-xs font-semibold text-muted-foreground tabular-nums">
           {doneCount}/{MISSIONS.length}
         </span>
       </div>
@@ -234,7 +234,7 @@ const DailyMissionCard = () => {
             const m = MISSIONS.find((x) => x.key === k);
             if (!m) return null;
             return (
-              <span key={k} className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+              <span key={k} className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
                 <Check className="h-2.5 w-2.5" />
                 Day {m.day}
               </span>

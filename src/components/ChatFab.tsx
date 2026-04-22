@@ -82,7 +82,7 @@ const ChatFab = () => {
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="닫기"
-                className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-neutral-100"
+                className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-neutral-100"
               >
                 <X className="h-4 w-4 text-muted-foreground" />
               </button>

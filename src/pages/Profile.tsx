@@ -124,7 +124,7 @@ const Profile = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigate('/settings')}
-              className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted transition-colors"
+              className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-muted transition-colors"
               aria-label="설정"
             >
               <SettingsIcon className="h-4.5 w-4.5 text-muted-foreground" />

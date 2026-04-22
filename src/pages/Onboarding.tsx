@@ -4,7 +4,6 @@ import { useUser } from '@/contexts/UserContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -300,7 +299,7 @@ const Onboarding = () => {
                     >
                       {label}
                       {selected && (
-                        <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-500 text-[10px] font-bold text-white">
+                        <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-500 text-xs font-bold text-white">
                           {idx + 1}
                         </span>
                       )}
@@ -315,25 +314,35 @@ const Onboarding = () => {
               )}
             </div>
 
-            {/* 민감도 슬라이더 */}
-            <div className="rounded-xl border border-border bg-card p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-foreground">피부 민감도</p>
-                <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-700">
-                  {SENSITIVITY_LABELS[sensitivityLevel]}
-                </span>
-              </div>
-              <Slider
-                min={1}
-                max={5}
-                step={1}
-                value={[sensitivityLevel]}
-                onValueChange={([v]) => setSensitivityLevel(v)}
-                className="w-full"
-              />
-              <div className="flex justify-between text-[10px] text-muted-foreground">
-                <span>강한 편</span>
-                <span>매우 민감</span>
+            {/* 민감도 카드 선택 */}
+            <div>
+              <p className="mb-3 text-sm font-semibold text-foreground">피부 민감도</p>
+              <div className="grid grid-cols-3 gap-2.5">
+                {([
+                  { value: 2, emoji: '😊', label: '강한 편이에요', desc: '자극에 잘 안 민감해요' },
+                  { value: 3, emoji: '😐', label: '보통이에요', desc: '가끔 예민할 때 있어요' },
+                  { value: 5, emoji: '😣', label: '자주 예민해요', desc: '쉽게 붉어지고 자극 있어요' },
+                ] as const).map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setSensitivityLevel(opt.value)}
+                    className={cn(
+                      'flex flex-col items-center gap-2 rounded-2xl border p-4 text-center transition-all duration-base ease-brand',
+                      sensitivityLevel === opt.value
+                        ? 'border-brand-700 bg-brand-50 ring-1 ring-brand-700'
+                        : 'border-border bg-card hover:border-brand-300',
+                    )}
+                  >
+                    <span className="text-3xl">{opt.emoji}</span>
+                    <span className={cn(
+                      'text-xs font-bold leading-snug',
+                      sensitivityLevel === opt.value ? 'text-brand-700' : 'text-foreground',
+                    )}>
+                      {opt.label}
+                    </span>
+                    <span className="text-xs text-muted-foreground leading-snug">{opt.desc}</span>
+                  </button>
+                ))}
               </div>
             </div>
 

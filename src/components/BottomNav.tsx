@@ -12,10 +12,10 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { icon: Home,      label: '홈',    path: '/' },
-  { icon: Compass,   label: '탐색',  path: '/explore' },
-  { icon: ScanLine,  label: '스캔',  path: '/scan', center: true },
-  { icon: Clock,     label: '기록',  path: '/history' },
-  { icon: HeartPulse, label: '내피부', path: '/myskin' },
+  { icon: Compass,   label: '제품찾기',  path: '/explore' },
+  { icon: ScanLine,  label: '스캔',     path: '/scan', center: true },
+  { icon: Clock,     label: '분석기록', path: '/history' },
+  { icon: HeartPulse, label: '내리포트', path: '/myskin' },
 ];
 
 const isActivePath = (path: string, pathname: string): boolean => {
@@ -70,7 +70,7 @@ const BottomNav = () => {
                   </button>
                   <span
                     className={cn(
-                      'mt-1 text-[10px] transition-colors',
+                      'mt-1 text-xs transition-colors',
                       active ? 'font-bold text-brand-700' : 'font-medium text-muted-foreground',
                     )}
                   >
@@ -85,7 +85,7 @@ const BottomNav = () => {
                 key={path}
                 onClick={() => handleNav(path, label)}
                 className={cn(
-                  'relative flex flex-1 flex-col items-center justify-end gap-0.5 py-2.5 transition-all duration-base ease-brand',
+                  'relative flex flex-1 flex-col items-center justify-end gap-0.5 py-3 min-h-[56px] transition-all duration-base ease-brand',
                   active ? 'text-brand-700' : 'text-muted-foreground',
                 )}
               >
@@ -104,7 +104,7 @@ const BottomNav = () => {
                 </div>
                 <span
                   className={cn(
-                    'text-[10px] transition-all',
+                    'text-xs transition-all',
                     active ? 'font-bold' : 'font-medium',
                   )}
                 >

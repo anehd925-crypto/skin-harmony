@@ -477,7 +477,7 @@ BeautyLens로 분석했습니다`;
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border pt-safe px-4 py-3 flex items-center gap-3">
-        <button onClick={goBack} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-muted">
+        <button onClick={goBack} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full hover:bg-muted">
           <ChevronLeft className="h-5 w-5" />
         </button>
         <div className="flex-1 min-w-0">
@@ -630,7 +630,7 @@ BeautyLens로 분석했습니다`;
                   <h2 className="text-base font-bold text-foreground leading-tight">{result.productName}</h2>
                   <p className="text-xs text-muted-foreground mt-0.5">{result.productBrand}</p>
                   {result.groundingUsed && (
-                    <span className="inline-flex items-center gap-1 mt-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 text-[10px] font-medium text-blue-600">
+                    <span className="inline-flex items-center gap-1 mt-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 text-xs font-medium text-blue-600">
                       <Search className="h-2.5 w-2.5" />실시간 검색
                     </span>
                   )}
@@ -663,7 +663,7 @@ BeautyLens로 분석했습니다`;
                         <div className="flex items-center gap-1.5">
                           <Zap className="h-3.5 w-3.5 text-primary" />
                           <span className="text-xs font-bold text-foreground">내 피부 매칭</span>
-                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${fit.chip}`}>{fitLabel}</span>
+                          <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${fit.chip}`}>{fitLabel}</span>
                         </div>
                         <div className="w-full bg-white rounded-full h-1.5 mt-2">
                           <div className={`h-1.5 rounded-full transition-all duration-500 ${fit.bar}`}
@@ -739,7 +739,7 @@ BeautyLens로 분석했습니다`;
                       <ListTree className="h-4 w-4 text-primary shrink-0" />
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-foreground">전성분 보기</p>
-                        <p className="text-[10px] text-muted-foreground">{result.ingredients.length}개</p>
+                        <p className="text-xs text-muted-foreground">{result.ingredients.length}개</p>
                       </div>
                     </div>
                     <ChevronRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
@@ -757,7 +757,7 @@ BeautyLens로 분석했습니다`;
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <p className="text-sm font-semibold text-foreground">{ingredient.name}</p>
                               {ingredient.function && (
-                                <span className="rounded-full bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">{ingredient.function}</span>
+                                <span className="rounded-full bg-secondary px-1.5 py-0.5 text-xs text-muted-foreground">{ingredient.function}</span>
                               )}
                             </div>
                             <p className="text-[11px] text-muted-foreground">{ingredient.name_en}</p>
@@ -796,7 +796,7 @@ BeautyLens로 분석했습니다`;
                       <Zap className="h-4 w-4 text-caution shrink-0" />
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-foreground">성분 상호작용</p>
-                        <p className="text-[10px] text-muted-foreground">
+                        <p className="text-xs text-muted-foreground">
                           {interactionsCount > 0 ? `${interactionsCount}건` : '없음'}
                         </p>
                       </div>
@@ -975,7 +975,7 @@ BeautyLens로 분석했습니다`;
 
             {/* AI 추정 안내가 있을 때만 결과 화면 본문에 작은 1줄 알림 (간결) */}
             {result.ingredientsFound === false && (
-              <p className="text-center text-[10px] text-caution">
+              <p className="text-center text-xs text-caution">
                 ⚠ 일부 성분은 AI 추정값입니다. 정확도가 필요하면 위 정보 시트에서 직접 입력으로 전환하세요.
               </p>
             )}

@@ -22,7 +22,7 @@ const SkinChat = () => {
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border pt-safe px-4 py-3 flex items-center gap-3">
         <button
           onClick={goBack}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-muted"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full hover:bg-muted"
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
