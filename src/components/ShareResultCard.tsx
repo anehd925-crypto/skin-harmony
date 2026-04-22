@@ -14,19 +14,28 @@ interface ShareResultCardProps {
   skinType?: string;
 }
 
+/* v2 Forest Olive 브랜드 토큰 */
+const BRAND   = "#235B41";
+const BENEFI  = "#3d8e64";
+const CAUTION = "#d89b2a";
+const HARMFUL = "#c14a3a";
+const SAND    = "#fdfcf9";
+const INK_900 = "#1c1814";
+const INK_500 = "#8a7f74";
+
 function getGradeInfo(grade: string) {
   switch (grade) {
-    case "good":     return { label: "안전",  color: "#22C55E" };
-    case "moderate": return { label: "보통",  color: "#F59E0B" };
-    case "bad":      return { label: "주의",  color: "#EF4444" };
-    default:         return { label: "분석됨", color: "#6B7280" };
+    case "good":     return { label: "안전",  color: BENEFI  };
+    case "moderate": return { label: "보통",  color: CAUTION };
+    case "bad":      return { label: "주의",  color: HARMFUL };
+    default:         return { label: "분석됨", color: INK_500 };
   }
 }
 
 function getScoreColor(score: number) {
-  if (score >= 70) return "#22C55E";
-  if (score >= 40) return "#F59E0B";
-  return "#EF4444";
+  if (score >= 70) return BENEFI;
+  if (score >= 40) return CAUTION;
+  return HARMFUL;
 }
 
 function roundRect(
@@ -74,24 +83,24 @@ export function ShareResultCard({
       canvas.height = H;
 
       const gradeInfo  = getGradeInfo(overallGrade);
-      const scoreColor = skinFitScore != null ? getScoreColor(skinFitScore) : "#6B7280";
+      const scoreColor = skinFitScore != null ? getScoreColor(skinFitScore) : INK_500;
       const font       = "'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif";
 
-      // 배경
-      ctx.fillStyle = "#FAFAF8";
+      // 배경 (Sand)
+      ctx.fillStyle = SAND;
       ctx.fillRect(0, 0, W, H);
 
-      // 헤더 바
-      ctx.fillStyle = "#1A1A1A";
+      // 헤더 바 (Forest Olive)
+      ctx.fillStyle = BRAND;
       ctx.fillRect(0, 0, W, 72);
       ctx.fillStyle = "#FFFFFF";
       ctx.font = `bold 20px ${font}`;
       ctx.textAlign = "center";
-      ctx.fillText("🔬 BeautyLens 전성분 분석 결과", W / 2, 44);
+      ctx.fillText("BeautyLens 전성분 분석 결과", W / 2, 44);
 
       // 제품명
       const displayName = productName.length > 22 ? productName.slice(0, 22) + "…" : productName;
-      ctx.fillStyle = "#1A1A1A";
+      ctx.fillStyle = INK_900;
       ctx.font = `bold 22px ${font}`;
       ctx.textAlign = "center";
       ctx.fillText(displayName, W / 2, 128);
@@ -99,7 +108,7 @@ export function ShareResultCard({
       // 브랜드명
       const brandY = 154;
       if (productBrand) {
-        ctx.fillStyle = "#9CA3AF";
+        ctx.fillStyle = INK_500;
         ctx.font = `16px ${font}`;
         ctx.fillText(productBrand, W / 2, brandY);
       }
@@ -121,7 +130,7 @@ export function ShareResultCard({
         ctx.textAlign = "center";
         ctx.fillText(`${skinFitScore}점`, W / 2, scoreY + 56);
 
-        ctx.fillStyle = "#6B7280";
+        ctx.fillStyle = INK_500;
         ctx.font = `15px ${font}`;
         ctx.fillText(`내 피부 적합도${skinType ? ` (${skinType})` : ""}`, W / 2, scoreY + 80);
 
@@ -136,9 +145,9 @@ export function ShareResultCard({
       const countY = 406;
       const boxW   = 158;
       const boxes  = [
-        { label: "✅ 안전", count: safeCount,    color: "#22C55E", x: 58  },
-        { label: "⚠️ 주의", count: cautionCount, color: "#F59E0B", x: 222 },
-        { label: "❌ 위험", count: dangerCount,  color: "#EF4444", x: 386 },
+        { label: "유익", count: safeCount,    color: BENEFI,  x: 58  },
+        { label: "주의", count: cautionCount, color: CAUTION, x: 222 },
+        { label: "위험", count: dangerCount,  color: HARMFUL, x: 386 },
       ];
       for (const box of boxes) {
         ctx.fillStyle = box.color + "18";
@@ -147,19 +156,19 @@ export function ShareResultCard({
         ctx.font = `bold 30px ${font}`;
         ctx.textAlign = "center";
         ctx.fillText(`${box.count}개`, box.x + boxW / 2, countY + 40);
-        ctx.fillStyle = "#6B7280";
+        ctx.fillStyle = INK_500;
         ctx.font = `13px ${font}`;
         ctx.fillText(box.label, box.x + boxW / 2, countY + 62);
       }
 
-      // 하단 CTA
-      ctx.fillStyle = "#F0EDE8";
+      // 하단 CTA (Sand + Forest Olive)
+      ctx.fillStyle = "#f3ebd4";
       ctx.fillRect(0, 506, W, 94);
-      ctx.fillStyle = "#374151";
+      ctx.fillStyle = INK_500;
       ctx.font = `15px ${font}`;
       ctx.textAlign = "center";
-      ctx.fillText("내 피부에 맞는 화장품 성분, 무료로 분석해보세요", W / 2, 538);
-      ctx.fillStyle = "#7C3AED";
+      ctx.fillText("내 피부에 맞는 화장품 성분을 분석해보세요", W / 2, 538);
+      ctx.fillStyle = BRAND;
       ctx.font = `bold 17px ${font}`;
       ctx.fillText("BeautyLens (beautylens.app) →", W / 2, 573);
 

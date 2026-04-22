@@ -11,9 +11,9 @@ interface ShareCardProps {
 }
 
 const gradeInfo = {
-  good: { label: '안전', color: 'text-green-600', bg: 'bg-green-50' },
-  moderate: { label: '보통', color: 'text-amber-600', bg: 'bg-amber-50' },
-  bad: { label: '주의', color: 'text-red-600', bg: 'bg-red-50' },
+  good:     { label: '안전', color: 'text-beneficial', bg: 'bg-beneficial/10' },
+  moderate: { label: '보통', color: 'text-caution',    bg: 'bg-caution/10' },
+  bad:      { label: '주의', color: 'text-harmful',    bg: 'bg-harmful/10' },
 };
 
 const ShareCard = ({ title, subtitle, score, grade, highlights = [], onClose }: ShareCardProps) => {
@@ -79,10 +79,10 @@ const ShareCard = ({ title, subtitle, score, grade, highlights = [], onClose }: 
       <div className="relative w-full max-w-sm space-y-4 animate-in zoom-in-95 duration-200">
 
         {/* 공유 카드 */}
-        <div ref={cardRef} className="rounded-3xl bg-white p-6 shadow-xl overflow-hidden">
+        <div ref={cardRef} className="rounded-2xl bg-card p-6 shadow-float overflow-hidden border border-border">
           <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-xs font-bold text-primary tracking-wide uppercase">BeautyLens</span>
+            <Sparkles className="h-4 w-4 text-brand-700" />
+            <span className="font-display text-xs font-semibold text-brand-700 tracking-wide">BeautyLens</span>
           </div>
 
           <h2 className="text-lg font-bold text-foreground mb-1">{title}</h2>
@@ -90,8 +90,8 @@ const ShareCard = ({ title, subtitle, score, grade, highlights = [], onClose }: 
 
           {score !== undefined && (
             <div className="flex items-end gap-1 mb-4">
-              <span className="text-4xl font-black text-foreground">{score}</span>
-              <span className="text-sm text-muted-foreground mb-1">/100</span>
+              <span className="font-numeric text-4xl font-bold text-foreground">{score}</span>
+              <span className="font-numeric text-sm text-muted-foreground mb-1">/100</span>
               {g && (
                 <span className={`ml-2 text-xs font-bold px-2 py-0.5 rounded-full ${g.bg} ${g.color}`}>
                   {g.label}
@@ -122,7 +122,7 @@ const ShareCard = ({ title, subtitle, score, grade, highlights = [], onClose }: 
           <button
             onClick={handleShare}
             disabled={generating}
-            className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-sm font-bold text-primary-foreground shadow-primary press"
+            className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-brand-700 py-3.5 text-sm font-semibold text-white shadow-brand active:scale-[0.97] transition-all"
           >
             {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
             공유하기
@@ -130,13 +130,13 @@ const ShareCard = ({ title, subtitle, score, grade, highlights = [], onClose }: 
           <button
             onClick={handleDownload}
             disabled={generating}
-            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white border border-border shadow-card press"
+            className="flex h-12 w-12 items-center justify-center rounded-xl bg-card border border-border shadow-card active:scale-[0.97] transition-all"
           >
             <Download className="h-4 w-4 text-foreground" />
           </button>
           <button
             onClick={onClose}
-            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white border border-border shadow-card press"
+            className="flex h-12 w-12 items-center justify-center rounded-xl bg-card border border-border shadow-card active:scale-[0.97] transition-all"
           >
             <X className="h-4 w-4 text-muted-foreground" />
           </button>
